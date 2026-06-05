@@ -3,475 +3,323 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>IRON FIST - CINEMATIC BATTLE</title>
+    <title>IRON FIST - BATTLE</title>
     
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            background: #0a0a0a;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: 'Geist', sans-serif;
-            overflow: hidden;
-        }
-        
-        #game-container {
-            position: relative;
-            box-shadow: 0 0 60px rgba(255, 179, 178, 0.15);
-            border: 1px solid rgba(255, 179, 178, 0.2);
-        }
-        
-        #loading-screen {
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #0a0a0a; min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: monospace; overflow: hidden; }
+        #game-container { position: relative; border: 1px solid rgba(255, 179, 178, 0.3); }
+        .debug-panel {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0a0a0a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            color: #0f0;
+            font-size: 10px;
+            padding: 10px;
+            font-family: monospace;
             z-index: 1000;
-            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border-left: 3px solid #0f0;
+            max-width: 300px;
+            pointer-events: none;
         }
-        
-        .loading-logo {
-            font-family: 'Anybody', monospace;
-            font-size: 48px;
-            font-weight: 900;
-            font-style: italic;
-            color: #ffb3b2;
-            text-transform: uppercase;
-            letter-spacing: 8px;
-            margin-bottom: 40px;
-            text-shadow: 0 0 30px rgba(255, 179, 178, 0.5);
-        }
-        
-        .loading-sub {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 11px;
-            color: #5f3e3e;
-            letter-spacing: 4px;
-            margin-top: 20px;
-        }
-        
-        .loading-bar-container {
-            width: 400px;
-            height: 1px;
-            background: rgba(255, 179, 178, 0.2);
-            overflow: hidden;
-        }
-        
-        .loading-bar {
-            width: 0%;
-            height: 100%;
-            background: #ffb3b2;
-            transition: width 0.3s ease;
-            box-shadow: 0 0 10px #ffb3b2;
-        }
-        
         .controls-info {
             position: fixed;
             bottom: 30px;
             left: 30px;
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 10, 0.8);
             padding: 12px 24px;
             border-left: 2px solid #ffb3b2;
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-            color: rgba(233, 188, 186, 0.6);
-            letter-spacing: 1px;
+            font-size: 12px;
+            color: #e9bcba;
             z-index: 100;
             pointer-events: none;
         }
-        
-        .controls-info span {
-            color: #ffb3b2;
-        }
-        
         .back-button {
             position: fixed;
             top: 30px;
             left: 30px;
-            background: rgba(10, 10, 10, 0.6);
-            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 10, 0.8);
             padding: 8px 16px;
             border: 1px solid rgba(255, 179, 178, 0.3);
             color: #e9bcba;
             text-decoration: none;
-            font-size: 11px;
-            font-family: 'JetBrains Mono', monospace;
-            letter-spacing: 1px;
+            font-size: 12px;
             z-index: 100;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
-        
-        .back-button:hover {
-            border-color: #ffb3b2;
-            color: #ffb3b2;
-            transform: translateX(-4px);
-        }
+        .back-button:hover { border-color: #ffb3b2; color: #ffb3b2; }
     </style>
 </head>
 <body>
-    <a href="characterselect.html" class="back-button">
-        <span class="material-symbols-outlined" style="font-size: 14px;">close</span>
-        EXIT
-    </a>
-    
-    <div class="controls-info">
-        <span>← →</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span>A</span> LIGHT &nbsp;&nbsp;|&nbsp;&nbsp; <span>S</span> HEAVY &nbsp;&nbsp;|&nbsp;&nbsp; <span>D</span> FOCUS
-    </div>
-    
-    <div id="loading-screen">
-        <div class="loading-logo">IRON FIST</div>
-        <div class="loading-bar-container">
-            <div class="loading-bar"></div>
-        </div>
-        <div class="loading-sub">LOADING COMBAT SEQUENCE</div>
-    </div>
-    
+    <a href="characterselect.html" class="back-button">← EXIT</a>
+    <div class="controls-info">← → MOVE | A PUNCH | S KICK | D SPECIAL</div>
+    <div class="debug-panel" id="debugPanel">Initializing...</div>
     <div id="game-container"></div>
 
     <script>
-        // Get selected fighter from URL
+        const debugPanel = document.getElementById('debugPanel');
+        
+        function logDebug(msg) {
+            console.log(msg);
+            if(debugPanel) {
+                debugPanel.innerHTML = msg + '<br>' + debugPanel.innerHTML;
+                if(debugPanel.innerHTML.split('<br>').length > 5) {
+                    debugPanel.innerHTML = debugPanel.innerHTML.split('<br>').slice(0, 5).join('<br>');
+                }
+            }
+        }
+        
+        logDebug('Script started');
+        
+        // Get selected fighter
         const urlParams = new URLSearchParams(window.location.search);
         const playerFighter = urlParams.get('fighter') || 'KAIRO';
+        logDebug(`Selected fighter: ${playerFighter}`);
         
-        // Fighter Database
+        // Try different image path variations
+        const imagePaths = [
+            `assets/characters/${playerFighter.toLowerCase()}/portrait.png`,
+            `assets/characters/${playerFighter.toLowerCase()}/portrait.jpg`,
+            `assets/characters/${playerFighter.toLowerCase()}/portrait.webp`,
+            `assets/characters/${playerFighter}/portrait.png`,
+            `assets/characters/kairo/portrait.png`,
+            `assets/characters/KAIRO/portrait.png`,
+            `portrait.png`,
+            `kairo.png`
+        ];
+        
+        // Fighter stats
         const fighters = {
-            'KAIRO': { name: 'KAIRO', title: 'CYBERNETIC MONK', power: 88, speed: 94, defense: 78, color: 0xff5252, accent: 0xffb3b2 },
-            'SILAS': { name: 'SILAS', title: 'IRON COLOSSUS', power: 95, speed: 58, defense: 92, color: 0x6c6c6c, accent: 0xaaaaaa },
-            'MIRA': { name: 'MIRA', title: 'PHANTOM BLADE', power: 72, speed: 96, defense: 68, color: 0x8b5cf6, accent: 0xa78bfa },
-            'AXEL': { name: 'AXEL', title: 'NEO GLADIATOR', power: 91, speed: 67, defense: 82, color: 0xf59e0b, accent: 0xfbbf24 },
-            'NYX': { name: 'NYX', title: 'VOID WEAVER', power: 64, speed: 79, defense: 88, color: 0x14b8a6, accent: 0x5eead4 },
-            'ZERO': { name: 'ZERO', title: 'PROTOCOL-X', power: 90, speed: 91, defense: 75, color: 0x00dbe9, accent: 0x7df4ff }
+            'KAIRO': { name: 'KAIRO', power: 88, speed: 94, color: 0xff5252, accent: 0xffb3b2 },
+            'SILAS': { name: 'SILAS', power: 95, speed: 58, color: 0x6c6c6c, accent: 0xaaaaaa },
+            'ZERO': { name: 'ZERO', power: 90, speed: 91, color: 0x00dbe9, accent: 0x7df4ff }
         };
         
         const playerData = fighters[playerFighter] || fighters['KAIRO'];
         const cpuData = fighters['ZERO'];
         
-        // Game Scene Class
+        logDebug(`Player data: ${playerData.name}, power: ${playerData.power}`);
+        
+        // Game Scene
         class FightingGame extends Phaser.Scene {
             constructor() {
                 super({ key: 'FightingGame' });
             }
             
             preload() {
-                const loadingBar = document.querySelector('.loading-bar');
-                this.load.on('progress', (v) => { if(loadingBar) loadingBar.style.width = `${v * 100}%`; });
-                this.load.on('complete', () => {
-                    const ls = document.getElementById('loading-screen');
-                    if(ls) { ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 800); }
-                });
+                logDebug('Preload started');
                 
-                this.load.image('bg', 'https://placehold.co/1280x720/0a0a0a/ffb3b2?text=NEO-DOJO');
-                this.load.image('particle', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
+                // Try to load the image from multiple paths
+                let loaded = false;
+                
+                for (const path of imagePaths) {
+                    logDebug(`Trying to load: ${path}`);
+                    try {
+                        this.load.image('playerSprite', path);
+                        // Check if file exists by trying to load it
+                        this.load.on('loaderror', (fileObj) => {
+                            if (fileObj.key === 'playerSprite') {
+                                logDebug(`Failed to load: ${path}`);
+                            }
+                        });
+                        this.load.on('loadcomplete', () => {
+                            if (!loaded && this.textures.exists('playerSprite')) {
+                                loaded = true;
+                                logDebug(`SUCCESS! Loaded image from: ${path}`);
+                            }
+                        });
+                    } catch(e) {
+                        logDebug(`Error trying ${path}: ${e.message}`);
+                    }
+                }
+                
+                // Fallback - create a colored rectangle as placeholder
+                logDebug('Loading background and fallback assets');
+                this.load.image('bg', 'https://placehold.co/1280x720/0a0a0a/ffb3b2?text=IRON+FIST+ARENA');
             }
             
             create() {
-                // Game state variables (attached to 'this' so accessible everywhere)
+                logDebug('Create started');
+                
+                // Game state
                 this.playerHealth = 100;
                 this.cpuHealth = 100;
                 this.playerFocus = 0;
                 this.attackCooldown = 0;
-                this.focusCooldown = 0;
                 this.roundActive = true;
-                this.roundTimer = 99;
-                
-                // References to game objects
-                this.player = null;
-                this.cpu = null;
-                this.playerAura = null;
-                this.cpuAura = null;
-                this.focusBar = null;
-                this.healthBarPlayer = null;
-                this.healthBarCPU = null;
-                this.impactFlash = null;
-                
-                // Cinematic letterbox
-                const topBar = this.add.rectangle(0, 0, 1280, 40, 0x000000);
-                topBar.setAlpha(0.8);
-                const bottomBar = this.add.rectangle(0, 680, 1280, 40, 0x000000);
-                bottomBar.setAlpha(0.8);
                 
                 // Background
                 const bg = this.add.image(640, 360, 'bg');
                 bg.setDisplaySize(1280, 720);
-                bg.setAlpha(0.6);
+                bg.setAlpha(0.5);
                 
-                // Fog gradient
-                const fogGradient = this.add.graphics();
-                fogGradient.fillGradientStyle(0x000000, 0x000000, 0x1a0000, 0x0a0000, 1);
-                fogGradient.fillRect(0, 0, 1280, 720);
-                fogGradient.setAlpha(0.4);
+                // Ground
+                const ground = this.add.rectangle(640, 580, 1280, 140, 0x1a1a1a);
+                ground.setStrokeStyle(1, 0xffb3b2);
                 
-                // Floor
-                const floorReflect = this.add.rectangle(640, 600, 1280, 120, 0x0a0a0a);
-                floorReflect.setAlpha(0.5);
+                // === PLAYER (with image if loaded, otherwise rectangle) ===
+                if (this.textures.exists('playerSprite')) {
+                    logDebug('Using image sprite for player');
+                    this.player = this.add.sprite(280, 480, 'playerSprite');
+                    this.player.setDisplaySize(160, 240);
+                    this.player.setScale(1);
+                    logDebug(`Player sprite created at x:280, y:480`);
+                } else {
+                    logDebug('Image not loaded, using rectangle fallback');
+                    this.player = this.add.rectangle(280, 520, 60, 100, playerData.color);
+                    this.player.setStrokeStyle(2, playerData.accent);
+                }
                 
-                // === PLAYER ===
-                this.player = this.add.rectangle(280, 520, 55, 95, playerData.color);
-                this.player.setStrokeStyle(2, playerData.accent);
-                this.player.setAlpha(0.95);
-                
-                this.playerAura = this.add.rectangle(280, 520, 90, 130, playerData.color);
-                this.playerAura.setAlpha(0.08);
-                
-                const playerName = this.add.text(280, 400, playerData.name, {
-                    fontFamily: 'Anybody', fontSize: '20px', color: '#ffb3b2', fontStyle: 'bold italic'
-                }).setOrigin(0.5);
-                
-                const playerTitle = this.add.text(280, 420, playerData.title, {
-                    fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#5f3e3e', letterSpacing: '2px'
-                }).setOrigin(0.5);
-                
-                // === CPU ===
-                this.cpu = this.add.rectangle(1000, 520, 55, 95, cpuData.color);
+                // === CPU (rectangle for now) ===
+                this.cpu = this.add.rectangle(1000, 520, 60, 100, cpuData.color);
                 this.cpu.setStrokeStyle(2, cpuData.accent);
-                this.cpu.setAlpha(0.95);
                 
-                this.cpuAura = this.add.rectangle(1000, 520, 90, 130, cpuData.color);
-                this.cpuAura.setAlpha(0.08);
-                
-                const cpuName = this.add.text(1000, 400, cpuData.name, {
-                    fontFamily: 'Anybody', fontSize: '20px', color: '#00dbe9', fontStyle: 'bold italic'
-                }).setOrigin(0.5);
-                
-                const cpuTitle = this.add.text(1000, 420, cpuData.title, {
-                    fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#5f3e3e', letterSpacing: '2px'
-                }).setOrigin(0.5);
-                
-                // === HEALTH BARS ===
-                const healthContainer = this.add.graphics();
-                healthContainer.lineStyle(1, 0xffb3b2, 0.3);
-                healthContainer.strokeRect(80, 50, 350, 4);
-                healthContainer.strokeRect(850, 50, 350, 4);
-                
-                this.healthBarPlayer = this.add.rectangle(255, 52, 350, 4, playerData.color);
+                // Health bars
+                const healthBgPlayer = this.add.rectangle(200, 50, 350, 20, 0x333333);
+                healthBgPlayer.setStrokeStyle(1, playerData.accent);
+                this.healthBarPlayer = this.add.rectangle(200, 50, 350, 20, playerData.color);
                 this.healthBarPlayer.setOrigin(0, 0.5);
                 
-                this.healthBarCPU = this.add.rectangle(1025, 52, 350, 4, cpuData.color);
+                const healthBgCPU = this.add.rectangle(1080, 50, 350, 20, 0x333333);
+                healthBgCPU.setStrokeStyle(1, cpuData.accent);
+                this.healthBarCPU = this.add.rectangle(1080, 50, 350, 20, cpuData.color);
                 this.healthBarCPU.setOrigin(0, 0.5);
                 
-                this.add.text(80, 60, playerData.name, { fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#ffb3b2', letterSpacing: '1px' });
-                this.add.text(850, 60, cpuData.name, { fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#00dbe9', letterSpacing: '1px' });
+                // Player name
+                this.add.text(200, 30, playerData.name, { fontFamily: 'Arial', fontSize: '16px', color: '#ffb3b2', fontStyle: 'bold' }).setOrigin(0.5);
+                this.add.text(1080, 30, cpuData.name, { fontFamily: 'Arial', fontSize: '16px', color: '#00dbe9', fontStyle: 'bold' }).setOrigin(0.5);
                 
                 // Focus meter
-                const focusContainer = this.add.graphics();
-                focusContainer.lineStyle(1, 0xffb3b2, 0.2);
-                focusContainer.strokeRect(540, 70, 200, 2);
-                
-                this.focusBar = this.add.rectangle(540, 71, 0, 2, 0xffb3b2);
+                const focusBg = this.add.rectangle(640, 85, 300, 8, 0x333333);
+                focusBg.setStrokeStyle(1, 0xffb3b2);
+                this.focusBar = this.add.rectangle(640, 85, 0, 8, 0xffb3b2);
                 this.focusBar.setOrigin(0, 0.5);
                 
-                // Timer
-                this.timerText = this.add.text(640, 45, '99', {
-                    fontFamily: 'JetBrains Mono', fontSize: '28px', color: '#e9bcba', letterSpacing: '4px'
-                }).setOrigin(0.5);
+                // VS text
+                const vsText = this.add.text(640, 300, 'VS', { fontFamily: 'Arial', fontSize: '80px', color: '#ffb3b2', fontStyle: 'bold', fontStyle: 'italic' }).setOrigin(0.5);
+                vsText.setAlpha(0.15);
                 
-                // VS overlay
-                const roundOverlay = this.add.text(640, 360, 'VS', {
-                    fontFamily: 'Anybody', fontSize: '120px', color: '#ffb3b2', fontStyle: 'italic', fontWeight: '900'
-                }).setOrigin(0.5);
-                roundOverlay.setAlpha(0.08);
-                roundOverlay.setAngle(-5);
+                // Controls text display
+                this.add.text(640, 650, 'Press A to Punch | S to Kick | D to Special', { fontFamily: 'monospace', fontSize: '12px', color: '#666' }).setOrigin(0.5);
                 
-                // Impact flash effect
-                this.impactFlash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
-                this.impactFlash.setAlpha(0);
-                
-                // === INPUT HANDLING - FIXED ===
-                // Create keyboard keys
+                // Input
                 this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
                 this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
                 this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
                 this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
                 this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
                 
-                // Timer countdown
-                this.time.addEvent({
-                    delay: 1000,
-                    callback: () => {
-                        if(this.roundActive && this.roundTimer > 0) {
-                            this.roundTimer--;
-                            this.timerText.setText(this.roundTimer.toString().padStart(2, '0'));
-                            if(this.roundTimer === 0) this.endGame('time');
-                        }
-                    },
-                    loop: true
-                });
-                
                 // Focus regeneration
                 this.time.addEvent({
                     delay: 100,
                     callback: () => {
                         if(this.roundActive && this.playerFocus < 100) {
-                            this.playerFocus = Math.min(100, this.playerFocus + 1);
-                            if(this.focusBar) this.focusBar.width = 200 * (this.playerFocus / 100);
+                            this.playerFocus += 2;
+                            this.focusBar.width = 300 * (this.playerFocus / 100);
                         }
                     },
                     loop: true
                 });
                 
-                // CPU AI timer
+                // CPU AI
                 this.time.addEvent({
-                    delay: 600,
+                    delay: 800,
                     callback: () => this.cpuAction(),
                     loop: true
                 });
                 
-                // Hide VS overlay after 2 seconds
-                this.time.delayedCall(2000, () => {
-                    this.tweens.add({ targets: roundOverlay, alpha: 0, duration: 1500 });
-                });
+                logDebug('Game created successfully - ready to fight!');
             }
             
             update() {
                 if(!this.roundActive) return;
                 
-                // Cooldown management
                 if(this.attackCooldown > 0) this.attackCooldown--;
-                if(this.focusCooldown > 0) this.focusCooldown--;
                 
-                // Handle movement (called every frame for smooth movement)
-                this.handleMovement();
-                
-                // Handle attacks (key down detection)
-                this.handleAttacks();
-                
-                // Aura following
-                if(this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y);
-                if(this.cpuAura) this.cpuAura.setPosition(this.cpu.x, this.cpu.y);
+                // Movement
+                if(this.keyLeft.isDown) this.player.x -= 6;
+                if(this.keyRight.isDown) this.player.x += 6;
                 
                 // Boundaries
-                this.player.x = Math.min(Math.max(this.player.x, 180), 520);
-                this.cpu.x = Math.min(Math.max(this.cpu.x, 760), 1100);
+                this.player.x = Math.min(Math.max(this.player.x, 180), 550);
+                this.cpu.x = Math.min(Math.max(this.cpu.x, 730), 1100);
                 
-                // Collision prevention
-                if(Math.abs(this.player.x - this.cpu.x) < 70) {
-                    if(this.player.x < this.cpu.x) this.player.x = this.cpu.x - 70;
-                    else this.cpu.x = this.player.x + 70;
-                }
-            }
-            
-            handleMovement() {
-                let move = 0;
-                if(this.keyLeft.isDown) move = -1;
-                if(this.keyRight.isDown) move = 1;
+                // Attacks
+                if(Phaser.Input.Keyboard.JustDown(this.keyA)) this.lightAttack();
+                if(Phaser.Input.Keyboard.JustDown(this.keyS)) this.heavyAttack();
+                if(Phaser.Input.Keyboard.JustDown(this.keyD)) this.specialAttack();
                 
-                if(move !== 0 && this.roundActive) {
-                    this.player.x += move * 7;
-                }
-            }
-            
-            handleAttacks() {
-                // Light attack (A key)
-                if(Phaser.Input.Keyboard.JustDown(this.keyA)) {
-                    this.lightAttack();
-                }
-                // Heavy attack (S key)
-                if(Phaser.Input.Keyboard.JustDown(this.keyS)) {
-                    this.heavyAttack();
-                }
-                // Focus attack (D key)
-                if(Phaser.Input.Keyboard.JustDown(this.keyD)) {
-                    this.focusAttack();
+                // Prevent overlapping
+                if(Math.abs(this.player.x - this.cpu.x) < 80) {
+                    if(this.player.x < this.cpu.x) this.player.x = this.cpu.x - 80;
+                    else this.cpu.x = this.player.x + 80;
                 }
             }
             
             lightAttack() {
-                if(!this.roundActive || this.attackCooldown > 0) return;
+                if(this.attackCooldown > 0) return;
                 
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 85;
-                
-                // Attack animation
-                this.tweens.add({
-                    targets: this.player,
-                    x: this.player.x + (canHit ? 25 : 15),
-                    duration: 50,
-                    yoyo: true,
-                    ease: 'Power2'
-                });
-                
-                if(canHit) {
-                    const damage = Math.floor(7 * (playerData.power / 100));
+                if(distance < 100) {
+                    const damage = 8;
                     this.cpuHealth = Math.max(0, this.cpuHealth - damage);
                     this.attackCooldown = 20;
-                    this.applyHitEffect(this.cpu, damage, 'light');
                     this.updateHealthBars();
+                    this.cameras.main.shake(50, 0.002);
+                    
+                    // Hit flash
+                    this.cpu.setAlpha(0.5);
+                    this.time.delayedCall(100, () => this.cpu.setAlpha(1));
+                    
+                    logDebug(`Light attack! Damage: ${damage}, CPU Health: ${this.cpuHealth}`);
                     
                     if(this.cpuHealth <= 0) this.endGame('player');
                 }
             }
             
             heavyAttack() {
-                if(!this.roundActive || this.attackCooldown > 0) return;
+                if(this.attackCooldown > 0) return;
                 
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 75;
-                
-                this.tweens.add({
-                    targets: this.player,
-                    scaleX: 1.2,
-                    duration: 80,
-                    yoyo: true,
-                    ease: 'Back'
-                });
-                
-                if(canHit) {
-                    const damage = Math.floor(13 * (playerData.power / 100));
+                if(distance < 90) {
+                    const damage = 14;
                     this.cpuHealth = Math.max(0, this.cpuHealth - damage);
-                    this.attackCooldown = 32;
-                    this.applyHitEffect(this.cpu, damage, 'heavy');
+                    this.attackCooldown = 30;
                     this.updateHealthBars();
+                    this.cameras.main.shake(80, 0.003);
+                    
+                    this.cpu.setAlpha(0.5);
+                    this.time.delayedCall(100, () => this.cpu.setAlpha(1));
+                    
+                    logDebug(`Heavy attack! Damage: ${damage}, CPU Health: ${this.cpuHealth}`);
                     
                     if(this.cpuHealth <= 0) this.endGame('player');
                 }
             }
             
-            focusAttack() {
-                if(!this.roundActive || this.focusCooldown > 0 || this.playerFocus < 100) return;
+            specialAttack() {
+                if(this.playerFocus < 100) {
+                    logDebug(`Special attack failed - focus: ${this.playerFocus}%`);
+                    return;
+                }
                 
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 100;
-                
-                if(canHit) {
-                    const damage = Math.floor(22 * (playerData.power / 100));
+                if(distance < 120) {
+                    const damage = 25;
                     this.cpuHealth = Math.max(0, this.cpuHealth - damage);
                     this.playerFocus = 0;
-                    this.focusCooldown = 45;
-                    if(this.focusBar) this.focusBar.width = 0;
-                    
-                    // Cinematic hit effect
-                    this.cameras.main.shake(150, 0.005);
-                    this.tweens.add({
-                        targets: this.impactFlash,
-                        alpha: 0.25,
-                        duration: 60,
-                        yoyo: true
-                    });
-                    
-                    this.applyHitEffect(this.cpu, damage, 'focus');
+                    this.focusBar.width = 0;
                     this.updateHealthBars();
+                    this.cameras.main.shake(150, 0.008);
+                    
+                    // Flash effect
+                    const flash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
+                    flash.setAlpha(0.3);
+                    this.time.delayedCall(150, () => flash.destroy());
+                    
+                    logDebug(`SPECIAL ATTACK! Damage: ${damage}, CPU Health: ${this.cpuHealth}`);
                     
                     if(this.cpuHealth <= 0) this.endGame('player');
                 }
@@ -482,112 +330,72 @@
                 
                 const distance = Math.abs(this.cpu.x - this.player.x);
                 
-                // Move towards player if too far
-                if(distance > 110) {
-                    if(this.cpu.x < this.player.x) this.cpu.x += 12;
-                    else this.cpu.x -= 12;
+                if(distance > 120) {
+                    if(this.cpu.x < this.player.x) this.cpu.x += 10;
+                    else this.cpu.x -= 10;
                 } else {
-                    // Random attack decision
-                    const action = Math.random();
-                    if(action < 0.35 && this.attackCooldown === 0) {
-                        const damage = Math.floor(9 * 0.85);
+                    if(Math.random() < 0.4) {
+                        const damage = 7;
                         this.playerHealth = Math.max(0, this.playerHealth - damage);
-                        this.attackCooldown = 22;
-                        this.applyHitEffect(this.player, damage, 'light');
                         this.updateHealthBars();
+                        this.cameras.main.shake(50, 0.002);
+                        this.player.setAlpha(0.5);
+                        this.time.delayedCall(100, () => this.player.setAlpha(1));
                         
-                        if(this.playerHealth <= 0) this.endGame('cpu');
-                    } else if(action < 0.55 && this.playerFocus >= 100 && this.focusCooldown === 0) {
-                        const damage = Math.floor(20 * 0.85);
-                        this.playerHealth = Math.max(0, this.playerHealth - damage);
-                        this.playerFocus = 0;
-                        this.focusCooldown = 45;
-                        this.applyHitEffect(this.player, damage, 'focus');
-                        this.updateHealthBars();
+                        logDebug(`CPU attacks! Player Health: ${this.playerHealth}`);
                         
                         if(this.playerHealth <= 0) this.endGame('cpu');
                     }
                 }
             }
             
-            applyHitEffect(target, damage, type) {
-                // Screen shake
-                this.cameras.main.shake(80, 0.003);
-                
-                // Hit flash on target
-                target.setAlpha(0.6);
-                this.time.delayedCall(100, () => target.setAlpha(0.95));
-                
-                // Damage number
-                const dmgText = this.add.text(target.x, target.y - 30, `${damage}`, {
-                    fontFamily: 'JetBrains Mono', fontSize: '14px', color: type === 'focus' ? '#ffb3b2' : '#e9bcba'
-                }).setOrigin(0.5);
-                
-                this.tweens.add({
-                    targets: dmgText,
-                    y: dmgText.y - 40,
-                    alpha: 0,
-                    duration: 600,
-                    onComplete: () => dmgText.destroy()
-                });
-                
-                // Pushback
-                if(target === this.cpu) target.x += 25;
-                else target.x -= 25;
-            }
-            
             updateHealthBars() {
-                const playerPercent = this.playerHealth / 100;
-                const cpuPercent = this.cpuHealth / 100;
-                
-                if(this.healthBarPlayer) this.healthBarPlayer.width = 350 * playerPercent;
-                if(this.healthBarCPU) this.healthBarCPU.width = 350 * cpuPercent;
-                
-                if(this.playerHealth < 25 && this.healthBarPlayer) this.healthBarPlayer.setFillStyle(0xff3b3b);
-                if(this.cpuHealth < 25 && this.healthBarCPU) this.healthBarCPU.setFillStyle(0xff3b3b);
+                this.healthBarPlayer.width = 350 * (this.playerHealth / 100);
+                this.healthBarCPU.width = 350 * (this.cpuHealth / 100);
             }
             
             endGame(winner) {
                 this.roundActive = false;
+                logDebug(`GAME OVER! Winner: ${winner === 'player' ? playerData.name : cpuData.name}`);
                 
-                const resultText = winner === 'player' ? `${playerData.name} WINS` : `${cpuData.name} WINS`;
+                const resultText = winner === 'player' ? `${playerData.name} VICTORY!` : `${cpuData.name} VICTORY!`;
                 const resultColor = winner === 'player' ? '#ffb3b2' : '#00dbe9';
                 
                 const announcement = this.add.text(640, 360, resultText, {
-                    fontFamily: 'Anybody', fontSize: '48px', color: resultColor, fontStyle: 'bold italic', letterSpacing: '4px'
+                    fontFamily: 'Arial',
+                    fontSize: '48px',
+                    color: resultColor,
+                    fontStyle: 'bold'
                 }).setOrigin(0.5);
                 announcement.setAlpha(0);
-                announcement.setScale(0.8);
                 
                 this.tweens.add({
                     targets: announcement,
                     alpha: 1,
-                    scale: 1,
-                    duration: 600,
+                    scale: 1.2,
+                    duration: 500,
                     ease: 'Back'
                 });
                 
-                // Return to roster after delay
-                this.time.delayedCall(4000, () => {
+                this.time.delayedCall(3500, () => {
                     window.location.href = 'characterselect.html';
                 });
             }
         }
         
-        // Game configuration
         const config = {
             type: Phaser.AUTO,
             width: 1280,
             height: 720,
             parent: 'game-container',
             backgroundColor: '#050505',
-            physics: { default: 'arcade', arcade: { gravity: { y: 0 }, debug: false } },
             scene: FightingGame,
             scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
         };
         
-        // Start the game
-        window.game = new Phaser.Game(config);
+        logDebug('Starting Phaser game...');
+        const game = new Phaser.Game(config);
+        logDebug('Phaser game created');
     </script>
 </body>
 </html>

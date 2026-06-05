@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Image Load</title>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: monospace; padding: 20px; }
+        .test-item { margin: 20px 0; padding: 10px; border: 1px solid #333; }
+        img { max-width: 200px; border: 2px solid #ffb3b2; margin: 10px; }
+        .success { color: #0f0; }
+        .fail { color: #f00; }
+    </style>
+</head>
+<body>
+    <h1>Image Path Test</h1>
+    <p>Your KAIRO image should be in: <strong>assets/characters/kairo/portrait.png</strong></p>
+    
+    <div class="test-item">
+        <h3>Test 1: assets/characters/kairo/portrait.png</h3>
+        <img src="assets/characters/kairo/portrait.png" onload="this.style.borderColor='#0f0'" onerror="this.style.borderColor='#f00'">
+        <span id="result1"></span>
+    </div>
+    
+    <div class="test-item">
+        <h3>Test 2: kairo.png (root folder)</h3>
+        <img src="kairo.png" onload="this.style.borderColor='#0f0'" onerror="this.style.borderColor='#f00'">
+    </div>
+    
+    <div class="test-item">
+        <h3>Test 3: portrait.png (root folder)</h3>
+        <img src="portrait.png" onload="this.style.borderColor='#0f0'" onerror="this.style.borderColor='#f00'">
+    </div>
+    
+    <script>
+        document.querySelectorAll('img').forEach(img => {
+            img.onload = () => console.log('Loaded:', img.src);
+            img.onerror = () => console.log('Failed:', img.src);
+        });
+    </script>
+    
+    <div style="margin-top: 40px; padding: 20px; background: #1a1a1a;">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Create a folder called <code>assets</code></li>
+            <li>Inside assets, create a folder called <code>characters</code></li>
+            <li>Inside characters, create a folder called <code>kairo</code></li>
+            <li>Put your KAIRO image as <code>portrait.png</code> in that folder</li>
+            <li>Refresh this test page</li>
+            <li>If you see your image with a green border, it's working!</li>
+        </ol>
+    </div>
+</body>
+</html>
