@@ -31,31 +31,28 @@ const fighters = [
   { name: "GHOST", archetype: "STEALTH", rank: "LEGEND", power: 76, speed: 97, range: 82, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=GHOST", thumb: "https://placehold.co/200x200/252525/00dbe9?text=GH" }
 ];
 
-// DOM Elements
+// Global variable to track selected fighter
 let currentFighter = fighters[0];
 
-// Update detail panel with fighter data
+// DOM Elements
 function updateDetailPanel(fighter) {
-  // Update text content
   document.getElementById('detail-name').textContent = fighter.name;
   document.getElementById('detail-archetype').innerHTML = `<span class="block skew-box-reverse">${fighter.archetype}</span>`;
   document.getElementById('detail-rank').innerHTML = `<span class="block skew-box-reverse">${fighter.rank}</span>`;
   document.getElementById('detail-portrait').src = fighter.portrait;
   document.getElementById('detail-portrait').alt = fighter.name;
   
-  // Update stats
   document.getElementById('stat-power-val').textContent = `${fighter.power}%`;
   document.getElementById('stat-speed-val').textContent = `${fighter.speed}%`;
   document.getElementById('stat-range-val').textContent = `${fighter.range}%`;
   
-  // Update bars with animation
   const powerBar = document.getElementById('stat-power-bar');
   const speedBar = document.getElementById('stat-speed-bar');
   const rangeBar = document.getElementById('stat-range-bar');
   
-  powerBar.style.width = `${fighter.power}%`;
-  speedBar.style.width = `${fighter.speed}%`;
-  rangeBar.style.width = `${fighter.range}%`;
+  if(powerBar) powerBar.style.width = `${fighter.power}%`;
+  if(speedBar) speedBar.style.width = `${fighter.speed}%`;
+  if(rangeBar) rangeBar.style.width = `${fighter.range}%`;
 }
 
 // Build roster grid
@@ -79,13 +76,10 @@ function buildRosterGrid() {
     `;
     
     card.addEventListener('click', () => {
-      // Remove active class from all cards
       document.querySelectorAll('.character-card').forEach(c => {
         c.classList.remove('active');
       });
-      // Add active class to clicked card
       card.classList.add('active');
-      // Update current fighter and detail panel
       currentFighter = fighter;
       updateDetailPanel(currentFighter);
     });
@@ -94,20 +88,42 @@ function buildRosterGrid() {
   });
 }
 
+// START FIGHT FUNCTION - This is what you need!
+function startFight() {
+  if(currentFighter) {
+    window.location.href = `game.html?fighter=${encodeURIComponent(currentFighter.name)}`;
+  } else {
+    console.error('No fighter selected');
+    window.location.href = 'game.html?fighter=KAIRO';
+  }
+}
+
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
   buildRosterGrid();
   updateDetailPanel(fighters[0]);
   
-  // Replace the existing confirm button handler with:
-const confirmBtn = document.getElementById('confirm-btn');
-if (confirmBtn) {
-    // Remove old listener and add new one
-    const newConfirmBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-    newConfirmBtn.addEventListener('click', startFight);
-}
-  // Add hover effect for portrait container
+  // Make sure currentFighter is set to the first fighter
+  currentFighter = fighters[0];
+  
+  // Find the START FIGHT button and attach the function
+  const confirmBtn = document.getElementById('confirm-btn');
+  if (confirmBtn) {
+    // Remove any existing listeners
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.addEventListener('click', startFight);
+  }
+  
+  // Also look for any button with START FIGHT text just in case
+  const allButtons = document.querySelectorAll('button');
+  allButtons.forEach(btn => {
+    if(btn.innerText.includes('START FIGHT') || btn.innerText.includes('CONFIRM')) {
+      btn.addEventListener('click', startFight);
+    }
+  });
+  
+  // Portrait hover effect
   const portraitContainer = document.querySelector('.detail-portrait-container');
   if (portraitContainer) {
     portraitContainer.addEventListener('mousemove', (e) => {
@@ -127,8 +143,4 @@ if (confirmBtn) {
       }
     });
   }
-});// Start fight function - passes selected fighter to game page
-function startFight() {
-    const fighterName = currentFighter.name;
-    window.location.href = `game.html?fighter=${encodeURIComponent(fighterName)}`;
-}
+});
