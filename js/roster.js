@@ -99,14 +99,14 @@ document.addEventListener('DOMContentLoaded', () => {
   buildRosterGrid();
   updateDetailPanel(fighters[0]);
   
-  // Confirm button handler
-  const confirmBtn = document.getElementById('confirm-btn');
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
-      alert(`⚔️ FIGHTER CONFIRMED: ${currentFighter.name} is ready for battle!\n\nArchetype: ${currentFighter.archetype}\nPower: ${currentFighter.power}% | Speed: ${currentFighter.speed}% | Range: ${currentFighter.range}%\n\nEnter the arena and forge your legacy! ⚔️`);
-    });
-  }
-  
+  // Replace the existing confirm button handler with:
+const confirmBtn = document.getElementById('confirm-btn');
+if (confirmBtn) {
+    // Remove old listener and add new one
+    const newConfirmBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+    newConfirmBtn.addEventListener('click', startFight);
+}
   // Add hover effect for portrait container
   const portraitContainer = document.querySelector('.detail-portrait-container');
   if (portraitContainer) {
@@ -127,4 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-});
+});// Start fight function - passes selected fighter to game page
+function startFight() {
+    const fighterName = currentFighter.name;
+    window.location.href = `game.html?fighter=${encodeURIComponent(fighterName)}`;
+}
