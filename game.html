@@ -3,13 +3,11 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>IRON FIST - BATTLE ARENA</title>
+    <title>IRON FIST - CINEMATIC BATTLE</title>
     
-    <!-- Phaser 3 Framework -->
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
     
     <style>
@@ -25,92 +23,109 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'JetBrains Mono', monospace;
+            font-family: 'Geist', sans-serif;
             overflow: hidden;
         }
         
-        /* Game Container */
         #game-container {
             position: relative;
-            box-shadow: 0 0 50px rgba(255, 179, 178, 0.3);
-            border: 2px solid #ffb3b2;
-            border-radius: 8px;
+            box-shadow: 0 0 60px rgba(255, 179, 178, 0.15);
+            border: 1px solid rgba(255, 179, 178, 0.2);
         }
         
-        /* Loading Screen */
+        /* Cinematic Loading Screen */
         #loading-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #131313;
+            background: #0a0a0a;
             display: flex;
             justify-content: center;
             align-items: center;
             flex-direction: column;
             z-index: 1000;
-            transition: opacity 0.5s ease;
+            transition: opacity 0.8s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
         
-        .loading-text {
+        .loading-logo {
             font-family: 'Anybody', monospace;
-            font-size: 24px;
+            font-size: 48px;
+            font-weight: 900;
+            font-style: italic;
             color: #ffb3b2;
             text-transform: uppercase;
-            letter-spacing: 4px;
-            margin-bottom: 20px;
+            letter-spacing: 8px;
+            margin-bottom: 40px;
+            text-shadow: 0 0 30px rgba(255, 179, 178, 0.5);
         }
         
-        .loading-bar {
-            width: 300px;
-            height: 4px;
-            background: #2a2a2a;
+        .loading-sub {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: #5f3e3e;
+            letter-spacing: 4px;
+            margin-top: 20px;
+        }
+        
+        .loading-bar-container {
+            width: 400px;
+            height: 1px;
+            background: rgba(255, 179, 178, 0.2);
             overflow: hidden;
         }
         
-        .loading-progress {
+        .loading-bar {
             width: 0%;
             height: 100%;
             background: #ffb3b2;
             transition: width 0.3s ease;
+            box-shadow: 0 0 10px #ffb3b2;
         }
         
-        /* Controls Overlay */
+        /* Minimal Controls Overlay */
         .controls-info {
             position: fixed;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            padding: 12px 20px;
-            border-radius: 8px;
-            border-left: 3px solid #ffb3b2;
-            font-size: 12px;
-            color: #e9bcba;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 12px 24px;
+            border-left: 2px solid #ffb3b2;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(233, 188, 186, 0.6);
+            letter-spacing: 1px;
             z-index: 100;
             pointer-events: none;
         }
         
         .controls-info span {
             color: #ffb3b2;
-            font-weight: bold;
         }
         
-        /* Back Button */
+        .controls-info .key {
+            border: 1px solid rgba(255, 179, 178, 0.3);
+            padding: 2px 6px;
+            margin: 0 2px;
+            font-size: 10px;
+        }
+        
+        /* Minimal Back Button */
         .back-button {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 8px;
-            border: 1px solid #ffb3b2;
-            color: #ffb3b2;
+            top: 30px;
+            left: 30px;
+            background: rgba(10, 10, 10, 0.6);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border: 1px solid rgba(255, 179, 178, 0.3);
+            color: #e9bcba;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 1px;
             z-index: 100;
             transition: all 0.3s ease;
             display: flex;
@@ -119,674 +134,486 @@
         }
         
         .back-button:hover {
-            background: #ffb3b2;
-            color: #680012;
-            transform: scale(1.05);
+            border-color: #ffb3b2;
+            color: #ffb3b2;
+            transform: translateX(-4px);
         }
         
-        /* VS Screen Animation */
-        @keyframes vsPulse {
-            0%, 100% { transform: scale(1); opacity: 0.8; text-shadow: 0 0 20px #ffb3b2; }
-            50% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 50px #ff525c; }
+        /* VS Screen Animation - Cinematic */
+        @keyframes vsFadeIn {
+            0% { opacity: 0; transform: scale(0.95); letter-spacing: 20px; }
+            100% { opacity: 0.15; transform: scale(1); letter-spacing: 4px; }
         }
     </style>
 </head>
 <body>
     <a href="characterselect.html" class="back-button">
-        <span class="material-symbols-outlined" style="font-size: 18px;">arrow_back</span>
-        BACK TO ROSTER
+        <span class="material-symbols-outlined" style="font-size: 14px;">close</span>
+        EXIT
     </a>
     
     <div class="controls-info">
-        🎮 <span>PLAYER 1</span> | ← → : MOVE | A : PUNCH | S : KICK | D : SPECIAL<br>
-        🤖 <span>CPU</span> | AI CONTROLLED
+        <span>⟵ ⟶</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span>A</span> LIGHT &nbsp;&nbsp;|&nbsp;&nbsp; <span>S</span> HEAVY &nbsp;&nbsp;|&nbsp;&nbsp; <span>D</span> FOCUS
     </div>
     
     <div id="loading-screen">
-        <div class="loading-text">LOADING ARENA</div>
-        <div class="loading-bar">
-            <div class="loading-progress"></div>
+        <div class="loading-logo">IRON FIST</div>
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
         </div>
-        <div style="margin-top: 20px; font-size: 12px; color: #5f3e3e;">IRON FIST | FIGHT!</div>
+        <div class="loading-sub">LOADING COMBAT SEQUENCE</div>
     </div>
     
     <div id="game-container"></div>
 
     <script>
-        // Get selected fighter from URL parameter
+        // Get selected fighter from URL
         const urlParams = new URLSearchParams(window.location.search);
         const playerFighter = urlParams.get('fighter') || 'KAIRO';
         
-        // Fighter stats mapping
-        const fighterStats = {
-            'KAIRO': { name: 'KAIRO', power: 88, speed: 94, range: 42, color: 0xff5252, accent: 0xffb3b2 },
-            'SILAS': { name: 'SILAS', power: 95, speed: 58, range: 35, color: 0x6b6b6b, accent: 0xaaaaaa },
-            'MIRA': { name: 'MIRA', power: 72, speed: 96, range: 68, color: 0x9b59b6, accent: 0xd4a5ff },
-            'AXEL': { name: 'AXEL', power: 91, speed: 67, range: 44, color: 0xe67e22, accent: 0xf39c12 },
-            'NYX': { name: 'NYX', power: 64, speed: 79, range: 92, color: 0x1abc9c, accent: 0x48c9b0 },
-            'ZERO': { name: 'ZERO', power: 90, speed: 91, range: 78, color: 0x00dbe9, accent: 0x7df4ff }
+        // Fighter Database - matches website aesthetic
+        const fighters = {
+            'KAIRO': { name: 'KAIRO', title: 'CYBERNETIC MONK', power: 88, speed: 94, defense: 78, color: 0xff3b3b, accent: 0xffb3b2, bio: 'Rogue AI in a master monk\'s body' },
+            'SILAS': { name: 'SILAS', title: 'IRON COLOSSUS', power: 95, speed: 58, defense: 92, color: 0x6c6c6c, accent: 0xaaaaaa, bio: 'Unstoppable war machine' },
+            'MIRA': { name: 'MIRA', title: 'PHANTOM BLADE', power: 72, speed: 96, defense: 68, color: 0x8b5cf6, accent: 0xa78bfa, bio: 'Shadow assassin' },
+            'AXEL': { name: 'AXEL', title: 'NEO GLADIATOR', power: 91, speed: 67, defense: 82, color: 0xf59e0b, accent: 0xfbbf24, bio: 'Arena champion' },
+            'NYX': { name: 'NYX', title: 'VOID WEAVER', power: 64, speed: 79, defense: 88, color: 0x14b8a6, accent: 0x5eead4, bio: 'Reality bender' },
+            'ZERO': { name: 'ZERO', title: 'PROTOCOL-X', power: 90, speed: 91, defense: 75, color: 0x00dbe9, accent: 0x7df4ff, bio: 'Experimental AI' }
         };
         
-        const selectedStats = fighterStats[playerFighter] || fighterStats['KAIRO'];
+        const playerData = fighters[playerFighter] || fighters['KAIRO'];
+        const cpuData = fighters['ZERO'];
         
-        // Phaser Game Configuration
+        // Phaser Config - Cinematic 16:9
         const config = {
             type: Phaser.AUTO,
             width: 1280,
             height: 720,
             parent: 'game-container',
-            backgroundColor: '#0a0a0a',
+            backgroundColor: '#050505',
             physics: {
                 default: 'arcade',
-                arcade: {
-                    gravity: { y: 0 },
-                    debug: false
-                }
+                arcade: { gravity: { y: 0 }, debug: false }
             },
-            scene: {
-                preload: preload,
-                create: create,
-                update: update
-            },
-            scale: {
-                mode: Phaser.Scale.FIT,
-                autoCenter: Phaser.Scale.CENTER_BOTH
-            }
+            scene: { preload: preload, create: create, update: update },
+            scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
         };
         
-        // Game variables
-        let player;
-        let cpu;
+        // Game State
+        let player, cpu;
         let playerHealth = 100;
         let cpuHealth = 100;
-        let healthBarPlayer;
-        let healthBarCPU;
-        let healthBarPlayerBg;
-        let healthBarCPUBg;
-        let roundText;
+        let playerStamina = 100;
+        let playerFocus = 0;
+        let healthBarPlayer, healthBarCPU, focusBar;
         let roundActive = true;
-        let winnerText;
-        let playerCanAct = true;
         let attackCooldown = 0;
-        let specialCooldown = 0;
-        let specialMeter = 0;
-        let specialMeterBar;
-        let comboText;
-        let comboCount = 0;
-        let comboTimeout;
+        let focusCooldown = 0;
+        let lastHitTime = 0;
+        let cinematicCamera;
         
-        // Attack timing
-        let lastAttackTime = 0;
-        const ATTACK_DELAY = 500;
+        // Visual Effects
+        let bloodParticles;
+        let impactFlash;
+        let damageNumbers = [];
         
-        // Background elements
-        let background;
-        let ground;
-        
-        // UI Text
-        let playerNameText;
-        let cpuNameText;
-        
-        // Animation flags
-        let hitEffectTimer = 0;
+        // UI Elements
+        let playerNameDisplay, playerTitleDisplay, cpuNameDisplay, cpuTitleDisplay;
+        let roundTimer = 99;
+        let timerText;
+        let roundOverlay;
         
         function preload() {
-            // Show loading progress
-            const progressBar = document.querySelector('.loading-progress');
-            
-            this.load.on('progress', (value) => {
-                if (progressBar) progressBar.style.width = `${value * 100}%`;
-            });
-            
+            // Loading progress
+            const loadingBar = document.querySelector('.loading-bar');
+            this.load.on('progress', (v) => { if(loadingBar) loadingBar.style.width = `${v * 100}%`; });
             this.load.on('complete', () => {
-                const loadingScreen = document.getElementById('loading-screen');
-                if (loadingScreen) {
-                    loadingScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        loadingScreen.style.display = 'none';
-                    }, 500);
-                }
+                const ls = document.getElementById('loading-screen');
+                if(ls) { ls.style.opacity = '0'; setTimeout(() => ls.style.display = 'none', 800); }
             });
             
-            // Create placeholder graphics (since we don't have actual sprites yet)
-            // In production, replace with actual sprite sheets
-            this.load.image('bg', 'https://placehold.co/1280x720/1a1a2e/ffb3b2?text=IRON+FIST+ARENA');
-            this.load.image('ground', 'https://placehold.co/1280x100/2a2a2a/ffb3b2?text=──────────');
+            // Cinematic Background - Dark cyberpunk dojo
+            this.load.image('bg', 'https://placehold.co/1280x720/0a0a0a/ffb3b2?text=NEO-DOJO');
+            
+            // Particle textures
+            this.load.image('particle', 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==');
         }
         
         function create() {
-            // Background
-            background = this.add.image(640, 360, 'bg');
-            background.setDisplaySize(1280, 720);
+            // Cinematic letterbox effect
+            const topBar = this.add.rectangle(0, 0, 1280, 40, 0x000000);
+            topBar.setAlpha(0.8);
+            const bottomBar = this.add.rectangle(0, 680, 1280, 40, 0x000000);
+            bottomBar.setAlpha(0.8);
             
-            // Ground/platform
-            ground = this.add.rectangle(640, 600, 1280, 120, 0x1a1a1a);
-            ground.setStrokeStyle(2, 0xffb3b2);
+            // Atmospheric background
+            const bg = this.add.image(640, 360, 'bg');
+            bg.setDisplaySize(1280, 720);
+            bg.setAlpha(0.6);
             
-            // Add some arena details
-            const arenaText = this.add.text(640, 50, 'IRON FIST ARENA', {
+            // Atmospheric fog/gradient
+            const fogGradient = this.add.graphics();
+            fogGradient.fillGradientStyle(0x000000, 0x000000, 0x1a0000, 0x0a0000, 1);
+            fogGradient.fillRect(0, 0, 1280, 720);
+            fogGradient.setAlpha(0.4);
+            
+            // Floor reflection
+            const floorReflect = this.add.rectangle(640, 600, 1280, 120, 0x0a0a0a);
+            floorReflect.setAlpha(0.5);
+            
+            // === PLAYER CHARACTER (Left) ===
+            player = this.add.rectangle(280, 520, 55, 95, playerData.color);
+            player.setStrokeStyle(2, playerData.accent);
+            player.setAlpha(0.95);
+            
+            // Character aura
+            const playerAura = this.add.rectangle(280, 520, 90, 130, playerData.color);
+            playerAura.setAlpha(0.08);
+            
+            // Player name plaque
+            playerNameDisplay = this.add.text(280, 400, playerData.name, {
                 fontFamily: 'Anybody',
-                fontSize: '24px',
+                fontSize: '20px',
                 color: '#ffb3b2',
-                fontStyle: 'italic'
-            }).setOrigin(0.5);
-            
-            // Create VS text effect
-            const vsText = this.add.text(640, 300, 'VS', {
-                fontFamily: 'Anybody',
-                fontSize: '64px',
-                color: '#ff525c',
                 fontStyle: 'bold italic'
             }).setOrigin(0.5);
-            vsText.setAlpha(0.3);
             
-            // === PLAYER (Left side) ===
-            player = this.add.rectangle(300, 520, 60, 100, selectedStats.color);
-            player.setStrokeStyle(3, selectedStats.accent);
-            player.setInteractive();
-            
-            // Player aura glow effect
-            const playerGlow = this.add.rectangle(300, 520, 80, 120, selectedStats.color);
-            playerGlow.setAlpha(0.2);
-            
-            // Player name tag
-            playerNameText = this.add.text(300, 420, selectedStats.name, {
+            playerTitleDisplay = this.add.text(280, 420, playerData.title, {
                 fontFamily: 'JetBrains Mono',
-                fontSize: '18px',
-                color: '#ffb3b2',
-                fontStyle: 'bold'
+                fontSize: '9px',
+                color: '#5f3e3e',
+                letterSpacing: '2px'
             }).setOrigin(0.5);
             
-            // === CPU (Right side) ===
-            cpu = this.add.rectangle(980, 520, 60, 100, 0x00dbe9);
-            cpu.setStrokeStyle(3, 0x7df4ff);
+            // === CPU CHARACTER (Right) ===
+            cpu = this.add.rectangle(1000, 520, 55, 95, cpuData.color);
+            cpu.setStrokeStyle(2, cpuData.accent);
+            cpu.setAlpha(0.95);
             
-            // CPU aura
-            const cpuGlow = this.add.rectangle(980, 520, 80, 120, 0x00dbe9);
-            cpuGlow.setAlpha(0.2);
+            const cpuAura = this.add.rectangle(1000, 520, 90, 130, cpuData.color);
+            cpuAura.setAlpha(0.08);
             
-            // CPU name tag
-            cpuNameText = this.add.text(980, 420, 'ZERO', {
-                fontFamily: 'JetBrains Mono',
-                fontSize: '18px',
+            cpuNameDisplay = this.add.text(1000, 400, cpuData.name, {
+                fontFamily: 'Anybody',
+                fontSize: '20px',
                 color: '#00dbe9',
-                fontStyle: 'bold'
+                fontStyle: 'bold italic'
             }).setOrigin(0.5);
             
-            // === HEALTH BARS ===
-            // Player Health Bar (top left)
-            healthBarPlayerBg = this.add.rectangle(200, 60, 400, 25, 0x333333);
-            healthBarPlayerBg.setStrokeStyle(2, 0xffb3b2);
-            healthBarPlayer = this.add.rectangle(200, 60, 400, 25, selectedStats.color);
-            
-            // Player HP Text
-            this.add.text(200, 60, `${selectedStats.name.toUpperCase()}`, {
+            cpuTitleDisplay = this.add.text(1000, 420, cpuData.title, {
                 fontFamily: 'JetBrains Mono',
-                fontSize: '12px',
-                color: '#ffb3b2'
+                fontSize: '9px',
+                color: '#5f3e3e',
+                letterSpacing: '2px'
             }).setOrigin(0.5);
             
-            // CPU Health Bar (top right)
-            healthBarCPUBg = this.add.rectangle(1080, 60, 400, 25, 0x333333);
-            healthBarCPUBg.setStrokeStyle(2, 0x00dbe9);
-            healthBarCPU = this.add.rectangle(1080, 60, 400, 25, 0x00dbe9);
+            // === HEALTH SYSTEM ===
+            // Health bar containers (minimal, elegant)
+            const healthContainer = this.add.graphics();
+            healthContainer.lineStyle(1, 0xffb3b2, 0.3);
+            healthContainer.strokeRect(80, 50, 350, 4);
+            healthContainer.strokeRect(850, 50, 350, 4);
             
-            this.add.text(1080, 60, 'ZERO', {
+            healthBarPlayer = this.add.rectangle(255, 52, 350, 4, playerData.color);
+            healthBarPlayer.setOrigin(0, 0.5);
+            
+            healthBarCPU = this.add.rectangle(1025, 52, 350, 4, cpuData.color);
+            healthBarCPU.setOrigin(0, 0.5);
+            
+            // Health numbers
+            this.add.text(80, 60, `${playerData.name}`, { fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#ffb3b2', letterSpacing: '1px' });
+            this.add.text(850, 60, `${cpuData.name}`, { fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#00dbe9', letterSpacing: '1px' });
+            
+            // Focus Meter (special)
+            const focusContainer = this.add.graphics();
+            focusContainer.lineStyle(1, 0xffb3b2, 0.2);
+            focusContainer.strokeRect(540, 70, 200, 2);
+            
+            focusBar = this.add.rectangle(540, 71, 0, 2, 0xffb3b2);
+            focusBar.setOrigin(0, 0.5);
+            
+            // Timer
+            timerText = this.add.text(640, 45, '99', {
                 fontFamily: 'JetBrains Mono',
-                fontSize: '12px',
-                color: '#00dbe9'
-            }).setOrigin(0.5);
-            
-            // === SPECIAL METER ===
-            specialMeterBar = this.add.rectangle(640, 110, 400, 15, 0x333333);
-            specialMeterBar.setStrokeStyle(1, 0xffb3b2);
-            
-            const specialFill = this.add.rectangle(640, 110, 0, 15, 0xffb3b2);
-            specialFill.setAlpha(0.8);
-            
-            // Round indicator
-            roundText = this.add.text(640, 160, 'ROUND 1', {
-                fontFamily: 'Anybody',
                 fontSize: '28px',
-                color: '#ffb3b2',
-                fontStyle: 'bold italic'
+                color: '#e9bcba',
+                letterSpacing: '4px'
             }).setOrigin(0.5);
-            roundText.setAlpha(0.8);
             
-            // Combo text
-            comboText = this.add.text(640, 200, '', {
+            // VS Overlay (cinematic)
+            roundOverlay = this.add.text(640, 360, 'VS', {
                 fontFamily: 'Anybody',
-                fontSize: '24px',
-                color: '#ff525c',
-                fontStyle: 'bold'
-            }).setOrigin(0.5);
-            comboText.setAlpha(0);
-            
-            // Winner announcement
-            winnerText = this.add.text(640, 350, '', {
-                fontFamily: 'Anybody',
-                fontSize: '48px',
+                fontSize: '120px',
                 color: '#ffb3b2',
-                fontStyle: 'bold italic'
+                fontStyle: 'italic',
+                fontWeight: '900'
             }).setOrigin(0.5);
-            winnerText.setAlpha(0);
+            roundOverlay.setAlpha(0.08);
+            roundOverlay.setAngle(-5);
             
-            // Input keys
+            // Input
             const keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
             const keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
             const keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-            
-            // Movement keys
             const keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
             const keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
             
-            // Attack handlers
-            keyA.on('down', () => this.attack('light'));
-            keyS.on('down', () => this.attack('heavy'));
-            keyD.on('down', () => this.specialAttack());
-            
-            // Movement handlers
+            keyA.on('down', () => this.lightAttack());
+            keyS.on('down', () => this.heavyAttack());
+            keyD.on('down', () => this.focusAttack());
             keyLeft.on('down', () => this.movePlayer('left'));
             keyRight.on('down', () => this.movePlayer('right'));
             
-            // Store references for update function
-            this.player = player;
-            this.cpu = cpu;
-            this.playerGlow = playerGlow;
-            this.cpuGlow = cpuGlow;
-            this.specialFill = specialFill;
-            
-            // Store attack function context
-            this.attackFn = (type) => this.attack(type);
-            this.specialFn = () => this.specialAttack();
-            this.moveFn = (dir) => this.movePlayer(dir);
-            
-            // Start AI loop
+            // Timer countdown
             this.time.addEvent({
-                delay: 800,
-                callback: this.cpuAction,
-                callbackScope: this,
+                delay: 1000,
+                callback: () => { if(roundActive && roundTimer > 0) { roundTimer--; timerText.setText(roundTimer.toString().padStart(2, '0')); if(roundTimer === 0) this.endGame('time'); } },
                 loop: true
             });
             
-            // Update meters UI
-            this.updateMeters();
+            // CPU AI
+            this.time.addEvent({ delay: 600, callback: () => this.cpuAction(), loop: true });
+            
+            // Store references
+            this.player = player;
+            this.cpu = cpu;
+            this.playerAura = playerAura;
+            this.cpuAura = cpuAura;
+            this.focusBar = focusBar;
+            
+            // Create impact effect system
+            this.impactFlash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
+            this.impactFlash.setAlpha(0);
+            
+            // Start fight announcement
+            this.time.delayedCall(2000, () => {
+                this.tweens.add({ targets: roundOverlay, alpha: 0, duration: 1500 });
+            });
         }
         
         function update() {
-            if (!roundActive) return;
+            if(!roundActive) return;
             
-            // Update hit effect timer
-            if (hitEffectTimer > 0) {
-                hitEffectTimer--;
-                if (hitEffectTimer === 0) {
-                    this.playerGlow.setAlpha(0.2);
-                    this.cpuGlow.setAlpha(0.2);
-                }
+            // Cooldowns
+            if(attackCooldown > 0) attackCooldown--;
+            if(focusCooldown > 0) focusCooldown--;
+            
+            // Focus regeneration
+            if(playerFocus < 100) {
+                playerFocus = Math.min(100, playerFocus + 0.5);
+                focusBar.width = 200 * (playerFocus / 100);
             }
             
-            // Update cooldowns
-            if (attackCooldown > 0) attackCooldown--;
-            if (specialCooldown > 0) specialCooldown--;
+            // Aura following
+            this.playerAura.setPosition(player.x, player.y);
+            this.cpuAura.setPosition(cpu.x, cpu.y);
             
-            // Gradually increase special meter
-            if (specialMeter < 100 && roundActive) {
-                specialMeter += 0.3;
-                if (specialMeter > 100) specialMeter = 100;
-                this.updateMeters();
-            }
+            // Name plaques follow
+            playerNameDisplay.setPosition(player.x, player.y - 70);
+            playerTitleDisplay.setPosition(player.x, player.y - 55);
+            cpuNameDisplay.setPosition(cpu.x, cpu.y - 70);
+            cpuTitleDisplay.setPosition(cpu.x, cpu.y - 55);
             
-            // Smooth following of glow to player position
-            if (this.playerGlow) {
-                this.playerGlow.x = player.x;
-                this.playerGlow.y = player.y;
-            }
-            if (this.cpuGlow) {
-                this.cpuGlow.x = cpu.x;
-                this.cpuGlow.y = cpu.y;
-            }
+            // Boundaries
+            player.x = Math.min(Math.max(player.x, 180), 520);
+            cpu.x = Math.min(Math.max(cpu.x, 760), 1100);
             
-            // Update name positions
-            playerNameText.setPosition(player.x, player.y - 70);
-            cpuNameText.setPosition(cpu.x, cpu.y - 70);
-            
-            // Boundary limits
-            player.x = Math.min(Math.max(player.x, 150), 500);
-            cpu.x = Math.min(Math.max(cpu.x, 780), 1130);
-            
-            // Check distance - don't let them overlap
-            if (Math.abs(player.x - cpu.x) < 70) {
-                if (player.x < cpu.x) {
-                    player.x = cpu.x - 70;
-                } else {
-                    cpu.x = player.x + 70;
-                }
+            // Collision prevention
+            if(Math.abs(player.x - cpu.x) < 70) {
+                if(player.x < cpu.x) player.x = cpu.x - 70;
+                else cpu.x = player.x + 70;
             }
         }
         
         function movePlayer(direction) {
-            if (!roundActive || !playerCanAct) return;
-            
-            if (direction === 'left') {
-                player.x -= 25;
-            } else if (direction === 'right') {
-                player.x += 25;
-            }
-            
-            // Boundary limits
-            player.x = Math.min(Math.max(player.x, 150), 500);
+            if(!roundActive) return;
+            if(direction === 'left') player.x -= 18;
+            else if(direction === 'right') player.x += 18;
         }
         
-        function attack(type) {
-            if (!roundActive || attackCooldown > 0) return;
+        function lightAttack() {
+            if(!roundActive || attackCooldown > 0) return;
+            
+            const distance = Math.abs(player.x - cpu.x);
+            const canHit = distance < 85;
+            
+            // Attack animation
+            this.tweens.add({
+                targets: player,
+                x: player.x + (canHit ? 25 : 15),
+                duration: 50,
+                yoyo: true,
+                ease: 'Power2'
+            });
+            
+            if(canHit) {
+                const damage = Math.floor(7 * (playerData.power / 100));
+                cpuHealth = Math.max(0, cpuHealth - damage);
+                attackCooldown = 20;
+                this.applyHitEffect(cpu, damage, 'light');
+                
+                this.updateHealthBars();
+                
+                if(cpuHealth <= 0) this.endGame('player');
+            }
+        }
+        
+        function heavyAttack() {
+            if(!roundActive || attackCooldown > 0) return;
+            
+            const distance = Math.abs(player.x - cpu.x);
+            const canHit = distance < 75;
+            
+            this.tweens.add({
+                targets: player,
+                scaleX: 1.2,
+                duration: 80,
+                yoyo: true,
+                ease: 'Back'
+            });
+            
+            if(canHit) {
+                const damage = Math.floor(13 * (playerData.power / 100));
+                cpuHealth = Math.max(0, cpuHealth - damage);
+                attackCooldown = 32;
+                this.applyHitEffect(cpu, damage, 'heavy');
+                
+                this.updateHealthBars();
+                
+                if(cpuHealth <= 0) this.endGame('player');
+            }
+        }
+        
+        function focusAttack() {
+            if(!roundActive || focusCooldown > 0 || playerFocus < 100) return;
             
             const distance = Math.abs(player.x - cpu.x);
             const canHit = distance < 100;
             
-            let damage = 0;
-            let hitEffect = false;
-            
-            if (type === 'light') {
-                damage = canHit ? Math.floor(8 * (selectedStats.power / 100)) : 0;
-                attackCooldown = 15;
-                hitEffect = canHit;
-                
-                // Visual feedback - punch animation
-                this.tweens.add({
-                    targets: player,
-                    scaleX: 1.3,
-                    duration: 80,
-                    yoyo: true
-                });
-            } else if (type === 'heavy') {
-                damage = canHit ? Math.floor(15 * (selectedStats.power / 100)) : 0;
-                attackCooldown = 25;
-                hitEffect = canHit;
-                
-                // Heavy attack animation
-                this.tweens.add({
-                    targets: player,
-                    scaleX: 1.4,
-                    scaleY: 0.9,
-                    duration: 100,
-                    yoyo: true
-                });
-            }
-            
-            if (hitEffect && damage > 0) {
+            if(canHit) {
+                const damage = Math.floor(22 * (playerData.power / 100));
                 cpuHealth = Math.max(0, cpuHealth - damage);
-                this.updateMeters();
+                playerFocus = 0;
+                focusCooldown = 45;
+                focusBar.width = 0;
                 
-                // Hit effect
-                hitEffectTimer = 10;
-                this.cpuGlow.setAlpha(0.6);
-                this.cpuGlow.setFillStyle(0xff5252);
-                
-                // Screen shake
-                this.cameras.main.shake(100, 0.003);
-                
-                // Combo system
-                comboCount++;
-                if (comboTimeout) clearTimeout(comboTimeout);
-                comboText.setText(`${comboCount} HIT COMBO!`);
-                comboText.setAlpha(1);
-                comboTimeout = setTimeout(() => {
-                    comboText.setAlpha(0);
-                    comboCount = 0;
-                }, 1000);
-                
-                // Push back on hit
-                cpu.x += 20;
-                if (cpu.x > 1130) cpu.x = 1130;
-                
-                // Check for victory
-                if (cpuHealth <= 0) {
-                    this.endGame('player');
-                }
-            } else if (canHit && damage === 0) {
-                // Blocked!
-                const blockText = this.add.text(cpu.x, cpu.y - 50, 'BLOCK!', {
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: '16px',
-                    color: '#666666'
-                }).setOrigin(0.5);
+                // Cinematic hit effect
+                this.cameras.main.shake(150, 0.005);
                 this.tweens.add({
-                    targets: blockText,
-                    alpha: 0,
-                    y: blockText.y - 30,
-                    duration: 500,
-                    onComplete: () => blockText.destroy()
+                    targets: this.impactFlash,
+                    alpha: 0.25,
+                    duration: 60,
+                    yoyo: true
                 });
+                
+                this.applyHitEffect(cpu, damage, 'focus');
+                this.updateHealthBars();
+                
+                if(cpuHealth <= 0) this.endGame('player');
             }
         }
         
-        function specialAttack() {
-            if (!roundActive || specialCooldown > 0 || specialMeter < 100) return;
+        function applyHitEffect(target, damage, type) {
+            // Screen shake
+            this.cameras.main.shake(80, 0.003);
             
-            const distance = Math.abs(player.x - cpu.x);
-            const canHit = distance < 150;
+            // Hit flash on target
+            target.setAlpha(0.6);
+            this.time.delayedCall(100, () => target.setAlpha(0.95));
             
-            if (canHit) {
-                const damage = Math.floor(25 * (selectedStats.power / 100));
-                cpuHealth = Math.max(0, cpuHealth - damage);
-                specialMeter = 0;
-                specialCooldown = 60;
-                this.updateMeters();
-                
-                // Special effect
-                hitEffectTimer = 15;
-                this.cpuGlow.setAlpha(0.8);
-                this.cpuGlow.setFillStyle(0xff0000);
-                this.cameras.main.shake(200, 0.008);
-                
-                // Special visual
-                const specialEffect = this.add.text(player.x, player.y - 50, 'SPECIAL!', {
-                    fontFamily: 'Anybody',
-                    fontSize: '24px',
-                    color: '#ffb3b2',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
-                this.tweens.add({
-                    targets: specialEffect,
-                    alpha: 0,
-                    y: specialEffect.y - 50,
-                    duration: 600,
-                    onComplete: () => specialEffect.destroy()
-                });
-                
-                // Screen flash
-                const flash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
-                flash.setAlpha(0.3);
-                this.tweens.add({
-                    targets: flash,
-                    alpha: 0,
-                    duration: 200,
-                    onComplete: () => flash.destroy()
-                });
-                
-                // Push back
-                cpu.x += 40;
-                if (cpu.x > 1130) cpu.x = 1130;
-                
-                if (cpuHealth <= 0) {
-                    this.endGame('player');
-                }
-            } else {
-                const missText = this.add.text(player.x, player.y - 50, 'MISS!', {
-                    fontFamily: 'JetBrains Mono',
-                    fontSize: '16px',
-                    color: '#ff5252'
-                }).setOrigin(0.5);
-                this.tweens.add({
-                    targets: missText,
-                    alpha: 0,
-                    y: missText.y - 30,
-                    duration: 500,
-                    onComplete: () => missText.destroy()
-                });
-            }
+            // Damage number (subtle)
+            const dmgText = this.add.text(target.x, target.y - 30, `${damage}`, {
+                fontFamily: 'JetBrains Mono',
+                fontSize: '14px',
+                color: type === 'focus' ? '#ffb3b2' : '#e9bcba'
+            }).setOrigin(0.5);
+            
+            this.tweens.add({
+                targets: dmgText,
+                y: dmgText.y - 40,
+                alpha: 0,
+                duration: 600,
+                onComplete: () => dmgText.destroy()
+            });
+            
+            // Pushback
+            if(target === cpu) target.x += 25;
+            else target.x -= 25;
         }
         
         function cpuAction() {
-            if (!roundActive) return;
+            if(!roundActive) return;
             
             const distance = Math.abs(cpu.x - player.x);
             
-            // Decision making based on distance and health
-            const random = Math.random();
-            
-            if (distance > 120) {
-                // Move towards player
-                if (cpu.x < player.x) {
-                    cpu.x += 20;
-                } else {
-                    cpu.x -= 20;
-                }
-            } else if (random < 0.4 && attackCooldown === 0) {
-                // CPU Attack
-                const damage = Math.floor(12 * 0.85); // CPU has 85% power
-                playerHealth = Math.max(0, playerHealth - damage);
-                attackCooldown = 20;
-                this.updateMeters();
-                
-                hitEffectTimer = 10;
-                this.playerGlow.setAlpha(0.6);
-                this.playerGlow.setFillStyle(0x00dbe9);
-                this.cameras.main.shake(100, 0.003);
-                
-                // CPU attack animation
-                this.tweens.add({
-                    targets: cpu,
-                    scaleX: 1.3,
-                    duration: 80,
-                    yoyo: true
-                });
-                
-                // Push back
-                player.x -= 20;
-                if (player.x < 150) player.x = 150;
-                
-                if (playerHealth <= 0) {
-                    this.endGame('cpu');
-                }
-            } else if (random < 0.7 && specialMeter >= 100 && specialCooldown === 0) {
-                // CPU Special
-                const damage = Math.floor(22 * 0.85);
-                playerHealth = Math.max(0, playerHealth - damage);
-                specialMeter = 0;
-                specialCooldown = 60;
-                this.updateMeters();
-                
-                hitEffectTimer = 15;
-                this.playerGlow.setAlpha(0.8);
-                this.playerGlow.setFillStyle(0xff0000);
-                this.cameras.main.shake(200, 0.008);
-                
-                const specialEffect = this.add.text(cpu.x, cpu.y - 50, 'CPU SPECIAL!', {
-                    fontFamily: 'Anybody',
-                    fontSize: '20px',
-                    color: '#00dbe9',
-                    fontStyle: 'bold'
-                }).setOrigin(0.5);
-                this.tweens.add({
-                    targets: specialEffect,
-                    alpha: 0,
-                    y: specialEffect.y - 50,
-                    duration: 600,
-                    onComplete: () => specialEffect.destroy()
-                });
-                
-                if (playerHealth <= 0) {
-                    this.endGame('cpu');
+            if(distance > 110) {
+                if(cpu.x < player.x) cpu.x += 14;
+                else cpu.x -= 14;
+            } else {
+                const action = Math.random();
+                if(action < 0.35 && attackCooldown === 0) {
+                    const damage = Math.floor(9 * 0.85);
+                    playerHealth = Math.max(0, playerHealth - damage);
+                    attackCooldown = 22;
+                    this.applyHitEffect(player, damage, 'light');
+                    this.updateHealthBars();
+                    
+                    if(playerHealth <= 0) this.endGame('cpu');
+                } else if(action < 0.55 && playerFocus >= 100 && focusCooldown === 0) {
+                    const damage = Math.floor(20 * 0.85);
+                    playerHealth = Math.max(0, playerHealth - damage);
+                    playerFocus = 0;
+                    focusCooldown = 45;
+                    this.applyHitEffect(player, damage, 'focus');
+                    this.updateHealthBars();
+                    
+                    if(playerHealth <= 0) this.endGame('cpu');
                 }
             }
-            
-            // Boundary limits for CPU
-            cpu.x = Math.min(Math.max(cpu.x, 780), 1130);
         }
         
-        function updateMeters() {
-            // Update health bars
+        function updateHealthBars() {
             const playerPercent = playerHealth / 100;
             const cpuPercent = cpuHealth / 100;
             
-            healthBarPlayer.width = 400 * playerPercent;
-            healthBarCPU.width = 400 * cpuPercent;
+            healthBarPlayer.width = 350 * playerPercent;
+            healthBarCPU.width = 350 * cpuPercent;
             
-            // Change color based on low health
-            if (playerHealth < 30) {
-                healthBarPlayer.setFillStyle(0xff5252);
-            } else {
-                healthBarPlayer.setFillStyle(selectedStats.color);
-            }
-            
-            if (cpuHealth < 30) {
-                healthBarCPU.setFillStyle(0xff5252);
-            } else {
-                healthBarCPU.setFillStyle(0x00dbe9);
-            }
-            
-            // Update special meter
-            if (this.specialFill) {
-                this.specialFill.width = 400 * (specialMeter / 100);
-            }
+            // Low health warning
+            if(playerHealth < 25) healthBarPlayer.setFillStyle(0xff3b3b);
+            if(cpuHealth < 25) healthBarCPU.setFillStyle(0xff3b3b);
         }
         
         function endGame(winner) {
             roundActive = false;
             
-            let message = '';
-            if (winner === 'player') {
-                message = `${selectedStats.name} VICTORY!`;
-                winnerText.setColor('#ffb3b2');
-            } else {
-                message = 'ZERO VICTORY!';
-                winnerText.setColor('#00dbe9');
-            }
+            const resultText = winner === 'player' ? `${playerData.name} WINS` : `${cpuData.name} WINS`;
+            const resultColor = winner === 'player' ? '#ffb3b2' : '#00dbe9';
             
-            winnerText.setText(message);
-            winnerText.setAlpha(1);
+            const announcement = this.add.text(640, 360, resultText, {
+                fontFamily: 'Anybody',
+                fontSize: '48px',
+                color: resultColor,
+                fontStyle: 'bold italic',
+                letterSpacing: '4px'
+            }).setOrigin(0.5);
+            announcement.setAlpha(0);
+            announcement.setScale(0.8);
             
-            // Restart button after 3 seconds
-            this.time.delayedCall(3000, () => {
-                winnerText.setAlpha(0);
-                this.restartGame();
-            });
-        }
-        
-        function restartGame() {
-            playerHealth = 100;
-            cpuHealth = 100;
-            specialMeter = 0;
-            attackCooldown = 0;
-            specialCooldown = 0;
-            roundActive = true;
-            comboCount = 0;
-            comboText.setAlpha(0);
-            
-            // Reset positions
-            player.x = 300;
-            cpu.x = 980;
-            
-            this.updateMeters();
-            
-            // Reset glow colors
-            this.playerGlow.setFillStyle(selectedStats.color);
-            this.cpuGlow.setFillStyle(0x00dbe9);
-            this.playerGlow.setAlpha(0.2);
-            this.cpuGlow.setAlpha(0.2);
-            
-            // Round announcement
-            roundText.setAlpha(0.8);
             this.tweens.add({
-                targets: roundText,
-                alpha: 0,
-                delay: 1000,
-                duration: 500
+                targets: announcement,
+                alpha: 1,
+                scale: 1,
+                duration: 600,
+                ease: 'Back'
+            });
+            
+            // Return to roster after delay
+            this.time.delayedCall(4000, () => {
+                window.location.href = 'characterselect.html';
             });
         }
         
-        // Start the game
         const game = new Phaser.Game(config);
     </script>
 </body>
