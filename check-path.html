@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>Path Check</title></head>
+<body>
+    <h1>Image Path Test</h1>
+    <img src="assets/characters/kairo/portrait.png" onload="document.write('<p style="color:green">✓ SUCCESS: Image found at assets/characters/kairo/portrait.png</p>')" onerror="document.write('<p style="color:red">✗ FAILED: Image NOT found at assets/characters/kairo/portrait.png</p>')">
+    
+    <h2>Current page location:</h2>
+    <p>URL: <span id="url"></span></p>
+    
+    <script>
+        document.getElementById('url').innerText = window.location.href;
+    </script>
+</body>
+</html>
