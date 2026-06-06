@@ -85,6 +85,7 @@
 </head>
 <body class="bg-background text-on-background selection:bg-primary selection:text-on-primary">
 
+  <!-- Top Navigation Bar -->
   <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl border-b border-primary/30 shadow-[0_0_25px_rgba(255,179,178,0.2)] flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20">
     <a href="index.html" class="font-display-lg text-headline-lg md:text-3xl italic font-black text-primary tracking-tighter cursor-pointer hover:opacity-80 transition">IRON FIST</a>
     <div class="hidden md:flex gap-gutter">
@@ -99,6 +100,7 @@
     </div>
   </nav>
 
+  <!-- Side Status Bar -->
   <aside class="fixed left-0 top-24 bottom-24 w-14 rounded-r-xl bg-surface-container-low/90 backdrop-blur-md border-r border-tertiary/30 shadow-[3px_0_20px_rgba(0,219,233,0.1)] flex flex-col items-center py-stack-lg gap-gutter z-40 hidden lg:flex">
     <div class="flex flex-col items-center gap-5">
       <div class="group relative cursor-help"><span class="material-symbols-outlined text-tertiary text-2xl">sensors</span><div class="absolute left-full ml-4 px-2 py-1 bg-surface-container border border-tertiary text-label-sm whitespace-nowrap opacity-0 group-hover:opacity-100">Server: ONLINE</div></div>
@@ -108,11 +110,13 @@
     </div>
   </aside>
 
+  <!-- Main Content -->
   <main class="relative flex-1 flex flex-col overflow-hidden pt-24 pb-20 px-4 md:px-8 lg:px-12 xl:px-16">
+    <!-- Header -->
     <div class="flex justify-between items-end border-l-4 border-primary pl-4 py-2 mb-6">
       <div>
         <h2 class="font-headline-lg text-headline-lg text-on-surface uppercase tracking-widest">Select Fighter</h2>
-        <p class="text-label-sm text-primary font-label-bold">TOURNAMENT BRACKET PHASE 1 • 24 WARRIORS</p>
+        <p class="text-label-sm text-primary font-label-bold">CHOOSE YOUR CHAMPION</p>
       </div>
       <div class="text-right">
         <span class="text-outline text-label-bold block">FILTER BY ARCHETYPE:</span>
@@ -124,11 +128,14 @@
       </div>
     </div>
 
+    <!-- Roster Grid + Detail Panel -->
     <div class="flex flex-col lg:flex-row gap-8">
+      <!-- Character Grid -->
       <div class="flex-1">
-        <div id="roster-grid" class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 overflow-y-auto pr-2 pb-2" style="max-height: 550px;"></div>
+        <div id="roster-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 overflow-y-auto pr-2 pb-2" style="max-height: 550px;"></div>
       </div>
 
+      <!-- Character Detail Panel -->
       <div class="w-full lg:w-[420px] xl:w-[480px] flex flex-col gap-5 shrink-0">
         <div class="detail-portrait-container relative group overflow-hidden border-r-4 border-b-4 border-primary rounded-l-md">
           <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
@@ -142,24 +149,52 @@
           </div>
         </div>
 
+        <!-- Stats Panel -->
         <div class="glass-panel p-6 rounded-xl">
           <div class="flex items-center gap-2 border-l-2 border-tertiary pl-3 mb-4">
             <span class="material-symbols-outlined text-tertiary">equalizer</span>
             <h3 class="font-label-bold text-label-bold uppercase tracking-wider">Combat Statistics</h3>
           </div>
           <div class="space-y-4">
-            <div><div class="flex justify-between mb-1"><span class="text-label-sm font-label-bold text-outline">POWER</span><span id="stat-power-val" class="text-label-sm font-label-bold text-primary">88%</span></div><div class="h-2 bg-surface-container-highest rounded-full overflow-hidden"><div id="stat-power-bar" class="h-full bg-primary w-[88%] rounded-full transition-all duration-300"></div></div></div>
-            <div><div class="flex justify-between mb-1"><span class="text-label-sm font-label-bold text-outline">SPEED</span><span id="stat-speed-val" class="text-label-sm font-label-bold text-tertiary">94%</span></div><div class="h-2 bg-surface-container-highest rounded-full overflow-hidden"><div id="stat-speed-bar" class="h-full bg-tertiary w-[94%] rounded-full transition-all duration-300"></div></div></div>
-            <div><div class="flex justify-between mb-1"><span class="text-label-sm font-label-bold text-outline">RANGE</span><span id="stat-range-val" class="text-label-sm font-label-bold text-on-surface-variant">42%</span></div><div class="h-2 bg-surface-container-highest rounded-full overflow-hidden"><div id="stat-range-bar" class="h-full bg-on-surface-variant w-[42%] rounded-full transition-all duration-300"></div></div></div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-label-sm font-label-bold text-outline">POWER</span>
+                <span id="stat-power-val" class="text-label-sm font-label-bold text-primary">88%</span>
+              </div>
+              <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="stat-power-bar" class="h-full bg-primary w-[88%] rounded-full transition-all duration-300"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-label-sm font-label-bold text-outline">SPEED</span>
+                <span id="stat-speed-val" class="text-label-sm font-label-bold text-tertiary">94%</span>
+              </div>
+              <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="stat-speed-bar" class="h-full bg-tertiary w-[94%] rounded-full transition-all duration-300"></div>
+              </div>
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-label-sm font-label-bold text-outline">RANGE</span>
+                <span id="stat-range-val" class="text-label-sm font-label-bold text-on-surface-variant">42%</span>
+              </div>
+              <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="stat-range-bar" class="h-full bg-on-surface-variant w-[42%] rounded-full transition-all duration-300"></div>
+              </div>
+            </div>
           </div>
+          
+          <!-- THIS BUTTON GOES TO ARENA SELECTION, NOT DIRECTLY TO GAME -->
           <button id="confirm-btn" class="mt-6 w-full py-4 bg-tertiary text-on-tertiary font-display-lg text-headline-lg-mobile italic skew-box transition-all hover:brightness-110 active:scale-95 shadow-[0_0_20px_rgba(0,219,233,0.4)] cursor-pointer">
-            <span class="block skew-box-reverse">START FIGHT!</span>
+            <span class="block skew-box-reverse">SELECT ARENA →</span>
           </button>
         </div>
       </div>
     </div>
   </main>
 
+  <!-- Footer -->
   <footer class="relative w-full bg-surface-container-lowest border-t-2 border-outline-variant/70 flex flex-col md:flex-row justify-between items-center p-margin-mobile md:p-margin-desktop gap-stack-md mt-8">
     <div class="font-display-xl text-display-lg md:text-3xl text-on-surface italic font-black tracking-tighter">IRON FIST</div>
     <div class="flex flex-col items-center md:items-end gap-stack-sm">
@@ -173,6 +208,7 @@
     </div>
   </footer>
 
+  <!-- Background Atmosphere -->
   <div class="fixed inset-0 pointer-events-none z-0 overflow-hidden">
     <div class="absolute -top-[15%] -right-[5%] w-[50%] h-[50%] bg-primary/5 rounded-full blur-[130px]"></div>
     <div class="absolute -bottom-[10%] -left-[10%] w-[45%] h-[45%] bg-tertiary/5 rounded-full blur-[110px]"></div>
@@ -180,7 +216,7 @@
   </div>
 
   <script>
-    // Fighter Database with LOCAL IMAGE paths for KAIRO
+    // Fighter Database - KAIRO and ASHMIN
     const fighters = [
       { 
         name: "KAIRO", 
@@ -192,29 +228,16 @@
         portrait: "assets/characters/kairo/portrait.png",
         thumb: "assets/characters/kairo/thumb.png"
       },
-      { name: "SILAS", archetype: "TANK", rank: "MASTER", power: 95, speed: 58, range: 35, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=SILAS", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=SL" },
-      { name: "MIRA", archetype: "TRICKSTER", rank: "DIAMOND", power: 72, speed: 96, range: 68, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=MIRA", thumb: "https://placehold.co/200x200/252525/00dbe9?text=MR" },
-      { name: "AXEL", archetype: "BRUISER", rank: "GOLD", power: 91, speed: 67, range: 44, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=AXEL", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=AX" },
-      { name: "NYX", archetype: "ZONER", rank: "PLATINUM", power: 64, speed: 79, range: 92, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=NYX", thumb: "https://placehold.co/200x200/252525/00dbe9?text=NY" },
-      { name: "KODEX", archetype: "TECH", rank: "MASTER", power: 84, speed: 88, range: 77, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=KODEX", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=KD" },
-      { name: "DRAKE", archetype: "RUSH-DOWN", rank: "ELITE", power: 86, speed: 92, range: 48, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=DRAKE", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=DR" },
-      { name: "VAL", archetype: "ASSASSIN", rank: "DIAMOND", power: 78, speed: 98, range: 52, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=VAL", thumb: "https://placehold.co/200x200/252525/00dbe9?text=VA" },
-      { name: "BANE", archetype: "JUGGERNAUT", rank: "GOLD", power: 97, speed: 42, range: 33, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=BANE", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=BN" },
-      { name: "VOLT", archetype: "SPEEDSTER", rank: "PLATINUM", power: 69, speed: 97, range: 61, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=VOLT", thumb: "https://placehold.co/200x200/252525/00dbe9?text=VT" },
-      { name: "JADE", archetype: "STRATEGIST", rank: "MASTER", power: 73, speed: 85, range: 89, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=JADE", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=JD" },
-      { name: "ORION", archetype: "RANGED", rank: "DIAMOND", power: 81, speed: 74, range: 94, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=ORION", thumb: "https://placehold.co/200x200/252525/00dbe9?text=OR" },
-      { name: "STORM", archetype: "ZONER", rank: "ELITE", power: 67, speed: 83, range: 96, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=STORM", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=ST" },
-      { name: "ZERO", archetype: "CYBER", rank: "LEGEND", power: 90, speed: 91, range: 78, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=ZERO", thumb: "https://placehold.co/200x200/252525/00dbe9?text=ZR" },
-      { name: "PYRO", archetype: "BURST", rank: "GOLD", power: 93, speed: 70, range: 59, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=PYRO", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=PY" },
-      { name: "NEO", archetype: "TECH", rank: "PLATINUM", power: 79, speed: 87, range: 85, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=NEO", thumb: "https://placehold.co/200x200/252525/00dbe9?text=NO" },
-      { name: "SAGE", archetype: "SUPPORT", rank: "MASTER", power: 62, speed: 75, range: 90, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=SAGE", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=SG" },
-      { name: "VEX", archetype: "TRICKSTER", rank: "DIAMOND", power: 75, speed: 93, range: 71, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=VEX", thumb: "https://placehold.co/200x200/252525/00dbe9?text=VX" },
-      { name: "RHINO", archetype: "TANK", rank: "GOLD", power: 96, speed: 49, range: 38, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=RHINO", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=RH" },
-      { name: "TITAN", archetype: "JUGGERNAUT", rank: "ELITE", power: 98, speed: 45, range: 40, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=TITAN", thumb: "https://placehold.co/200x200/252525/00dbe9?text=TT" },
-      { name: "BLADE", archetype: "ASSASSIN", rank: "PLATINUM", power: 84, speed: 96, range: 49, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=BLADE", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=BD" },
-      { name: "WOLF", archetype: "RUSH-DOWN", rank: "DIAMOND", power: 87, speed: 94, range: 47, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=WOLF", thumb: "https://placehold.co/200x200/252525/00dbe9?text=WF" },
-      { name: "VIPER", archetype: "SPEEDSTER", rank: "MASTER", power: 70, speed: 99, range: 60, portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=VIPER", thumb: "https://placehold.co/200x200/252525/ffb3b2?text=VP" },
-      { name: "GHOST", archetype: "STEALTH", rank: "LEGEND", power: 76, speed: 97, range: 82, portrait: "https://placehold.co/600x800/2a2a2a/00dbe9?text=GHOST", thumb: "https://placehold.co/200x200/252525/00dbe9?text=GH" }
+      { 
+        name: "ASHMIN", 
+        archetype: "CYBER", 
+        rank: "LEGEND", 
+        power: 90, 
+        speed: 91, 
+        range: 78, 
+        portrait: "assets/characters/ashmin/portrait.jpg",
+        thumb: "assets/characters/ashmin/portrait.jpg"  // Using portrait as thumb temporarily
+      }
     ];
 
     let currentFighter = fighters[0];
@@ -257,14 +280,16 @@
       });
     }
 
-    function startFight() {
+    // THIS FUNCTION GOES TO ARENA SELECTION, NOT DIRECTLY TO GAME
+    function goToArenaSelection() {
       if(currentFighter) {
-        window.location.href = `game.html?fighter=${encodeURIComponent(currentFighter.name)}`;
+        window.location.href = `arena.html?fighter=${encodeURIComponent(currentFighter.name)}`;
       } else {
-        window.location.href = 'game.html?fighter=KAIRO';
+        window.location.href = 'arena.html?fighter=KAIRO';
       }
     }
 
+    // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
       buildRosterGrid();
       updateDetailPanel(fighters[0]);
@@ -272,9 +297,10 @@
       
       const confirmBtn = document.getElementById('confirm-btn');
       if (confirmBtn) {
+        // Remove any existing listeners
         const newBtn = confirmBtn.cloneNode(true);
         confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-        newBtn.addEventListener('click', startFight);
+        newBtn.addEventListener('click', goToArenaSelection);
       }
     });
   </script>
