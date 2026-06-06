@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test ASHMIN Sprites</title>
+    <style>
+        body { background: #0a0a0a; color: white; font-family: monospace; padding: 20px; }
+        .sprite-test { display: inline-block; margin: 20px; text-align: center; }
+        img { max-width: 200px; border: 2px solid #00dbe9; margin: 10px; background: #1a1a1a; }
+        .success { color: #0f0; }
+        .fail { color: #f00; }
+        .container { display: flex; flex-wrap: wrap; }
+    </style>
+</head>
+<body>
+    <h1>ASHMIN Sprite Test</h1>
+    <p>Your images should be in: <strong>assets/characters/ashmin/</strong></p>
+    <p>File extensions should be: <strong>.jpg</strong></p>
+    
+    <div class="container">
+        <div class="sprite-test">
+            <img id="idle-img" src="assets/characters/ashmin/idle.jpg" onload="markSuccess('idle')" onerror="markFail('idle')">
+            <div>idle.jpg <span id="idle-status"></span></div>
+        </div>
+        
+        <div class="sprite-test">
+            <img id="punchL-img" src="assets/characters/ashmin/punch-left.jpg" onload="markSuccess('punchL')" onerror="markFail('punchL')">
+            <div>punch-left.jpg <span id="punchL-status"></span></div>
+        </div>
+        
+        <div class="sprite-test">
+            <img id="kick-img" src="assets/characters/ashmin/kick.jpg" onload="markSuccess('kick')" onerror="markFail('kick')">
+            <div>kick.jpg <span id="kick-status"></span></div>
+        </div>
+        
+        <div class="sprite-test">
+            <img id="victory-img" src="assets/characters/ashmin/victory.jpg" onload="markSuccess('victory')" onerror="markFail('victory')">
+            <div>victory.jpg <span id="victory-status"></span></div>
+        </div>
+        
+        <div class="sprite-test">
+            <img id="portrait-img" src="assets/characters/ashmin/portrait.jpg" onload="markSuccess('portrait')" onerror="markFail('portrait')">
+            <div>portrait.jpg <span id="portrait-status"></span></div>
+        </div>
+        
+        <div class="sprite-test">
+            <img id="thumb-img" src="assets/characters/ashmin/thumb.jpg" onload="markSuccess('thumb')" onerror="markFail('thumb')">
+            <div>thumb.jpg <span id="thumb-status"></span></div>
+        </div>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #1a1a1a; border-left: 3px solid #ffb3b2;">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Make sure ALL 6 images are in <code>assets/characters/ashmin/</code> folder</li>
+            <li>File names must be EXACTLY: <code>idle.jpg</code>, <code>punch-left.jpg</code>, <code>kick.jpg</code>, <code>victory.jpg</code>, <code>portrait.jpg</code>, <code>thumb.jpg</code></li>
+            <li>If any image shows a broken icon, check the file name and location</li>
+            <li>Once all show ✅ SUCCESS, the game will work</li>
+        </ol>
+    </div>
+    
+    <script>
+        function markSuccess(name) {
+            document.getElementById(name + '-status').innerHTML = ' ✅ LOADED';
+            document.getElementById(name + '-status').style.color = '#0f0';
+        }
+        
+        function markFail(name) {
+            document.getElementById(name + '-status').innerHTML = ' ❌ NOT FOUND';
+            document.getElementById(name + '-status').style.color = '#f00';
+        }
+    </script>
+</body>
+</html>
