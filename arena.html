@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>IRON FIST - ARENA SELECTION</title>
+<title>CHIYA GANG WARRIORS - ARENA SELECTION</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:wght@100..800&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
@@ -139,7 +138,7 @@
 
 <!-- TopNavBar -->
 <header class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
-<div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic">IRON FIST</div>
+<div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic">CHIYA GANG WARRIORS</div>
 <nav class="hidden md:flex gap-gutter items-center">
 <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="characterselect.html">ROSTER</a>
 <a class="font-label-bold text-label-bold text-primary border-b-4 border-primary pb-1" href="#">ARENAS</a>
@@ -192,7 +191,7 @@
 </div>
 <div class="text-right font-label-bold text-primary flex gap-stack-lg">
 <div class="bg-surface-container-high px-4 py-2 border-2 border-primary/40">
-<span class="text-on-surface-variant">FIGHTER:</span> <span class="text-white" id="selectedFighter">KAIRO</span>
+<span class="text-on-surface-variant">FIGHTER:</span> <span class="text-white" id="selectedFighter">ADARSHA</span>
 </div>
 </div>
 </div>
@@ -307,24 +306,20 @@
 
 <!-- Footer -->
 <footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20">
-<div class="font-headline-lg text-headline-lg text-primary italic">IRON FIST</div>
+<div class="font-headline-lg text-headline-lg text-primary italic">CHIYA GANG WARRIORS</div>
 <div class="font-label-sm text-label-sm tracking-widest text-on-surface uppercase flex gap-stack-lg">
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">LEGAL</a>
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">PRIVACY</a>
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">SUPPORT</a>
 </div>
-<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2024 IRON FIST ARCADE. ALL RIGHTS RESERVED.</div>
+<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2024 CHIYA GANG ARCADE. ALL RIGHTS RESERVED.</div>
 </footer>
 
 <script>
-    // Get selected fighter from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
-    const selectedFighter = urlParams.get('fighter') || 'KAIRO';
-    
-    // Display selected fighter name
+    const selectedFighter = urlParams.get('fighter') || 'ADARSHA';
     document.getElementById('selectedFighter').innerText = selectedFighter;
     
-    // Arena data storage
     let currentArena = {
         name: 'CYBER-SHRINE',
         desc: 'Traditional aesthetics meet high-tech defense systems.',
@@ -334,7 +329,6 @@
         accent: '0x9b59b6'
     };
     
-    // Arena images mapping - UPDATED with local paths
     const arenaImages = {
         'NEO-TOKYO': 'assets/background/neo-tokyo.jpg',
         'CYBER-SHRINE': 'assets/background/cyber-shrine.jpg',
@@ -356,7 +350,6 @@
         arenaDesc.innerText = desc;
         arenaImg.style.backgroundImage = `url('${arenaImages[name]}')`;
         
-        // Update hazard blocks
         hazardRating.innerHTML = '';
         for (let i = 0; i < 5; i++) {
             const block = document.createElement('div');
@@ -364,13 +357,11 @@
             hazardRating.appendChild(block);
         }
         
-        // Flicker effect
         arenaImg.classList.remove('animate-flicker');
         void arenaImg.offsetWidth;
         arenaImg.classList.add('animate-flicker');
     }
     
-    // Add click handlers to arena cards
     document.querySelectorAll('.arena-card').forEach(card => {
         card.addEventListener('click', () => {
             const name = card.getAttribute('data-arena');
@@ -382,7 +373,6 @@
             
             selectArena(name, desc, hazards, bgcolor1, bgcolor2, accent);
             
-            // Update active styling
             document.querySelectorAll('.arena-card').forEach(c => {
                 c.classList.remove('border-retro-red', 'scale-105', 'shadow-[0_0_30px_rgba(255,0,60,0.4)]');
                 c.classList.add('border-outline-variant');
@@ -392,14 +382,12 @@
         });
     });
     
-    // Start fight button - passes both fighter AND arena to game.html
-   document.getElementById('startFightBtn').addEventListener('click', () => {
-    const fighter = selectedFighter;
-    const arena = currentArena.name;
-    window.location.href = `difficulty.html?fighter=${encodeURIComponent(fighter)}&arena=${encodeURIComponent(arena)}`;
-});
+    document.getElementById('startFightBtn').addEventListener('click', () => {
+        const fighter = selectedFighter;
+        const arena = currentArena.name;
+        window.location.href = `difficulty.html?fighter=${encodeURIComponent(fighter)}&arena=${encodeURIComponent(arena)}`;
+    });
     
-    // Initial selection
     selectArena('CYBER-SHRINE', 'Traditional aesthetics meet high-tech defense systems. The cherry blossom petals are actually holographic emitters that can disrupt radar.', 3, '0x0a0a2a', '0x1a0a3a', '0x9b59b6');
 </script>
 </body>

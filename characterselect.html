@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>IRON FIST · Character Roster | Select Your Fighter</title>
+  <title>CHIYA GANG WARRIORS · Character Roster | Select Your Fighter</title>
   
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   
@@ -87,7 +87,7 @@
 
   <!-- Top Navigation Bar -->
   <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl border-b border-primary/30 shadow-[0_0_25px_rgba(255,179,178,0.2)] flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20">
-    <a href="index.html" class="font-display-lg text-headline-lg md:text-3xl italic font-black text-primary tracking-tighter cursor-pointer hover:opacity-80 transition">IRON FIST</a>
+    <a href="index.html" class="font-display-lg text-headline-lg md:text-3xl italic font-black text-primary tracking-tighter cursor-pointer hover:opacity-80 transition">CHIYA GANG WARRIORS</a>
     <div class="hidden md:flex gap-gutter">
       <a href="index.html" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Home</a>
       <a href="#" class="text-primary border-b-2 border-primary pb-1 font-label-bold">Roster</a>
@@ -141,7 +141,7 @@
           <div class="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent z-10"></div>
           <img id="detail-portrait" src="" alt="" class="w-full h-[360px] object-cover object-top transition-transform duration-700 group-hover:scale-105" />
           <div class="absolute bottom-0 left-0 w-full p-stack-lg z-20 bg-gradient-to-t from-black/80 to-transparent">
-            <h1 id="detail-name" class="font-display-xl text-display-lg md:text-5xl italic text-primary drop-shadow-[0_0_15px_rgba(255,179,178,0.8)]">KAIRO</h1>
+            <h1 id="detail-name" class="font-display-xl text-display-lg md:text-5xl italic text-primary drop-shadow-[0_0_15px_rgba(255,179,178,0.8)]">ADARSHA</h1>
             <div class="flex items-center gap-stack-sm mt-2">
               <span id="detail-archetype" class="px-3 py-1 bg-tertiary/20 border border-tertiary text-tertiary font-label-bold text-label-sm skew-box"><span class="block skew-box-reverse">RUSH-DOWN</span></span>
               <span id="detail-rank" class="px-3 py-1 bg-primary/20 border border-primary text-primary font-label-bold text-label-sm skew-box"><span class="block skew-box-reverse">ELITE RANK</span></span>
@@ -185,7 +185,6 @@
             </div>
           </div>
           
-          <!-- BUTTON GOES TO ARENA SELECTION -->
           <button id="confirm-btn" class="mt-6 w-full py-4 bg-tertiary text-on-tertiary font-display-lg text-headline-lg-mobile italic skew-box transition-all hover:brightness-110 active:scale-95 shadow-[0_0_20px_rgba(0,219,233,0.4)] cursor-pointer">
             <span class="block skew-box-reverse">SELECT ARENA →</span>
           </button>
@@ -196,7 +195,7 @@
 
   <!-- Footer -->
   <footer class="relative w-full bg-surface-container-lowest border-t-2 border-outline-variant/70 flex flex-col md:flex-row justify-between items-center p-margin-mobile md:p-margin-desktop gap-stack-md mt-8">
-    <div class="font-display-xl text-display-lg md:text-3xl text-on-surface italic font-black tracking-tighter">IRON FIST</div>
+    <div class="font-display-xl text-display-lg md:text-3xl text-on-surface italic font-black tracking-tighter">CHIYA GANG WARRIORS</div>
     <div class="flex flex-col items-center md:items-end gap-stack-sm">
       <div class="flex flex-wrap justify-center gap-gutter">
         <a href="#" class="text-on-surface-variant hover:text-secondary transition-colors text-sm">Privacy Policy</a>
@@ -204,7 +203,7 @@
         <a href="#" class="text-on-surface-variant hover:text-secondary transition-colors text-sm">Tournament Rules</a>
         <a href="#" class="text-on-surface-variant hover:text-secondary transition-colors text-sm">Support</a>
       </div>
-      <p class="text-on-surface-variant opacity-60 text-xs">© 2025 NEXUS COMBAT STUDIOS. ALL RIGHTS RESERVED.</p>
+      <p class="text-on-surface-variant opacity-60 text-xs">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED.</p>
     </div>
   </footer>
 
@@ -216,17 +215,17 @@
   </div>
 
   <script>
-    // Fighter Database - Using portrait as thumb (since thumb.png not available)
+    // Fighter Database - ADARSHA and ASHMIN
     const fighters = [
       { 
-        name: "KAIRO", 
+        name: "ADARSHA", 
         archetype: "RUSH-DOWN", 
         rank: "ELITE RANK", 
         power: 88, 
         speed: 94, 
         range: 42, 
-        portrait: "assets/characters/kairo/portrait.png",
-        thumb: "assets/characters/kairo/portrait.png"  // Using portrait as thumb
+        portrait: "assets/characters/adarsha/portrait.png",
+        thumb: "assets/characters/adarsha/portrait.png"
       },
       { 
         name: "ASHMIN", 
@@ -236,7 +235,7 @@
         speed: 91, 
         range: 78, 
         portrait: "assets/characters/ashmin/portrait.jpg",
-        thumb: "assets/characters/ashmin/portrait.jpg"  // Using portrait as thumb
+        thumb: "assets/characters/ashmin/portrait.jpg"
       }
     ];
 
@@ -286,7 +285,7 @@
       if(currentFighter) {
         window.location.href = `arena.html?fighter=${encodeURIComponent(currentFighter.name)}`;
       } else {
-        window.location.href = 'arena.html?fighter=KAIRO';
+        window.location.href = 'arena.html?fighter=ADARSHA';
       }
     }
 
