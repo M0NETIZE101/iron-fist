@@ -96,7 +96,7 @@
     </div>
     <div class="flex items-center gap-stack-md">
       <button class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Login</button>
-      <button class="skew-btn bg-primary text-on-primary px-7 py-3 font-label-bold text-label-bold transition-all hover:shadow-[0_0_15px_rgba(255,179,178,0.7)] active:scale-95">PLAY NOW</button>
+      <a href="characterselect.html" class="skew-btn bg-primary text-on-primary px-7 py-3 font-label-bold text-label-bold transition-all hover:shadow-[0_0_15px_rgba(255,179,178,0.7)] active:scale-95 inline-block">PLAY NOW</a>
     </div>
   </nav>
 
@@ -156,6 +156,7 @@
             <h3 class="font-label-bold text-label-bold uppercase tracking-wider">Combat Statistics</h3>
           </div>
           <div class="space-y-4">
+            <!-- POWER -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">POWER</span>
@@ -165,6 +166,7 @@
                 <div id="stat-power-bar" class="h-full bg-primary w-[88%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
+            <!-- SPEED -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">SPEED</span>
@@ -174,6 +176,7 @@
                 <div id="stat-speed-bar" class="h-full bg-tertiary w-[94%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
+            <!-- RANGE -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">RANGE</span>
@@ -181,6 +184,16 @@
               </div>
               <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
                 <div id="stat-range-bar" class="h-full bg-on-surface-variant w-[42%] rounded-full transition-all duration-300"></div>
+              </div>
+            </div>
+            <!-- DEFENSE -->
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-label-sm font-label-bold text-outline">DEFENSE</span>
+                <span id="stat-defense-val" class="text-label-sm font-label-bold text-primary">78%</span>
+              </div>
+              <div class="h-2 bg-surface-container-highest rounded-full overflow-hidden">
+                <div id="stat-defense-bar" class="h-full bg-primary w-[78%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
           </div>
@@ -214,41 +227,12 @@
     <div class="scanline absolute inset-0 opacity-10"></div>
   </div>
 
+  <!-- Shared Fighter Data -->
+  <script src="fighters.js"></script>
+  
   <script>
-    // Fighter Database - ADARSHA, ASHMIN, and ALPINE CLIMBER
-    const fighters = [
-      { 
-        name: "ADARSHA", 
-        archetype: "RUSH-DOWN", 
-        rank: "ELITE RANK", 
-        power: 88, 
-        speed: 94, 
-        range: 42, 
-        portrait: "assets/characters/adarsha/portrait.png",
-        thumb: "assets/characters/adarsha/portrait.png"
-      },
-      { 
-        name: "ASHMIN", 
-        archetype: "CYBER", 
-        rank: "LEGEND", 
-        power: 90, 
-        speed: 91, 
-        range: 78, 
-        portrait: "assets/characters/ashmin/portrait.jpg",
-        thumb: "assets/characters/ashmin/portrait.jpg"
-      },
-      { 
-        name: "ALPINE", 
-        archetype: "BALANCED", 
-        rank: "MOUNTAIN MASTER", 
-        power: 85, 
-        speed: 82, 
-        range: 88, 
-        portrait: "assets/characters/alpine/portrait.png",
-        thumb: "assets/characters/alpine/portrait.png"
-      }
-    ];
-
+    // Convert FIGHTERS object to array for roster display
+    const fighters = Object.values(FIGHTERS);
     let currentFighter = fighters[0];
 
     function updateDetailPanel(fighter) {
@@ -257,12 +241,18 @@
       document.getElementById('detail-rank').innerHTML = `<span class="block skew-box-reverse">${fighter.rank}</span>`;
       document.getElementById('detail-portrait').src = fighter.portrait;
       document.getElementById('detail-portrait').alt = fighter.name;
+      
+      // Update stats
       document.getElementById('stat-power-val').textContent = `${fighter.power}%`;
       document.getElementById('stat-speed-val').textContent = `${fighter.speed}%`;
       document.getElementById('stat-range-val').textContent = `${fighter.range}%`;
+      document.getElementById('stat-defense-val').textContent = `${fighter.defense}%`;
+      
+      // Update stat bars
       document.getElementById('stat-power-bar').style.width = `${fighter.power}%`;
       document.getElementById('stat-speed-bar').style.width = `${fighter.speed}%`;
       document.getElementById('stat-range-bar').style.width = `${fighter.range}%`;
+      document.getElementById('stat-defense-bar').style.width = `${fighter.defense}%`;
     }
 
     function buildRosterGrid() {
@@ -306,9 +296,7 @@
       
       const confirmBtn = document.getElementById('confirm-btn');
       if (confirmBtn) {
-        const newBtn = confirmBtn.cloneNode(true);
-        confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-        newBtn.addEventListener('click', goToArenaSelection);
+        confirmBtn.addEventListener('click', goToArenaSelection);
       }
     });
   </script>

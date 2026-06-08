@@ -94,7 +94,7 @@
     </a>
     
     <div class="controls-info">
-        <span>← →</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">A</span> LIGHT &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">S</span> HEAVY &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">D</span> SPECIAL &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">F</span> BLOCK &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">G</span> SUPER
+        <span>← →</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">A</span> LIGHT &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">S</span> MEDIUM &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">D</span> HEAVY &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">F</span> SPECIAL &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">G</span> BLOCK &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">H</span> SUPER
     </div>
     
     <div class="arena-name-display">
@@ -115,6 +115,9 @@
     
     <div id="game-container"></div>
 
+    <!-- Shared Fighter Data -->
+    <script src="fighters.js"></script>
+    
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const playerFighter = urlParams.get('fighter') || 'ADARSHA';
@@ -136,29 +139,6 @@
         };
         const cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
         
-        // Frame timing helper - FIXED
-        const FRAME_TIME_MS = 16.666;
-        const frameToMs = (frames) => frames * FRAME_TIME_MS;
-        
-        // Character Personalities for AI - FIXED
-        const characterPersonalities = {
-            'ADARSHA': {
-                type: 'RUSH-DOWN', playStyle: 'AGGRESSIVE', optimalRange: 80,
-                preferredAttacks: ['light', 'medium', 'heavy'], specialUsage: 'OFFENSIVE',
-                movementStyle: 'FORWARD', defenseStyle: 'AGGRESSIVE_BLOCK', comboPreference: 'LIGHT_START'
-            },
-            'ASHMIN': {
-                type: 'ZONER', playStyle: 'DEFENSIVE', optimalRange: 150,
-                preferredAttacks: ['special', 'medium', 'light'], specialUsage: 'DEFENSIVE',
-                movementStyle: 'KITE', defenseStyle: 'PASSIVE_BLOCK', comboPreference: 'SPECIAL_START'
-            },
-            'ALPINE': {
-                type: 'BALANCED', playStyle: 'COUNTER', optimalRange: 100,
-                preferredAttacks: ['medium', 'heavy', 'special'], specialUsage: 'REACTIVE',
-                movementStyle: 'ADAPTIVE', defenseStyle: 'COUNTER_BLOCK', comboPreference: 'MEDIUM_START'
-            }
-        };
-        
         const arenaBackgrounds = {
             'NEO-TOKYO': 'assets/background/neo-tokyo.jpg',
             'CYBER-SHRINE': 'assets/background/cyber-shrine.jpg',
@@ -169,50 +149,15 @@
         };
         const arenaBgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
         
-        const fighterData = {
-            'ADARSHA': { 
-                name: 'ADARSHA', title: 'CYBERNETIC MONK', power: 88, speed: 94, defense: 78,
-                color: 0xff5252, accent: 0xffb3b2, folder: 'adarsha',
-                specialName: 'CHIYA RUSH', specialDamage: 18,
-                attacks: {
-                    light: { startup: frameToMs(5), active: frameToMs(3), recovery: frameToMs(10), damage: 6, range: 70, height: 'mid', pushback: 20 },
-                    medium: { startup: frameToMs(8), active: frameToMs(4), recovery: frameToMs(14), damage: 10, range: 75, height: 'mid', pushback: 28 },
-                    heavy: { startup: frameToMs(12), active: frameToMs(5), recovery: frameToMs(20), damage: 15, range: 80, height: 'overhead', pushback: 35 },
-                    special: { startup: frameToMs(15), active: frameToMs(6), recovery: frameToMs(25), damage: 18, range: 90, height: 'mid', pushback: 40 }
-                }
-            },
-            'ASHMIN': { 
-                name: 'ASHMIN', title: 'PROTOCOL-X', power: 90, speed: 91, defense: 75,
-                color: 0x00dbe9, accent: 0x7df4ff, folder: 'ashmin',
-                specialName: 'PROTOCOL BLAST', specialDamage: 15,
-                attacks: {
-                    light: { startup: frameToMs(4), active: frameToMs(3), recovery: frameToMs(9), damage: 5, range: 65, height: 'low', pushback: 18 },
-                    medium: { startup: frameToMs(7), active: frameToMs(4), recovery: frameToMs(12), damage: 9, range: 70, height: 'mid', pushback: 25 },
-                    heavy: { startup: frameToMs(10), active: frameToMs(5), recovery: frameToMs(18), damage: 13, range: 75, height: 'mid', pushback: 32 },
-                    special: { startup: frameToMs(20), active: frameToMs(8), recovery: frameToMs(30), damage: 15, range: 250, height: 'projectile', pushback: 25 }
-                }
-            },
-            'ALPINE': { 
-                name: 'ALPINE', title: 'THE ALPINE CLIMBER', power: 85, speed: 82, defense: 88,
-                color: 0x4a90e2, accent: 0x7cb8f0, folder: 'alpine',
-                specialName: 'AVALANCHE STRIKE', specialDamage: 20,
-                attacks: {
-                    light: { startup: frameToMs(6), active: frameToMs(3), recovery: frameToMs(11), damage: 7, range: 75, height: 'mid', pushback: 22 },
-                    medium: { startup: frameToMs(9), active: frameToMs(4), recovery: frameToMs(15), damage: 11, range: 80, height: 'overhead', pushback: 30 },
-                    heavy: { startup: frameToMs(14), active: frameToMs(6), recovery: frameToMs(22), damage: 16, range: 85, height: 'low', pushback: 38 },
-                    special: { startup: frameToMs(18), active: frameToMs(7), recovery: frameToMs(28), damage: 20, range: 95, height: 'mid', pushback: 45 }
-                }
-            }
-        };
+        // Get fighter data from shared FIGHTERS object
+        const playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
-        const playerData = fighterData[playerFighter] || fighterData['ADARSHA'];
-        
-        // FIXED: CPU can be any character except player
-        const allFighters = ['ADARSHA', 'ASHMIN', 'ALPINE'];
+        // Random CPU opponent (excluding player)
+        const allFighters = Object.keys(FIGHTERS);
         const availableCPUs = allFighters.filter(f => f !== playerFighter);
         const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
-        const cpuData = fighterData[randomCPU];
-        const cpuPersonality = characterPersonalities[randomCPU];
+        const cpuData = FIGHTERS[randomCPU];
+        const cpuPersonality = cpuData.personality;
         
         // UNIFIED CONSTANTS
         const HEALTH_BAR_MAX_WIDTH = 400;
@@ -249,6 +194,10 @@
                 this.roundActive = true;
                 this.roundTimer = 99;
                 this.superFlashEffect = null;
+                
+                // Block height tracking
+                this.playerBlockHeight = 'mid';
+                this.cpuBlockHeight = 'mid';
             }
             
             preload() {
@@ -347,11 +296,13 @@
                 vsText.setDepth(25);
                 this.tweens.add({ targets: vsText, alpha: 0, duration: 1000, delay: 1500, onComplete: () => vsText.destroy() });
                 
+                // Input keys
                 this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
                 this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
                 this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
                 this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
                 this.keyG = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
+                this.keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
                 this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
                 this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
                 
@@ -637,18 +588,22 @@
                 });
             }
             
+            // ========== PLAYER ATTACKS ==========
+            
             playerLightAttack() {
                 if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
                 
+                const attackData = playerData.attacks.light;
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 100;
-                const damage = 7;
+                const canHit = distance < attackData.range;
+                const damage = attackData.damage;
                 
-                this.setPlayerAnimation('light', 150);
-                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? 20 : 10), duration: 50, yoyo: true });
+                this.setPlayerAnimation('light', attackData.startup + attackData.active + attackData.recovery);
+                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 10), duration: 50, yoyo: true });
                 
                 if (canHit) {
-                    const isBlocked = this.cpuBlocking;
+                    // FIXED: Use cpuBlockHeight for CPU blocking check
+                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
                     this.applyHitEffect(this.cpu, finalDamage, false);
@@ -665,22 +620,24 @@
                 }
             }
             
-            playerHeavyAttack() {
+            playerMediumAttack() {
                 if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
                 
+                const attackData = playerData.attacks.medium;
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 90;
-                const damage = 13;
+                const canHit = distance < attackData.range;
+                const damage = attackData.damage;
                 
-                this.setPlayerAnimation('heavy', 200);
-                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? 30 : 15), scaleX: 1.1, scaleY: 0.95, duration: 80, yoyo: true, ease: 'Back' });
+                this.setPlayerAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
+                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.1, scaleY: 0.95, duration: 80, yoyo: true, ease: 'Back' });
                 
                 if (canHit) {
-                    const isBlocked = this.cpuBlocking;
+                    // FIXED: Use cpuBlockHeight for CPU blocking check
+                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
                     this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('heavy', 120);
+                    this.setCPUAnimation('medium', 120);
                     this.updateHealthBars();
                     
                     if (!isBlocked) {
@@ -693,25 +650,24 @@
                 }
             }
             
-            playerSpecialAttack() {
+            playerHeavyAttack() {
                 if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                if (this.specialCooldown > 0) return;
                 
+                const attackData = playerData.attacks.heavy;
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 110;
-                const damage = playerData.specialDamage;
+                const canHit = distance < attackData.range;
+                const damage = attackData.damage;
                 
-                this.specialCooldown = 60;
-                this.setPlayerAnimation('special', 250);
-                this.cameras.main.shake(120, 0.01);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.4, duration: 80, yoyo: true });
+                this.setPlayerAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
+                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.15, scaleY: 0.9, duration: 100, yoyo: true, ease: 'Back' });
                 
                 if (canHit) {
-                    const isBlocked = this.cpuBlocking;
+                    // FIXED: Use cpuBlockHeight for CPU blocking check
+                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
                     this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('special', 150);
+                    this.setCPUAnimation('heavy', 120);
                     this.updateHealthBars();
                     
                     if (!isBlocked) {
@@ -724,12 +680,45 @@
                 }
             }
             
+            playerSpecialAttack() {
+                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
+                if (this.specialCooldown > 0) return;
+                
+                const attackData = playerData.attacks.special;
+                const distance = Math.abs(this.player.x - this.cpu.x);
+                const canHit = distance < attackData.range;
+                const damage = attackData.damage;
+                
+                this.specialCooldown = 180;
+                this.setPlayerAnimation('special', attackData.startup + attackData.active + attackData.recovery);
+                this.cameras.main.shake(150, 0.015);
+                this.tweens.add({ targets: this.impactFlash, alpha: 0.5, duration: 100, yoyo: true });
+                
+                if (canHit) {
+                    // FIXED: Use cpuBlockHeight for CPU blocking check
+                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
+                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
+                    this.applyHitEffect(this.cpu, finalDamage, true);
+                    this.setCPUAnimation('special', 150);
+                    this.updateHealthBars();
+                    
+                    if (!isBlocked) {
+                        this.updateCombo();
+                        this.cpuHitStun = 25;
+                        this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 12);
+                    }
+                    
+                    if (this.cpuHealth <= 0) this.endGame('player');
+                }
+            }
+            
             playerSuperMove() {
                 if (!this.roundActive || this.isAttacking) return;
                 if (this.superMeter < 100) return;
                 
                 const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 130;
+                const canHit = distance < 150;
                 const damage = 35;
                 
                 this.startSuperFreeze(250);
@@ -751,8 +740,8 @@
                 this.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
                 
                 this.setPlayerAnimation('heavy', 300, true);
-                this.cameras.main.shake(250, 0.02);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.7, duration: 150, yoyo: true });
+                this.cameras.main.shake(300, 0.03);
+                this.tweens.add({ targets: this.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
                 
                 if (canHit) {
                     const isBlocked = this.cpuBlocking;
@@ -773,12 +762,121 @@
                 }
             }
             
+            // ========== CPU ATTACKS ==========
+            
+            cpuLightAttack() {
+                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
+                
+                const attackData = cpuData.attacks.light;
+                const distance = Math.abs(this.cpu.x - this.player.x);
+                const canHit = distance < attackData.range;
+                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
+                
+                this.setCPUAnimation('light', attackData.startup + attackData.active + attackData.recovery);
+                
+                if (canHit) {
+                    // FIXED: Use playerBlockHeight for player blocking check
+                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
+                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
+                    this.applyHitEffect(this.player, finalDamage, false);
+                    this.updateHealthBars();
+                    
+                    if (!isBlocked) {
+                        this.superMeter = Math.min(100, this.superMeter + 3);
+                    }
+                    
+                    if (this.playerHealth <= 0) this.endGame('cpu');
+                }
+            }
+            
+            cpuMediumAttack() {
+                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
+                
+                const attackData = cpuData.attacks.medium;
+                const distance = Math.abs(this.cpu.x - this.player.x);
+                const canHit = distance < attackData.range;
+                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
+                
+                this.setCPUAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
+                
+                if (canHit) {
+                    // FIXED: Use playerBlockHeight for player blocking check
+                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
+                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
+                    this.applyHitEffect(this.player, finalDamage, true);
+                    this.updateHealthBars();
+                    
+                    if (!isBlocked) {
+                        this.superMeter = Math.min(100, this.superMeter + 5);
+                    }
+                    
+                    if (this.playerHealth <= 0) this.endGame('cpu');
+                }
+            }
+            
+            cpuHeavyAttack() {
+                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
+                
+                const attackData = cpuData.attacks.heavy;
+                const distance = Math.abs(this.cpu.x - this.player.x);
+                const canHit = distance < attackData.range;
+                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
+                
+                this.setCPUAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
+                
+                if (canHit) {
+                    // FIXED: Use playerBlockHeight for player blocking check
+                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
+                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
+                    this.applyHitEffect(this.player, finalDamage, true);
+                    this.updateHealthBars();
+                    
+                    if (!isBlocked) {
+                        this.superMeter = Math.min(100, this.superMeter + 8);
+                    }
+                    
+                    if (this.playerHealth <= 0) this.endGame('cpu');
+                }
+            }
+            
+            cpuSpecialAttack() {
+                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
+                if (this.cpuSpecialCooldown > 0) return;
+                
+                const attackData = cpuData.attacks.special;
+                const distance = Math.abs(this.cpu.x - this.player.x);
+                const canHit = distance < attackData.range;
+                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
+                
+                this.cpuSpecialCooldown = 180;
+                this.setCPUAnimation('special', attackData.startup + attackData.active + attackData.recovery);
+                this.cameras.main.shake(120, 0.01);
+                
+                if (canHit) {
+                    // FIXED: Use playerBlockHeight for player blocking check
+                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
+                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
+                    this.applyHitEffect(this.player, finalDamage, true);
+                    this.updateHealthBars();
+                    
+                    if (!isBlocked) {
+                        this.superMeter = Math.min(100, this.superMeter + 12);
+                    }
+                    
+                    if (this.playerHealth <= 0) this.endGame('cpu');
+                }
+            }
+            
             cpuSuperMove() {
                 if (!this.roundActive || this.cpuAttacking) return;
                 if (this.cpuSuperMeter < 100) return;
                 
                 const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < 130;
+                const canHit = distance < 150;
                 const damage = 32;
                 
                 this.startSuperFreeze(250);
@@ -797,8 +895,8 @@
                 this.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
                 
                 this.setCPUAnimation('heavy', 300, true);
-                this.cameras.main.shake(250, 0.02);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.7, duration: 150, yoyo: true });
+                this.cameras.main.shake(300, 0.03);
+                this.tweens.add({ targets: this.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
                 
                 if (canHit) {
                     const isBlocked = this.isBlocking;
@@ -832,99 +930,25 @@
                 this.cpuBlockDecision = Math.random() < cpuSettings.blockChance && distance < 120;
                 if (!this.cpuAttacking) {
                     this.cpuBlocking = this.cpuBlockDecision;
+                    // FIXED: Set CPU block height based on attack pattern or random
+                    this.cpuBlockHeight = Math.random() < 0.5 ? 'mid' : 'low';
                 }
                 
                 if (distance < 120 && Math.random() < 0.5 && !this.cpuAttacking) {
                     const attackChoice = Math.random();
-                    if (attackChoice < 0.4) {
+                    if (attackChoice < 0.33) {
                         this.cpuLightAttack();
-                    } else if (attackChoice < 0.7) {
-                        this.cpuHeavyAttack();
+                    } else if (attackChoice < 0.66) {
+                        this.cpuMediumAttack();
                     } else {
-                        this.cpuSpecialAttack();
+                        this.cpuHeavyAttack();
                     }
-                }
-            }
-            
-            cpuLightAttack() {
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < 100;
-                const damage = Math.floor(6 * cpuSettings.damageMultiplier);
-                
-                this.setCPUAnimation('light', 150);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, false);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 3);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuHeavyAttack() {
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < 90;
-                const damage = Math.floor(12 * cpuSettings.damageMultiplier);
-                
-                this.setCPUAnimation('heavy', 200);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 5);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuSpecialAttack() {
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                if (this.cpuSpecialCooldown > 0) return;
-                
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < 110;
-                const damage = Math.floor(cpuData.specialDamage * cpuSettings.damageMultiplier);
-                
-                this.cpuSpecialCooldown = 60;
-                this.setCPUAnimation('special', 250);
-                this.cameras.main.shake(100, 0.008);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 8);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
                 }
             }
             
             applyHitEffect(target, damage, isHeavy) {
-                this.cameras.main.shake(isHeavy ? 100 : 60, 0.005);
+                this.cameras.main.shake(isHeavy ? 120 : 80, 0.008);
                 
-                // Play hurt animation
                 if (target === this.cpu) {
                     this.setCPUAnimation('hurt', 150);
                 } else {
@@ -934,25 +958,22 @@
                 target.setAlpha(0.5);
                 this.time.delayedCall(100, () => target.setAlpha(1));
                 
-                // Damage number
                 const dmgText = this.add.text(target.x, target.y - 50, `${damage}`, {
-                    fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '28px' : '20px',
+                    fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '32px' : '24px',
                     color: isHeavy ? '#ff003c' : '#ffb3b2', fontStyle: 'bold',
                     stroke: '#000000', strokeThickness: 2
                 }).setOrigin(0.5);
                 dmgText.setDepth(50);
-                this.tweens.add({ targets: dmgText, y: dmgText.y - 50, alpha: 0, duration: 500, onComplete: () => dmgText.destroy() });
+                this.tweens.add({ targets: dmgText, y: dmgText.y - 60, alpha: 0, scale: 1.3, duration: 500, onComplete: () => dmgText.destroy() });
                 
-                // Pushback
                 if (target === this.cpu) {
-                    target.x += isHeavy ? 35 : 20;
+                    target.x += isHeavy ? 40 : 25;
                 } else {
-                    target.x -= isHeavy ? 35 : 20;
+                    target.x -= isHeavy ? 40 : 25;
                 }
                 
-                // Impact flash for heavy hits
                 if (isHeavy) {
-                    this.tweens.add({ targets: this.impactFlash, alpha: 0.3, duration: 80, yoyo: true });
+                    this.tweens.add({ targets: this.impactFlash, alpha: 0.4, duration: 100, yoyo: true });
                 }
             }
             
@@ -997,15 +1018,19 @@
                     }
                 }
                 
+                // Attack inputs
                 if (Phaser.Input.Keyboard.JustDown(this.keyA)) this.playerLightAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyS)) this.playerHeavyAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyD)) this.playerSpecialAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyG) && this.superMeter >= 100) this.playerSuperMove();
+                if (Phaser.Input.Keyboard.JustDown(this.keyS)) this.playerMediumAttack();
+                if (Phaser.Input.Keyboard.JustDown(this.keyD)) this.playerHeavyAttack();
+                if (Phaser.Input.Keyboard.JustDown(this.keyF)) this.playerSpecialAttack();
+                if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.superMeter >= 100) this.playerSuperMove();
                 
-                this.isBlocking = this.keyF.isDown && !this.isAttacking;
+                // Blocking with G key - FIXED: Set player block height
+                this.isBlocking = this.keyG.isDown && !this.isAttacking;
                 if (this.isBlocking) {
                     this.playerAura.setAlpha(0.3);
                     this.playerAura.setFillStyle(0x00dbe9);
+                    this.playerBlockHeight = 'mid'; // Player always blocks mid for now
                 } else {
                     this.playerAura.setAlpha(0.15);
                     this.playerAura.setFillStyle(playerData.color);
