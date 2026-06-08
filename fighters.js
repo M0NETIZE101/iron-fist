@@ -112,8 +112,8 @@ const FIGHTERS = {
             special: { startup: 300, active: 117, recovery: 467, damage: 20, range: 95, height: 'mid', pushback: 45 }
         },
         // Display assets
-        portrait: 'assets/characters/alpine/portrait.png',
-        thumb: 'assets/characters/alpine/portrait.png'
+        portrait: 'assets/characters/alpine/portrait.png.png',
+        thumb: 'assets/characters/alpine/portrait.png.png'
     }
 };
 
