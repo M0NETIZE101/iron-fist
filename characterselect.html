@@ -92,7 +92,7 @@
       <a href="index.html" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Home</a>
       <a href="#" class="text-primary border-b-2 border-primary pb-1 font-label-bold">Roster</a>
       <a href="#" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Mechanics</a>
-      <a href="#" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Community</a>
+      <a href="fighters.html" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Fighters</a>
     </div>
     <div class="flex items-center gap-stack-md">
       <button class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Login</button>
@@ -156,7 +156,6 @@
             <h3 class="font-label-bold text-label-bold uppercase tracking-wider">Combat Statistics</h3>
           </div>
           <div class="space-y-4">
-            <!-- POWER -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">POWER</span>
@@ -166,7 +165,6 @@
                 <div id="stat-power-bar" class="h-full bg-primary w-[88%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
-            <!-- SPEED -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">SPEED</span>
@@ -176,7 +174,6 @@
                 <div id="stat-speed-bar" class="h-full bg-tertiary w-[94%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
-            <!-- RANGE -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">RANGE</span>
@@ -186,7 +183,6 @@
                 <div id="stat-range-bar" class="h-full bg-on-surface-variant w-[42%] rounded-full transition-all duration-300"></div>
               </div>
             </div>
-            <!-- DEFENSE -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="text-label-sm font-label-bold text-outline">DEFENSE</span>
@@ -242,13 +238,11 @@
       document.getElementById('detail-portrait').src = fighter.portrait;
       document.getElementById('detail-portrait').alt = fighter.name;
       
-      // Update stats
       document.getElementById('stat-power-val').textContent = `${fighter.power}%`;
       document.getElementById('stat-speed-val').textContent = `${fighter.speed}%`;
       document.getElementById('stat-range-val').textContent = `${fighter.range}%`;
       document.getElementById('stat-defense-val').textContent = `${fighter.defense}%`;
       
-      // Update stat bars
       document.getElementById('stat-power-bar').style.width = `${fighter.power}%`;
       document.getElementById('stat-speed-bar').style.width = `${fighter.speed}%`;
       document.getElementById('stat-range-bar').style.width = `${fighter.range}%`;

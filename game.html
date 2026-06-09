@@ -200,35 +200,54 @@
                 this.cpuBlockHeight = 'mid';
             }
             
+            // Helper method to get facing direction
+            getFacingDirection(character) {
+                if (character === 'player') {
+                    return this.player.x < this.cpu.x ? 'right' : 'left';
+                } else {
+                    return this.cpu.x < this.player.x ? 'right' : 'left';
+                }
+            }
+            
             preload() {
                 this.load.image('arenaBg', arenaBgImage);
                 
-                // Load ADARSHA sprites
+                // ADARSHA SPRITES
                 this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
-                this.load.image(`adarsha_light`, `assets/characters/adarsha/punch-left.png`);
-                this.load.image(`adarsha_medium`, `assets/characters/adarsha/punch-right.png`);
-                this.load.image(`adarsha_heavy`, `assets/characters/adarsha/kick.png`);
+                this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
+                this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
+                this.load.image(`adarsha_kick`, `assets/characters/adarsha/kick.png`);
                 this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
                 this.load.image(`adarsha_victory`, `assets/characters/adarsha/victory.png`);
                 this.load.image(`adarsha_hurt`, `assets/characters/adarsha/hurt.png`);
                 
-                // Load ASHMIN sprites
+                // ASHMIN SPRITES
                 this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
-                this.load.image(`ashmin_light`, `assets/characters/ashmin/punch-left.png`);
-                this.load.image(`ashmin_medium`, `assets/characters/ashmin/punch-right.png`);
-                this.load.image(`ashmin_heavy`, `assets/characters/ashmin/kick.png`);
+                this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
+                this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
+                this.load.image(`ashmin_kick`, `assets/characters/ashmin/kick.png`);
                 this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
                 this.load.image(`ashmin_victory`, `assets/characters/ashmin/victory.png`);
                 this.load.image(`ashmin_hurt`, `assets/characters/ashmin/hurt.png`);
                 
-                // Load ALPINE sprites
+                // ALPINE SPRITES
                 this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
-                this.load.image(`alpine_light`, `assets/characters/alpine/punch-left.png`);
-                this.load.image(`alpine_medium`, `assets/characters/alpine/punch-right.png`);
-                this.load.image(`alpine_heavy`, `assets/characters/alpine/kick-right.png`);
+                this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
+                this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
+                this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
+                this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
                 this.load.image(`alpine_special`, `assets/characters/alpine/kick-left.png`);
                 this.load.image(`alpine_victory`, `assets/characters/alpine/victory.png`);
                 this.load.image(`alpine_hurt`, `assets/characters/alpine/hurt.png`);
+
+                // Load PRESIDENT sprites
+this.load.image(`president_idle`, `assets/characters/president/idle.png`);
+this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
+this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
+this.load.image(`president_kick`, `assets/characters/president/kick.png`);
+this.load.image(`president_special`, `assets/characters/president/special.png`);
+this.load.image(`president_victory`, `assets/characters/president/victory.png`);
+this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
             }
             
             create() {
@@ -520,12 +539,28 @@
                 if (!bypassFreeze && this.isSuperFrozen) return;
                 
                 let textureKey;
+                const facing = this.getFacingDirection('player');
+                
                 switch(animName) {
                     case 'hurt': textureKey = `${playerData.folder}_hurt`; break;
-                    case 'light': textureKey = `${playerData.folder}_light`; break;
-                    case 'medium': textureKey = `${playerData.folder}_medium`; break;
-                    case 'heavy': textureKey = `${playerData.folder}_heavy`; break;
-                    case 'special': textureKey = `${playerData.folder}_special`; break;
+                    case 'light': textureKey = `${playerData.folder}_punch-${facing}`; break;
+                    case 'medium': textureKey = `${playerData.folder}_punch-${facing}`; break;
+                    case 'heavy': 
+                        // Alpine uses kick-left/kick-right, others use kick
+                        if (playerData.name === 'ALPINE') {
+                            textureKey = `${playerData.folder}_kick-${facing}`;
+                        } else {
+                            textureKey = `${playerData.folder}_kick`;
+                        }
+                        break;
+                    case 'special': 
+                        // Alpine uses kick-left for special, others use kick
+                        if (playerData.name === 'ALPINE') {
+                            textureKey = `${playerData.folder}_kick-${facing}`;
+                        } else {
+                            textureKey = `${playerData.folder}_special`;
+                        }
+                        break;
                     case 'victory': textureKey = `${playerData.folder}_victory`; break;
                     default: textureKey = `${playerData.folder}_idle`;
                 }
@@ -553,12 +588,26 @@
                 if (!bypassFreeze && this.isSuperFrozen) return;
                 
                 let textureKey;
+                const facing = this.getFacingDirection('cpu');
+                
                 switch(animName) {
                     case 'hurt': textureKey = `${cpuData.folder}_hurt`; break;
-                    case 'light': textureKey = `${cpuData.folder}_light`; break;
-                    case 'medium': textureKey = `${cpuData.folder}_medium`; break;
-                    case 'heavy': textureKey = `${cpuData.folder}_heavy`; break;
-                    case 'special': textureKey = `${cpuData.folder}_special`; break;
+                    case 'light': textureKey = `${cpuData.folder}_punch-${facing}`; break;
+                    case 'medium': textureKey = `${cpuData.folder}_punch-${facing}`; break;
+                    case 'heavy':
+                        if (cpuData.name === 'ALPINE') {
+                            textureKey = `${cpuData.folder}_kick-${facing}`;
+                        } else {
+                            textureKey = `${cpuData.folder}_kick`;
+                        }
+                        break;
+                    case 'special':
+                        if (cpuData.name === 'ALPINE') {
+                            textureKey = `${cpuData.folder}_kick-${facing}`;
+                        } else {
+                            textureKey = `${cpuData.folder}_special`;
+                        }
+                        break;
                     case 'victory': textureKey = `${cpuData.folder}_victory`; break;
                     default: textureKey = `${cpuData.folder}_idle`;
                 }
@@ -602,7 +651,6 @@
                 this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 10), duration: 50, yoyo: true });
                 
                 if (canHit) {
-                    // FIXED: Use cpuBlockHeight for CPU blocking check
                     const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
@@ -632,7 +680,6 @@
                 this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.1, scaleY: 0.95, duration: 80, yoyo: true, ease: 'Back' });
                 
                 if (canHit) {
-                    // FIXED: Use cpuBlockHeight for CPU blocking check
                     const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
@@ -662,7 +709,6 @@
                 this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.15, scaleY: 0.9, duration: 100, yoyo: true, ease: 'Back' });
                 
                 if (canHit) {
-                    // FIXED: Use cpuBlockHeight for CPU blocking check
                     const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
@@ -695,7 +741,6 @@
                 this.tweens.add({ targets: this.impactFlash, alpha: 0.5, duration: 100, yoyo: true });
                 
                 if (canHit) {
-                    // FIXED: Use cpuBlockHeight for CPU blocking check
                     const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
@@ -775,7 +820,6 @@
                 this.setCPUAnimation('light', attackData.startup + attackData.active + attackData.recovery);
                 
                 if (canHit) {
-                    // FIXED: Use playerBlockHeight for player blocking check
                     const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
@@ -801,7 +845,6 @@
                 this.setCPUAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
                 
                 if (canHit) {
-                    // FIXED: Use playerBlockHeight for player blocking check
                     const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
@@ -827,7 +870,6 @@
                 this.setCPUAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
                 
                 if (canHit) {
-                    // FIXED: Use playerBlockHeight for player blocking check
                     const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
@@ -856,7 +898,6 @@
                 this.cameras.main.shake(120, 0.01);
                 
                 if (canHit) {
-                    // FIXED: Use playerBlockHeight for player blocking check
                     const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
                     const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
                     this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
@@ -930,7 +971,6 @@
                 this.cpuBlockDecision = Math.random() < cpuSettings.blockChance && distance < 120;
                 if (!this.cpuAttacking) {
                     this.cpuBlocking = this.cpuBlockDecision;
-                    // FIXED: Set CPU block height based on attack pattern or random
                     this.cpuBlockHeight = Math.random() < 0.5 ? 'mid' : 'low';
                 }
                 
@@ -1018,6 +1058,23 @@
                     }
                 }
                 
+                // Update facing directions for sprites (flip idle and other non-directional sprites)
+                const playerFacing = this.getFacingDirection('player');
+                const cpuFacing = this.getFacingDirection('cpu');
+                
+                // Flip sprites based on facing direction
+                if (playerFacing === 'left') {
+                    this.player.setFlipX(true);
+                } else {
+                    this.player.setFlipX(false);
+                }
+                
+                if (cpuFacing === 'left') {
+                    this.cpu.setFlipX(true);
+                } else {
+                    this.cpu.setFlipX(false);
+                }
+                
                 // Attack inputs
                 if (Phaser.Input.Keyboard.JustDown(this.keyA)) this.playerLightAttack();
                 if (Phaser.Input.Keyboard.JustDown(this.keyS)) this.playerMediumAttack();
@@ -1025,12 +1082,12 @@
                 if (Phaser.Input.Keyboard.JustDown(this.keyF)) this.playerSpecialAttack();
                 if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.superMeter >= 100) this.playerSuperMove();
                 
-                // Blocking with G key - FIXED: Set player block height
+                // Blocking with G key
                 this.isBlocking = this.keyG.isDown && !this.isAttacking;
                 if (this.isBlocking) {
                     this.playerAura.setAlpha(0.3);
                     this.playerAura.setFillStyle(0x00dbe9);
-                    this.playerBlockHeight = 'mid'; // Player always blocks mid for now
+                    this.playerBlockHeight = 'mid';
                 } else {
                     this.playerAura.setAlpha(0.15);
                     this.playerAura.setFillStyle(playerData.color);

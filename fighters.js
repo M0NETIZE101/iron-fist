@@ -112,8 +112,45 @@ const FIGHTERS = {
             special: { startup: 300, active: 117, recovery: 467, damage: 20, range: 95, height: 'mid', pushback: 45 }
         },
         // Display assets
-        portrait: 'assets/characters/alpine/portrait.png.png',
-        thumb: 'assets/characters/alpine/portrait.png.png'
+        portrait: 'assets/characters/alpine/portrait.png',
+        thumb: 'assets/characters/alpine/portrait.png'
+    },
+
+    'PRESIDENT': { 
+        name: 'PRESIDENT', 
+        title: 'THE COMMANDER-IN-CHIEF',
+        archetype: 'POWER',
+        rank: 'PRESIDENTIAL RANK',
+        power: 95, 
+        speed: 70, 
+        defense: 85,
+        range: 65,
+        color: 0x1a5276,      // Presidential blue
+        accent: 0x85c1e9,     // Light blue
+        folder: 'president',
+        specialName: 'EXECUTIVE ORDER', 
+        specialDamage: 22,
+        // AI Personality
+        personality: {
+            type: 'POWER',
+            playStyle: 'BULLDOZER',
+            optimalRange: 70,
+            preferredAttacks: ['heavy', 'special', 'medium'],
+            specialUsage: 'OFFENSIVE',
+            movementStyle: 'FORWARD',
+            defenseStyle: 'COUNTER_BLOCK',
+            comboPreference: 'HEAVY_START'
+        },
+        // Attack frame data
+        attacks: {
+            light: { startup: 100, active: 50, recovery: 167, damage: 8, range: 70, height: 'mid', pushback: 25 },
+            medium: { startup: 133, active: 67, recovery: 200, damage: 12, range: 75, height: 'mid', pushback: 32 },
+            heavy: { startup: 183, active: 83, recovery: 250, damage: 18, range: 80, height: 'overhead', pushback: 40 },
+            special: { startup: 200, active: 100, recovery: 300, damage: 22, range: 85, height: 'mid', pushback: 50 }
+        },
+        // Display assets
+        portrait: 'assets/characters/president/portrait.png',
+        thumb: 'assets/characters/president/portrait.png'
     }
 };
 
