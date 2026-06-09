@@ -91,8 +91,8 @@ const FIGHTERS = {
         color: 0x4a90e2, 
         accent: 0x7cb8f0, 
         folder: 'alpine',
-        specialName: 'AVALANCHE STRIKE', 
-        specialDamage: 20,
+        specialName: 'ENERGY FIST', 
+        specialDamage: 26,  // Increased for three-phase special
         // AI Personality
         personality: {
             type: 'BALANCED',
@@ -109,7 +109,7 @@ const FIGHTERS = {
             light: { startup: 100, active: 50, recovery: 183, damage: 7, range: 75, height: 'mid', pushback: 22 },
             medium: { startup: 150, active: 67, recovery: 250, damage: 11, range: 80, height: 'overhead', pushback: 30 },
             heavy: { startup: 233, active: 100, recovery: 367, damage: 16, range: 85, height: 'low', pushback: 38 },
-            special: { startup: 300, active: 117, recovery: 467, damage: 20, range: 95, height: 'mid', pushback: 45 }
+            special: { startup: 300, active: 117, recovery: 467, damage: 26, range: 140, height: 'mid', pushback: 50 }
         },
         // Display assets
         portrait: 'assets/characters/alpine/portrait.png',

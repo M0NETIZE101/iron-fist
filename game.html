@@ -194,6 +194,7 @@
                 this.roundActive = true;
                 this.roundTimer = 99;
                 this.superFlashEffect = null;
+                this.hasSuperArmor = false;
                 
                 // Block height tracking
                 this.playerBlockHeight = 'mid';
@@ -230,24 +231,27 @@
                 this.load.image(`ashmin_victory`, `assets/characters/ashmin/victory.png`);
                 this.load.image(`ashmin_hurt`, `assets/characters/ashmin/hurt.png`);
                 
-                // ALPINE SPRITES
+                // ALPINE SPRITES (including three-phase special)
                 this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
                 this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
                 this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
                 this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
                 this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
-                this.load.image(`alpine_special`, `assets/characters/alpine/kick-left.png`);
+                this.load.image(`alpine_special_drink`, `assets/characters/alpine/special_drink.png`);
+                this.load.image(`alpine_special_powerup`, `assets/characters/alpine/special_powerup.png`);
+                this.load.image(`alpine_special_attack`, `assets/characters/alpine/special_attack.png`);
                 this.load.image(`alpine_victory`, `assets/characters/alpine/victory.png`);
                 this.load.image(`alpine_hurt`, `assets/characters/alpine/hurt.png`);
-
-                // Load PRESIDENT sprites
-this.load.image(`president_idle`, `assets/characters/president/idle.png`);
-this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
-this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
-this.load.image(`president_kick`, `assets/characters/president/kick.png`);
-this.load.image(`president_special`, `assets/characters/president/special.png`);
-this.load.image(`president_victory`, `assets/characters/president/victory.png`);
-this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
+                this.load.image(`energyFist`, `assets/effects/energy_fist.png`);
+                
+                // PRESIDENT SPRITES
+                this.load.image(`president_idle`, `assets/characters/president/idle.png`);
+                this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
+                this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
+                this.load.image(`president_kick`, `assets/characters/president/kick.png`);
+                this.load.image(`president_special`, `assets/characters/president/special.png`);
+                this.load.image(`president_victory`, `assets/characters/president/victory.png`);
+                this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
             }
             
             create() {
@@ -546,7 +550,6 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                     case 'light': textureKey = `${playerData.folder}_punch-${facing}`; break;
                     case 'medium': textureKey = `${playerData.folder}_punch-${facing}`; break;
                     case 'heavy': 
-                        // Alpine uses kick-left/kick-right, others use kick
                         if (playerData.name === 'ALPINE') {
                             textureKey = `${playerData.folder}_kick-${facing}`;
                         } else {
@@ -554,13 +557,15 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                         }
                         break;
                     case 'special': 
-                        // Alpine uses kick-left for special, others use kick
                         if (playerData.name === 'ALPINE') {
-                            textureKey = `${playerData.folder}_kick-${facing}`;
+                            textureKey = `${playerData.folder}_special_drink`;
                         } else {
                             textureKey = `${playerData.folder}_special`;
                         }
                         break;
+                    case 'special_drink': textureKey = `${playerData.folder}_special_drink`; break;
+                    case 'special_powerup': textureKey = `${playerData.folder}_special_powerup`; break;
+                    case 'special_attack': textureKey = `${playerData.folder}_special_attack`; break;
                     case 'victory': textureKey = `${playerData.folder}_victory`; break;
                     default: textureKey = `${playerData.folder}_idle`;
                 }
@@ -603,7 +608,7 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                         break;
                     case 'special':
                         if (cpuData.name === 'ALPINE') {
-                            textureKey = `${cpuData.folder}_kick-${facing}`;
+                            textureKey = `${cpuData.folder}_special_drink`;
                         } else {
                             textureKey = `${cpuData.folder}_special`;
                         }
@@ -726,16 +731,13 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                 }
             }
             
-            playerSpecialAttack() {
-                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                if (this.specialCooldown > 0) return;
-                
+            // Standard special for non-Alpine characters
+            playerStandardSpecial() {
                 const attackData = playerData.attacks.special;
                 const distance = Math.abs(this.player.x - this.cpu.x);
                 const canHit = distance < attackData.range;
                 const damage = attackData.damage;
                 
-                this.specialCooldown = 180;
                 this.setPlayerAnimation('special', attackData.startup + attackData.active + attackData.recovery);
                 this.cameras.main.shake(150, 0.015);
                 this.tweens.add({ targets: this.impactFlash, alpha: 0.5, duration: 100, yoyo: true });
@@ -756,6 +758,140 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                     
                     if (this.cpuHealth <= 0) this.endGame('player');
                 }
+            }
+            
+            // ALPINE'S THREE-PHASE SPECIAL MOVE
+            playerSpecialAttack() {
+                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
+                if (this.specialCooldown > 0) return;
+                
+                // Only Alpine has this three-phase special
+                if (playerData.name !== 'ALPINE') {
+                    this.playerStandardSpecial();
+                    return;
+                }
+                
+                // Set cooldown immediately
+                this.specialCooldown = 240; // 4 seconds at 60fps
+                
+                // ========== PHASE 1: Drink Animation ==========
+                this.setPlayerAnimation('special_drink', 450);
+                this.hasSuperArmor = true;
+                
+                // Show status text
+                const phase1Text = this.add.text(this.player.x, this.player.y - 80, '🍺 CHUG! 🍺', {
+                    fontFamily: 'Anybody', fontSize: '18px', color: '#00dbe9', fontStyle: 'bold'
+                }).setOrigin(0.5);
+                this.tweens.add({ targets: phase1Text, y: phase1Text.y - 40, alpha: 0, duration: 450, onComplete: () => phase1Text.destroy() });
+                
+                // ========== PHASE 2: Power-Up Animation ==========
+                this.time.delayedCall(450, () => {
+                    if (!this.roundActive) return;
+                    
+                    this.setPlayerAnimation('special_powerup', 500);
+                    
+                    // Power-up visual effects
+                    this.playerAura.setFillStyle(0xffd700);
+                    this.playerAura.setAlpha(0.6);
+                    
+                    // Glow effect around character
+                    const glowRing = this.add.circle(this.player.x, this.player.y, 60, 0xffd700, 0.3);
+                    this.tweens.add({ targets: glowRing, scale: 1.5, alpha: 0, duration: 500, onComplete: () => glowRing.destroy() });
+                    
+                    // Rising energy particles
+                    for (let i = 0; i < 8; i++) {
+                        const particle = this.add.circle(this.player.x - 30 + (i * 10), this.player.y + 30, 4, 0xffd700, 0.8);
+                        this.tweens.add({ targets: particle, y: particle.y - 80, alpha: 0, duration: 500, delay: i * 30, onComplete: () => particle.destroy() });
+                    }
+                    
+                    // Show status text
+                    const phase2Text = this.add.text(this.player.x, this.player.y - 80, '💪 POWER UP! 💪', {
+                        fontFamily: 'Anybody', fontSize: '18px', color: '#ffd700', fontStyle: 'bold'
+                    }).setOrigin(0.5);
+                    this.tweens.add({ targets: phase2Text, y: phase2Text.y - 50, alpha: 0, duration: 500, onComplete: () => phase2Text.destroy() });
+                });
+                
+                // ========== PHASE 3: Energy Fist Attack ==========
+                this.time.delayedCall(1000, () => {
+                    this.hasSuperArmor = false;
+                    
+                    if (!this.roundActive) return;
+                    
+                    const distance = Math.abs(this.player.x - this.cpu.x);
+                    const canHit = distance < 140; // Slightly longer range than normal special
+                    
+                    // Reset aura
+                    this.playerAura.setFillStyle(playerData.color);
+                    this.playerAura.setAlpha(0.15);
+                    
+                    // SLOW MOTION WARNING EFFECT
+                    this.time.timeScale = 0.3; // Slow down for warning
+                    this.cameras.main.shake(80, 0.008);
+                    
+                    // Warning text
+                    const warningText = this.add.text(640, 300, '⚠️ ENERGY FIST INCOMING! ⚠️', {
+                        fontFamily: 'Anybody', fontSize: '28px', color: '#ff003c', fontStyle: 'bold italic',
+                        stroke: '#000000', strokeThickness: 3
+                    }).setOrigin(0.5);
+                    warningText.setDepth(200);
+                    this.tweens.add({ targets: warningText, alpha: 0, scale: 1.2, duration: 200, onComplete: () => warningText.destroy() });
+                    
+                    // Return to normal speed
+                    this.time.delayedCall(250, () => {
+                        this.time.timeScale = 1;
+                        
+                        // Play the big energy fist animation
+                        this.setPlayerAnimation('special_attack', 300);
+                        
+                        // Create BIG ENERGY FIST effect
+                        const fistX = canHit ? this.cpu.x - 50 : this.player.x + (this.getFacingDirection('player') === 'right' ? 80 : -80);
+                        
+                        if (this.textures.exists('energyFist')) {
+                            const energyFist = this.add.image(fistX, this.cpu.y - 30, 'energyFist');
+                            energyFist.setDisplaySize(100, 100);
+                            energyFist.setDepth(50);
+                            this.tweens.add({ targets: energyFist, scale: 1.5, alpha: 0, duration: 300, onComplete: () => energyFist.destroy() });
+                        }
+                        
+                        // Screen shake intensifies
+                        this.cameras.main.shake(200, 0.015);
+                        
+                        if (canHit) {
+                            const isBlocked = this.cpuBlocking;
+                            const damage = isBlocked ? Math.floor(26 * 0.25) : 26;
+                            
+                            // Impact freeze frame
+                            this.time.timeScale = 0.1;
+                            this.time.delayedCall(100, () => { this.time.timeScale = 1; });
+                            
+                            this.cpuHealth = Math.max(0, this.cpuHealth - damage);
+                            this.applyHitEffect(this.cpu, damage, true);
+                            this.setCPUAnimation('heavy', 200);
+                            this.updateHealthBars();
+                            
+                            // Special impact text
+                            const specialText = this.add.text(640, 360, 'ENERGY FIST!', {
+                                fontFamily: 'Anybody', fontSize: '36px', color: '#ffd700', fontStyle: 'bold italic',
+                                stroke: '#000000', strokeThickness: 3
+                            }).setOrigin(0.5);
+                            this.tweens.add({ targets: specialText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => specialText.destroy() });
+                            
+                            // Extra combo for full special
+                            this.comboCount += 3;
+                            this.comboText.setText(`SPECIAL! ${this.comboCount} HITS!`);
+                            this.comboText.setAlpha(1);
+                            
+                            if (this.cpuHealth <= 0) this.endGame('player');
+                        } else {
+                            // Whiff - show miss text
+                            const missText = this.add.text(640, 360, 'MISS!', {
+                                fontFamily: 'Anybody', fontSize: '36px', color: '#ff003c', fontStyle: 'bold italic',
+                                stroke: '#000000', strokeThickness: 3
+                            }).setOrigin(0.5);
+                            this.tweens.add({ targets: missText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => missText.destroy() });
+                        }
+                    });
+                });
             }
             
             playerSuperMove() {
@@ -1058,11 +1194,10 @@ this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
                     }
                 }
                 
-                // Update facing directions for sprites (flip idle and other non-directional sprites)
+                // Update facing directions for sprites
                 const playerFacing = this.getFacingDirection('player');
                 const cpuFacing = this.getFacingDirection('cpu');
                 
-                // Flip sprites based on facing direction
                 if (playerFacing === 'left') {
                     this.player.setFlipX(true);
                 } else {
