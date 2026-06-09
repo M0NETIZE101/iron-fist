@@ -133,9 +133,9 @@
         }
         
         const difficultySettings = {
-            easy: { blockChance: 0.3, damageMultiplier: 0.7, attackDelay: 1000, comboChance: 0.3, superUsageChance: 0.3 },
-            medium: { blockChance: 0.5, damageMultiplier: 1.0, attackDelay: 800, comboChance: 0.5, superUsageChance: 0.5 },
-            hard: { blockChance: 0.7, damageMultiplier: 1.3, attackDelay: 600, comboChance: 0.7, superUsageChance: 0.8 }
+            easy: { blockChance: 0.3, damageMultiplier: 0.7, attackDelay: 1000, comboChance: 0.3, superUsageChance: 0.3, retreatThreshold: 0.25 },
+            medium: { blockChance: 0.5, damageMultiplier: 1.0, attackDelay: 800, comboChance: 0.5, superUsageChance: 0.5, retreatThreshold: 0.3 },
+            hard: { blockChance: 0.7, damageMultiplier: 1.3, attackDelay: 600, comboChance: 0.7, superUsageChance: 0.8, retreatThreshold: 0.35 }
         };
         const cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
         
@@ -230,8 +230,12 @@
                 this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
                 this.load.image(`ashmin_victory`, `assets/characters/ashmin/victory.png`);
                 this.load.image(`ashmin_hurt`, `assets/characters/ashmin/hurt.png`);
+                this.load.image(`ashmin_dragon_1`, `assets/characters/ashmin/dragon_frame1.png`);
+                this.load.image(`ashmin_dragon_2`, `assets/characters/ashmin/dragon_frame2.png`);
+                this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
+                this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
                 
-                // ALPINE SPRITES (including three-phase special)
+                // ALPINE SPRITES
                 this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
                 this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
                 this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
@@ -538,8 +542,8 @@
                 }
             }
             
-            setPlayerAnimation(animName, duration = 200, bypassFreeze = false) {
-                if (this.isAttacking && animName !== 'hurt') return;
+            setPlayerAnimation(animName, duration = 200, bypassFreeze = false, bypassAttackGuard = false) {
+                if (this.isAttacking && !bypassAttackGuard && animName !== 'hurt') return;
                 if (!bypassFreeze && this.isSuperFrozen) return;
                 
                 let textureKey;
@@ -571,7 +575,7 @@
                 }
                 
                 if (this.textures.exists(textureKey)) {
-                    if (animName !== 'hurt') this.isAttacking = true;
+                    if (animName !== 'hurt' && !bypassAttackGuard) this.isAttacking = true;
                     this.currentAnim = animName;
                     this.player.setTexture(textureKey);
                     
@@ -582,7 +586,7 @@
                             this.player.setTexture(`${playerData.folder}_idle`);
                             this.currentAnim = 'idle';
                         }
-                        if (animName !== 'hurt') this.isAttacking = false;
+                        if (animName !== 'hurt' && !bypassAttackGuard) this.isAttacking = false;
                         this.animationTimer = null;
                     });
                 }
@@ -731,8 +735,8 @@
                 }
             }
             
-            // Standard special for non-Alpine characters
-            playerStandardSpecial() {
+            // Original special for non-ASHMIN characters
+            originalSpecial() {
                 const attackData = playerData.attacks.special;
                 const distance = Math.abs(this.player.x - this.cpu.x);
                 const canHit = distance < attackData.range;
@@ -760,137 +764,140 @@
                 }
             }
             
-            // ALPINE'S THREE-PHASE SPECIAL MOVE
+            // ASHMIN'S GOLDEN DRAGON FIST SPECIAL
             playerSpecialAttack() {
                 if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
                 if (this.specialCooldown > 0) return;
                 
-                // Only Alpine has this three-phase special
-                if (playerData.name !== 'ALPINE') {
-                    this.playerStandardSpecial();
+                // Only ASHMIN has this special
+                if (playerData.name !== 'ASHMIN') {
+                    this.originalSpecial();
                     return;
                 }
                 
                 // Set cooldown immediately
-                this.specialCooldown = 240; // 4 seconds at 60fps
-                
-                // ========== PHASE 1: Drink Animation ==========
-                this.setPlayerAnimation('special_drink', 450);
+                this.specialCooldown = 240; // 4 seconds
                 this.hasSuperArmor = true;
                 
-                // Show status text
-                const phase1Text = this.add.text(this.player.x, this.player.y - 80, '🍺 CHUG! 🍺', {
-                    fontFamily: 'Anybody', fontSize: '18px', color: '#00dbe9', fontStyle: 'bold'
-                }).setOrigin(0.5);
-                this.tweens.add({ targets: phase1Text, y: phase1Text.y - 40, alpha: 0, duration: 450, onComplete: () => phase1Text.destroy() });
+                // ========== STEP 1: Punch animation ==========
+                this.setPlayerAnimation('light', 150);
                 
-                // ========== PHASE 2: Power-Up Animation ==========
-                this.time.delayedCall(450, () => {
+                // Determine direction
+                const facing = this.getFacingDirection('player');
+                const direction = facing === 'right' ? 1 : -1;
+                const startX = this.player.x + (direction * 50);
+                const startY = this.player.y - 30;
+                
+                // ========== STEP 2: Golden Dragon appears at fist ==========
+                this.time.delayedCall(100, () => {
                     if (!this.roundActive) return;
                     
-                    this.setPlayerAnimation('special_powerup', 500);
+                    // Create dragon frame 1
+                    const dragon1 = this.add.image(startX, startY, 'ashmin_dragon_1');
+                    dragon1.setDisplaySize(80, 80);
+                    dragon1.setDepth(50);
+                    dragon1.setAlpha(0.9);
                     
-                    // Power-up visual effects
-                    this.playerAura.setFillStyle(0xffd700);
-                    this.playerAura.setAlpha(0.6);
+                    // Flash effect
+                    this.tweens.add({ targets: dragon1, alpha: 0.5, duration: 50, yoyo: true });
                     
-                    // Glow effect around character
-                    const glowRing = this.add.circle(this.player.x, this.player.y, 60, 0xffd700, 0.3);
-                    this.tweens.add({ targets: glowRing, scale: 1.5, alpha: 0, duration: 500, onComplete: () => glowRing.destroy() });
-                    
-                    // Rising energy particles
-                    for (let i = 0; i < 8; i++) {
-                        const particle = this.add.circle(this.player.x - 30 + (i * 10), this.player.y + 30, 4, 0xffd700, 0.8);
-                        this.tweens.add({ targets: particle, y: particle.y - 80, alpha: 0, duration: 500, delay: i * 30, onComplete: () => particle.destroy() });
-                    }
-                    
-                    // Show status text
-                    const phase2Text = this.add.text(this.player.x, this.player.y - 80, '💪 POWER UP! 💪', {
-                        fontFamily: 'Anybody', fontSize: '18px', color: '#ffd700', fontStyle: 'bold'
-                    }).setOrigin(0.5);
-                    this.tweens.add({ targets: phase2Text, y: phase2Text.y - 50, alpha: 0, duration: 500, onComplete: () => phase2Text.destroy() });
+                    // ========== STEP 3: Dragon flies across screen ==========
+                    this.time.delayedCall(80, () => {
+                        if (!this.roundActive) return;
+                        
+                        dragon1.setTexture('ashmin_dragon_2');
+                        dragon1.setDisplaySize(100, 100);
+                        
+                        // Move dragon toward opponent
+                        const targetX = this.cpu.x - (direction * 30);
+                        this.tweens.add({
+                            targets: dragon1,
+                            x: targetX,
+                            y: this.cpu.y - 40,
+                            duration: 200,
+                            ease: 'Power2'
+                        });
+                        
+                        // ========== STEP 4: Dragon transforms to frame 3 ==========
+                        this.time.delayedCall(200, () => {
+                            if (!this.roundActive || !dragon1.active) return;
+                            
+                            dragon1.setTexture('ashmin_dragon_3');
+                            dragon1.setDisplaySize(120, 120);
+                            this.cameras.main.shake(150, 0.01);
+                            
+                            // Check if dragon hit opponent
+                            const distance = Math.abs(dragon1.x - this.cpu.x);
+                            const canHit = distance < 60;
+                            
+                            if (canHit) {
+                                const isBlocked = this.cpuBlocking;
+                                
+                                // ========== STEP 5: Visual effect based on block/hit ==========
+                                if (isBlocked) {
+                                    // Show block spark
+                                    const blockSpark = this.add.rectangle(this.cpu.x, this.cpu.y - 30, 50, 50, 0x00dbe9);
+                                    blockSpark.setAlpha(0.7);
+                                    this.tweens.add({ targets: blockSpark, alpha: 0, scale: 0.5, duration: 150, onComplete: () => blockSpark.destroy() });
+                                } else {
+                                    // Show coin explosion
+                                    const coinExplosion = this.add.image(this.cpu.x, this.cpu.y - 50, 'ashmin_coin_explosion');
+                                    coinExplosion.setDisplaySize(120, 120);
+                                    coinExplosion.setDepth(60);
+                                    this.tweens.add({ targets: coinExplosion, scale: 1.3, alpha: 0, duration: 400, onComplete: () => coinExplosion.destroy() });
+                                    
+                                    // Add a second smaller explosion for impact feel
+                                    const impactFlash = this.add.image(this.cpu.x, this.cpu.y - 20, 'ashmin_coin_explosion');
+                                    impactFlash.setDisplaySize(60, 60);
+                                    impactFlash.setDepth(61);
+                                    this.tweens.add({ targets: impactFlash, scale: 1.5, alpha: 0, duration: 200, onComplete: () => impactFlash.destroy() });
+                                }
+                                
+                                // Damage opponent (scaled with power stat)
+                                const baseDamage = 25;
+                                const damage = isBlocked ? Math.floor(baseDamage * 0.25) : Math.floor(baseDamage * (playerData.power / 100));
+                                this.cpuHealth = Math.max(0, this.cpuHealth - damage);
+                                this.applyHitEffect(this.cpu, damage, true);
+                                this.setCPUAnimation('heavy', 150);
+                                this.updateHealthBars();
+                                
+                                // Impact freeze frame
+                                this.time.timeScale = 0.1;
+                                this.time.delayedCall(100, () => { this.time.timeScale = 1; });
+                                
+                                // Special impact text
+                                const specialText = this.add.text(640, 360, 'GOLDEN DRAGON FIST!', {
+                                    fontFamily: 'Anybody', fontSize: '32px', color: '#ffd700', fontStyle: 'bold italic',
+                                    stroke: '#000000', strokeThickness: 3
+                                }).setOrigin(0.5);
+                                this.tweens.add({ targets: specialText, alpha: 0, scale: 1.5, duration: 600, onComplete: () => specialText.destroy() });
+                                
+                                // Extra combo
+                                if (!isBlocked) {
+                                    this.comboCount += 3;
+                                    this.comboText.setText(`DRAGON FIST! ${this.comboCount} HITS!`);
+                                    this.comboText.setAlpha(1);
+                                }
+                                
+                                if (this.cpuHealth <= 0) this.endGame('player');
+                            } else {
+                                // MISS - clean up dragon
+                                this.time.delayedCall(100, () => {
+                                    if (dragon1 && dragon1.active) dragon1.destroy();
+                                });
+                            }
+                            
+                            // Clean up dragon after hit/miss
+                            this.time.delayedCall(400, () => {
+                                if (dragon1 && dragon1.active) dragon1.destroy();
+                            });
+                        });
+                    });
                 });
                 
-                // ========== PHASE 3: Energy Fist Attack ==========
-                this.time.delayedCall(1000, () => {
+                // ========== STEP 6: Clean up super armor ==========
+                this.time.delayedCall(700, () => {
                     this.hasSuperArmor = false;
-                    
-                    if (!this.roundActive) return;
-                    
-                    const distance = Math.abs(this.player.x - this.cpu.x);
-                    const canHit = distance < 140; // Slightly longer range than normal special
-                    
-                    // Reset aura
-                    this.playerAura.setFillStyle(playerData.color);
-                    this.playerAura.setAlpha(0.15);
-                    
-                    // SLOW MOTION WARNING EFFECT
-                    this.time.timeScale = 0.3; // Slow down for warning
-                    this.cameras.main.shake(80, 0.008);
-                    
-                    // Warning text
-                    const warningText = this.add.text(640, 300, '⚠️ ENERGY FIST INCOMING! ⚠️', {
-                        fontFamily: 'Anybody', fontSize: '28px', color: '#ff003c', fontStyle: 'bold italic',
-                        stroke: '#000000', strokeThickness: 3
-                    }).setOrigin(0.5);
-                    warningText.setDepth(200);
-                    this.tweens.add({ targets: warningText, alpha: 0, scale: 1.2, duration: 200, onComplete: () => warningText.destroy() });
-                    
-                    // Return to normal speed
-                    this.time.delayedCall(250, () => {
-                        this.time.timeScale = 1;
-                        
-                        // Play the big energy fist animation
-                        this.setPlayerAnimation('special_attack', 300);
-                        
-                        // Create BIG ENERGY FIST effect
-                        const fistX = canHit ? this.cpu.x - 50 : this.player.x + (this.getFacingDirection('player') === 'right' ? 80 : -80);
-                        
-                        if (this.textures.exists('energyFist')) {
-                            const energyFist = this.add.image(fistX, this.cpu.y - 30, 'energyFist');
-                            energyFist.setDisplaySize(100, 100);
-                            energyFist.setDepth(50);
-                            this.tweens.add({ targets: energyFist, scale: 1.5, alpha: 0, duration: 300, onComplete: () => energyFist.destroy() });
-                        }
-                        
-                        // Screen shake intensifies
-                        this.cameras.main.shake(200, 0.015);
-                        
-                        if (canHit) {
-                            const isBlocked = this.cpuBlocking;
-                            const damage = isBlocked ? Math.floor(26 * 0.25) : 26;
-                            
-                            // Impact freeze frame
-                            this.time.timeScale = 0.1;
-                            this.time.delayedCall(100, () => { this.time.timeScale = 1; });
-                            
-                            this.cpuHealth = Math.max(0, this.cpuHealth - damage);
-                            this.applyHitEffect(this.cpu, damage, true);
-                            this.setCPUAnimation('heavy', 200);
-                            this.updateHealthBars();
-                            
-                            // Special impact text
-                            const specialText = this.add.text(640, 360, 'ENERGY FIST!', {
-                                fontFamily: 'Anybody', fontSize: '36px', color: '#ffd700', fontStyle: 'bold italic',
-                                stroke: '#000000', strokeThickness: 3
-                            }).setOrigin(0.5);
-                            this.tweens.add({ targets: specialText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => specialText.destroy() });
-                            
-                            // Extra combo for full special
-                            this.comboCount += 3;
-                            this.comboText.setText(`SPECIAL! ${this.comboCount} HITS!`);
-                            this.comboText.setAlpha(1);
-                            
-                            if (this.cpuHealth <= 0) this.endGame('player');
-                        } else {
-                            // Whiff - show miss text
-                            const missText = this.add.text(640, 360, 'MISS!', {
-                                fontFamily: 'Anybody', fontSize: '36px', color: '#ff003c', fontStyle: 'bold italic',
-                                stroke: '#000000', strokeThickness: 3
-                            }).setOrigin(0.5);
-                            this.tweens.add({ targets: missText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => missText.destroy() });
-                        }
-                    });
                 });
             }
             
@@ -946,6 +953,7 @@
             // ========== CPU ATTACKS ==========
             
             cpuLightAttack() {
+                if (this.hasSuperArmor) return;
                 if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
                 
                 const attackData = cpuData.attacks.light;
@@ -971,6 +979,7 @@
             }
             
             cpuMediumAttack() {
+                if (this.hasSuperArmor) return;
                 if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
                 
                 const attackData = cpuData.attacks.medium;
@@ -996,6 +1005,7 @@
             }
             
             cpuHeavyAttack() {
+                if (this.hasSuperArmor) return;
                 if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
                 
                 const attackData = cpuData.attacks.heavy;
@@ -1021,6 +1031,7 @@
             }
             
             cpuSpecialAttack() {
+                if (this.hasSuperArmor) return;
                 if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
                 if (this.cpuSpecialCooldown > 0) return;
                 
@@ -1090,31 +1101,102 @@
                 if (!this.roundActive || this.cpuAttacking || this.cpuHitStun > 0 || this.isSuperFrozen) return;
                 
                 const distance = Math.abs(this.cpu.x - this.player.x);
+                const healthPercent = this.cpuHealth / 100;
+                const retreatThreshold = cpuSettings.retreatThreshold;
+                const isLowHealth = healthPercent < retreatThreshold;
                 
-                if (distance > 100) {
+                // Continuous movement
+                const movementSpeed = 7;
+                const optimalRange = cpuPersonality.optimalRange;
+                
+                if (isLowHealth) {
+                    // Retreat behavior - move away from player
                     if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.min(this.cpu.x + 6, this.maxX - 50);
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
                     } else {
-                        this.cpu.x = Math.max(this.cpu.x - 6, this.minX + 50);
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    }
+                } else if (distance > optimalRange + 20) {
+                    if (this.cpu.x < this.player.x) {
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    } else {
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
+                    }
+                } else if (distance < optimalRange - 30 && cpuPersonality.movementStyle !== 'FORWARD') {
+                    if (this.cpu.x < this.player.x) {
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
+                    } else {
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
                     }
                 }
                 
+                // Check for super usage
                 if (this.cpuSuperMeter >= 100 && Math.random() < cpuSettings.superUsageChance && distance < 140) {
                     this.cpuSuperMove();
                     return;
                 }
                 
-                this.cpuBlockDecision = Math.random() < cpuSettings.blockChance && distance < 120;
+                // Block decision based on personality
+                let blockChance = cpuSettings.blockChance;
+                if (cpuPersonality.defenseStyle === 'AGGRESSIVE_BLOCK') blockChance += 0.1;
+                if (cpuPersonality.defenseStyle === 'PASSIVE_BLOCK') blockChance -= 0.1;
+                this.cpuBlockDecision = Math.random() < blockChance && distance < 120;
                 if (!this.cpuAttacking) {
                     this.cpuBlocking = this.cpuBlockDecision;
                     this.cpuBlockHeight = Math.random() < 0.5 ? 'mid' : 'low';
                 }
                 
-                if (distance < 120 && Math.random() < 0.5 && !this.cpuAttacking) {
+                // Attack decision
+                const attackRange = cpuPersonality.optimalRange + 30;
+                const shouldAttack = !isLowHealth || distance < 80;
+                
+                if (distance < attackRange && Math.random() < 0.5 && !this.cpuAttacking && shouldAttack) {
                     const attackChoice = Math.random();
-                    if (attackChoice < 0.33) {
+                    const personality = cpuPersonality;
+                    
+                    let specialChance;
+                    if (personality.type === 'ZONER') {
+                        specialChance = 0.4;
+                    } else if (personality.specialUsage === 'OFFENSIVE') {
+                        specialChance = 0.25;
+                    } else if (personality.specialUsage === 'REACTIVE') {
+                        specialChance = 0.2;
+                    } else {
+                        specialChance = 0.15;
+                    }
+                    
+                    if (attackChoice < specialChance && this.cpuSpecialCooldown === 0) {
+                        this.cpuSpecialAttack();
+                        return;
+                    }
+                    
+                    let lightWeight = 0.33, mediumWeight = 0.33, heavyWeight = 0.34;
+                    
+                    if (personality.type === 'ZONER') {
+                        lightWeight = 0.2;
+                        mediumWeight = 0.4;
+                        heavyWeight = 0.2;
+                    } else if (personality.playStyle === 'AGGRESSIVE') {
+                        lightWeight = 0.5;
+                        mediumWeight = 0.3;
+                        heavyWeight = 0.2;
+                    } else if (personality.playStyle === 'DEFENSIVE') {
+                        lightWeight = 0.5;
+                        mediumWeight = 0.3;
+                        heavyWeight = 0.2;
+                    } else if (personality.playStyle === 'BULLDOZER') {
+                        heavyWeight = 0.6;
+                        mediumWeight = 0.25;
+                        lightWeight = 0.15;
+                    } else if (personality.playStyle === 'COUNTER') {
+                        mediumWeight = 0.45;
+                        lightWeight = 0.3;
+                        heavyWeight = 0.25;
+                    }
+                    
+                    if (attackChoice < lightWeight) {
                         this.cpuLightAttack();
-                    } else if (attackChoice < 0.66) {
+                    } else if (attackChoice < lightWeight + mediumWeight) {
                         this.cpuMediumAttack();
                     } else {
                         this.cpuHeavyAttack();
@@ -1178,14 +1260,45 @@
             update() {
                 if (!this.roundActive || this.isSuperFrozen) return;
                 
+                // Player movement
                 let move = 0;
                 if (this.keyLeft.isDown && !this.isAttacking) move = -1;
                 if (this.keyRight.isDown && !this.isAttacking) move = 1;
                 if (move !== 0) this.player.x += move * 7;
                 
+                // Continuous CPU movement
+                const distance = Math.abs(this.cpu.x - this.player.x);
+                const healthPercent = this.cpuHealth / 100;
+                const retreatThreshold = cpuSettings.retreatThreshold;
+                const isLowHealth = healthPercent < retreatThreshold;
+                const movementSpeed = 7;
+                const optimalRange = cpuPersonality.optimalRange;
+                
+                if (isLowHealth) {
+                    if (this.cpu.x < this.player.x) {
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
+                    } else {
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    }
+                } else if (distance > optimalRange + 20) {
+                    if (this.cpu.x < this.player.x) {
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    } else {
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
+                    }
+                } else if (distance < optimalRange - 30 && cpuPersonality.movementStyle !== 'FORWARD') {
+                    if (this.cpu.x < this.player.x) {
+                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
+                    } else {
+                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    }
+                }
+                
+                // Boundaries
                 this.player.x = Math.min(Math.max(this.player.x, this.minX), this.maxX - 100);
                 this.cpu.x = Math.min(Math.max(this.cpu.x, this.minX + 100), this.maxX);
                 
+                // Prevent overlap
                 if (Math.abs(this.player.x - this.cpu.x) < 90) {
                     if (this.player.x < this.cpu.x) {
                         this.player.x = this.cpu.x - 90;
@@ -1194,21 +1307,12 @@
                     }
                 }
                 
-                // Update facing directions for sprites
+                // Update facing directions
                 const playerFacing = this.getFacingDirection('player');
                 const cpuFacing = this.getFacingDirection('cpu');
                 
-                if (playerFacing === 'left') {
-                    this.player.setFlipX(true);
-                } else {
-                    this.player.setFlipX(false);
-                }
-                
-                if (cpuFacing === 'left') {
-                    this.cpu.setFlipX(true);
-                } else {
-                    this.cpu.setFlipX(false);
-                }
+                this.player.setFlipX(playerFacing === 'left');
+                this.cpu.setFlipX(cpuFacing === 'left');
                 
                 // Attack inputs
                 if (Phaser.Input.Keyboard.JustDown(this.keyA)) this.playerLightAttack();
@@ -1217,7 +1321,6 @@
                 if (Phaser.Input.Keyboard.JustDown(this.keyF)) this.playerSpecialAttack();
                 if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.superMeter >= 100) this.playerSuperMove();
                 
-                // Blocking with G key
                 this.isBlocking = this.keyG.isDown && !this.isAttacking;
                 if (this.isBlocking) {
                     this.playerAura.setAlpha(0.3);
@@ -1235,6 +1338,7 @@
             endGame(winner) {
                 this.roundActive = false;
                 this.time.timeScale = 1;
+                this.hasSuperArmor = false;  // FIXED: Reset super armor on round end
                 
                 let resultText;
                 let resultColor;
