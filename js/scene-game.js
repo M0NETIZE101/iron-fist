@@ -48,8 +48,8 @@ class FightingGame extends Phaser.Scene {
         this.cpuBlockHeight = 'mid';
         
         // Position bounds
-        this.playerX = 400;
-        this.cpuX = 900;
+        this.minX = 200;
+        this.maxX = 1080;
         
         // Arena and fighter data (will be set in create)
         this.playerData = null;
@@ -62,38 +62,115 @@ class FightingGame extends Phaser.Scene {
         this.cpuAttacks = null;
     }
     
-    init(data) {
+    preload() {
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
-        this.playerFighter = urlParams.get('fighter') || 'ADARSHA';
-        this.arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
-        this.difficulty = urlParams.get('difficulty') || 'medium';
+        const playerFighter = urlParams.get('fighter') || 'ADARSHA';
+        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
         
-        document.getElementById('arenaNameText').innerText = this.arenaParam;
-        document.getElementById('difficultyText').innerText = this.difficulty.toUpperCase();
-        
-        this.cpuSettings = difficultySettings[this.difficulty] || difficultySettings.medium;
-        
-        // Set player data
-        this.playerData = FIGHTERS[this.playerFighter] || FIGHTERS['ADARSHA'];
+        // Set player data first so preload knows which sprites to load
+        this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
         // Set random CPU opponent
         const allFighters = Object.keys(FIGHTERS);
-        const availableCPUs = allFighters.filter(f => f !== this.playerFighter);
+        const availableCPUs = allFighters.filter(f => f !== playerFighter);
         const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
         this.cpuData = FIGHTERS[randomCPU];
-        this.cpuPersonality = this.cpuData.personality;
+        
+        // Load arena background
+        const bgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
+        this.load.image('arenaBg', bgImage);
+        
+        // Load ALL character sprites with fallbacks
+        // ADARSHA
+        this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
+        this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
+        this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
+        this.load.image(`adarsha_kick`, `assets/characters/adarsha/kick.png`);
+        this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
+        this.load.image(`adarsha_victory`, `assets/characters/adarsha/idle.png`);
+        this.load.image(`adarsha_hurt`, `assets/characters/adarsha/idle.png`);
+        
+        // ASHMIN
+        this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
+        this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
+        this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
+        this.load.image(`ashmin_kick`, `assets/characters/ashmin/kick.png`);
+        this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
+        this.load.image(`ashmin_victory`, `assets/characters/ashmin/idle.png`);
+        this.load.image(`ashmin_hurt`, `assets/characters/ashmin/idle.png`);
+        this.load.image(`ashmin_dragon_1`, `assets/characters/ashmin/dragon_frame1.png`);
+        this.load.image(`ashmin_dragon_2`, `assets/characters/ashmin/dragon_frame2.png`);
+        this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
+        this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
+        
+        // ALPINE
+        this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
+        this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
+        this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
+        this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
+        this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
+        this.load.image(`alpine_special_drink`, `assets/characters/alpine/idle.png`);
+        this.load.image(`alpine_special_powerup`, `assets/characters/alpine/idle.png`);
+        this.load.image(`alpine_special_attack`, `assets/characters/alpine/kick-right.png`);
+        this.load.image(`alpine_victory`, `assets/characters/alpine/idle.png`);
+        this.load.image(`alpine_hurt`, `assets/characters/alpine/idle.png`);
+        
+        // PRESIDENT
+        this.load.image(`president_idle`, `assets/characters/president/idle.png`);
+        this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
+        this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
+        this.load.image(`president_kick`, `assets/characters/president/kick.png`);
+        this.load.image(`president_special`, `assets/characters/president/kick.png`);
+        this.load.image(`president_victory`, `assets/characters/president/idle.png`);
+        this.load.image(`president_hurt`, `assets/characters/president/idle.png`);
+        
+        // Error handling
+        this.load.on('loaderror', (file) => {
+            console.warn('Failed to load:', file.src, 'Key:', file.key);
+        });
+        
+        this.load.on('loadcomplete', () => {
+            console.log('All assets loaded successfully');
+        });
     }
     
     create() {
-        this.resetGameState();
+        // Get URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const difficulty = urlParams.get('difficulty') || 'medium';
+        
+        this.cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
+        
+        // Set player data (already set in preload, but ensure)
+        const playerFighter = urlParams.get('fighter') || 'ADARSHA';
+        this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
+        
+        // Set random CPU opponent
+        const allFighters = Object.keys(FIGHTERS);
+        const availableCPUs = allFighters.filter(f => f !== playerFighter);
+        const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
+        this.cpuData = FIGHTERS[randomCPU];
+        this.cpuPersonality = this.cpuData.personality;
+        
+        console.log('Player:', this.playerData.name, 'Folder:', this.playerData.folder);
+        console.log('CPU:', this.cpuData.name, 'Folder:', this.cpuData.folder);
+        
+        // Verify textures exist
+        const playerIdleKey = `${this.playerData.folder}_idle`;
+        const cpuIdleKey = `${this.cpuData.folder}_idle`;
+        
+        console.log('Player idle texture exists?', this.textures.exists(playerIdleKey));
+        console.log('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
         
         // Background
+        const bgImage = arenaBackgrounds[urlParams.get('arena') || 'NEO-TOKYO'] || arenaBackgrounds['NEO-TOKYO'];
         if (this.textures.exists('arenaBg')) {
             const bg = this.add.image(640, 360, 'arenaBg');
             bg.setDisplaySize(1280, 720);
             bg.setDepth(0);
         } else {
+            // Fallback background
             const bg = this.add.graphics();
             bg.fillStyle(0x0a0a0a, 1);
             bg.fillRect(0, 0, 1280, 720);
@@ -106,18 +183,20 @@ class FightingGame extends Phaser.Scene {
         ground.setDepth(1);
         
         // Player sprite
-        this.player = this.add.sprite(400, GROUND_Y, `${this.playerData.folder}_idle`);
+        this.player = this.add.sprite(400, GROUND_Y, playerIdleKey);
         this.player.setDisplaySize(180, 270);
         this.player.setDepth(10);
+        this.player.setVisible(true);
         
         this.playerAura = this.add.ellipse(400, 500, 140, 180, this.playerData.color);
         this.playerAura.setAlpha(0.15);
         this.playerAura.setDepth(5);
         
         // CPU sprite
-        this.cpu = this.add.sprite(900, GROUND_Y, `${this.cpuData.folder}_idle`);
+        this.cpu = this.add.sprite(900, GROUND_Y, cpuIdleKey);
         this.cpu.setDisplaySize(180, 270);
         this.cpu.setDepth(10);
+        this.cpu.setVisible(true);
         
         this.cpuAura = this.add.ellipse(900, 500, 140, 180, this.cpuData.color);
         this.cpuAura.setAlpha(0.15);
@@ -189,6 +268,8 @@ class FightingGame extends Phaser.Scene {
         
         // Set global reference for mobile controls
         window.gameSceneRef = this;
+        
+        console.log('Game created successfully!');
     }
     
     setupGameTimers() {
@@ -212,17 +293,7 @@ class FightingGame extends Phaser.Scene {
             callback: () => {
                 if (this.roundActive && this.superMeter < 100 && !this.isSuperFrozen) {
                     this.superMeter = Math.min(100, this.superMeter + 1);
-                    this.ui.updateHealthBars();
-                    const superStatus = document.getElementById('superStatus');
-                    if (superStatus) {
-                        if (this.superMeter >= 100) {
-                            superStatus.style.opacity = '1';
-                            superStatus.classList.add('super-pulse');
-                        } else {
-                            superStatus.style.opacity = '0';
-                            superStatus.classList.remove('super-pulse');
-                        }
-                    }
+                    if (this.ui) this.ui.updateHealthBars();
                 }
             },
             loop: true
@@ -234,11 +305,7 @@ class FightingGame extends Phaser.Scene {
             callback: () => {
                 if (this.roundActive && this.cpuSuperMeter < 100 && !this.isSuperFrozen) {
                     this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 0.8);
-                    this.ui.updateHealthBars();
-                    const cpuSuperStatus = document.getElementById('cpuSuperStatus');
-                    if (cpuSuperStatus) {
-                        cpuSuperStatus.style.opacity = this.cpuSuperMeter >= 100 ? '1' : '0';
-                    }
+                    if (this.ui) this.ui.updateHealthBars();
                 }
             },
             loop: true
@@ -253,7 +320,7 @@ class FightingGame extends Phaser.Scene {
                     this.comboTimer--;
                     if (this.comboTimer === 0) {
                         this.comboCount = 0;
-                        this.comboText.setAlpha(0);
+                        if (this.comboText) this.comboText.setAlpha(0);
                     }
                 }
                 if (this.specialCooldown > 0) this.specialCooldown--;
@@ -285,11 +352,9 @@ class FightingGame extends Phaser.Scene {
     updateMobileMovement() {
         if (!this.player || !this.roundActive || this.isSuperFrozen) return;
         
-        // Mobile movement
         if (this.mobileLeftPressed) this.player.x -= 7;
         if (this.mobileRightPressed) this.player.x += 7;
         
-        // Mobile jump
         if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
@@ -297,12 +362,10 @@ class FightingGame extends Phaser.Scene {
             this.mobileJumpRequested = false;
         }
         
-        // Reset jump request if round inactive
         if (!this.roundActive && this.mobileJumpRequested) {
             this.mobileJumpRequested = false;
         }
         
-        // Mobile block
         if (this.mobileBlockPressed && !this.isAttacking && !this.isJumping) {
             this.isBlocking = true;
             if (this.playerAura) {
@@ -322,10 +385,8 @@ class FightingGame extends Phaser.Scene {
     update() {
         if (!this.roundActive || this.isSuperFrozen) return;
         
-        // Apply mobile movement first
         this.updateMobileMovement();
         
-        // Keyboard movement
         let move = 0;
         if (!this.mobileLeftPressed && !this.mobileRightPressed) {
             if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping) move = -1;
@@ -333,14 +394,12 @@ class FightingGame extends Phaser.Scene {
             if (move !== 0) this.player.x += move * 7;
         }
         
-        // Keyboard jump
         if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
             if (this.animations) this.animations.setPlayerAnimation('jump', 300);
         }
         
-        // Jump physics
         if (this.isJumping) {
             this.playerYVelocity += GRAVITY * (1/60);
             this.player.y += this.playerYVelocity * (1/60);
@@ -353,11 +412,9 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Boundaries
-        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - 100);
-        this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + 100), MAX_X);
+        this.player.x = Math.min(Math.max(this.player.x, this.minX), this.maxX - 100);
+        this.cpu.x = Math.min(Math.max(this.cpu.x, this.minX + 100), this.maxX);
         
-        // Prevent overlap
         if (Math.abs(this.player.x - this.cpu.x) < 90) {
             if (this.player.x < this.cpu.x) {
                 this.player.x = this.cpu.x - 90;
@@ -366,14 +423,12 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Facing direction
         const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
         const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
         
         this.player.setFlipX(playerFacing === 'left');
         this.cpu.setFlipX(cpuFacing === 'left');
         
-        // Attack inputs
         if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks) this.playerAttacks.lightAttack();
         if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks) this.playerAttacks.mediumAttack();
         if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks) this.playerAttacks.heavyAttack();
@@ -386,7 +441,6 @@ class FightingGame extends Phaser.Scene {
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100) this.playerAttacks.superMove();
         
-        // Keyboard block
         this.isBlocking = this.keyG.isDown && !this.isAttacking && !this.isJumping;
         if (this.isBlocking && !this.mobileBlockPressed) {
             this.playerAura.setAlpha(0.3);
@@ -397,7 +451,6 @@ class FightingGame extends Phaser.Scene {
             this.playerAura.setFillStyle(this.playerData.color);
         }
         
-        // Aura positions
         this.playerAura.setPosition(this.player.x, this.player.y + 10);
         this.cpuAura.setPosition(this.cpu.x, this.cpu.y + 10);
     }
@@ -476,8 +529,12 @@ class FightingGame extends Phaser.Scene {
         
         this.tweens.add({ targets: announcement, alpha: 1, scale: 1, duration: 600, ease: 'Back.Out' });
         
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerFighter = urlParams.get('fighter') || 'ADARSHA';
+        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
+        
         this.time.delayedCall(4000, () => {
-            window.location.href = `difficulty.html?fighter=${encodeURIComponent(this.playerFighter)}&arena=${encodeURIComponent(this.arenaParam)}`;
+            window.location.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
         });
     }
 }

@@ -29,7 +29,8 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, false);
-            scene.updateHealthBars();
+            // FIXED: Use ui.updateHealthBars()
+            if (scene.ui) scene.ui.updateHealthBars();
             
             if (!isBlocked) {
                 scene.superMeter = Math.min(100, scene.superMeter + 3);
@@ -56,7 +57,8 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, true);
-            scene.updateHealthBars();
+            // FIXED: Use ui.updateHealthBars()
+            if (scene.ui) scene.ui.updateHealthBars();
             
             if (!isBlocked) {
                 scene.superMeter = Math.min(100, scene.superMeter + 5);
@@ -83,7 +85,8 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, true);
-            scene.updateHealthBars();
+            // FIXED: Use ui.updateHealthBars()
+            if (scene.ui) scene.ui.updateHealthBars();
             
             if (!isBlocked) {
                 scene.superMeter = Math.min(100, scene.superMeter + 8);
@@ -113,7 +116,8 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, true);
-            scene.updateHealthBars();
+            // FIXED: Use ui.updateHealthBars()
+            if (scene.ui) scene.ui.updateHealthBars();
             
             if (!isBlocked) {
                 scene.superMeter = Math.min(100, scene.superMeter + 12);
@@ -135,7 +139,8 @@ class CPUAttacks {
         scene.startSuperFreeze(250);
         
         scene.cpuSuperMeter = 0;
-        scene.updateHealthBars();
+        // FIXED: Use ui.updateHealthBars()
+        if (scene.ui) scene.ui.updateHealthBars();
         const cpuSuperStatus = document.getElementById('cpuSuperStatus');
         if (cpuSuperStatus) cpuSuperStatus.style.opacity = '0';
         
@@ -156,7 +161,8 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, true);
-            scene.updateHealthBars();
+            // FIXED: Use ui.updateHealthBars()
+            if (scene.ui) scene.ui.updateHealthBars();
             
             if (scene.playerHealth <= 0) scene.endGame('cpu');
         }
@@ -179,6 +185,8 @@ class CPUAttacks {
         const movementSpeed = 7;
         const optimalRange = this.cpuPersonality.optimalRange;
         const movementDelay = this.cpuSettings.movementDelay;
+        const MIN_X = 200;
+        const MAX_X = 1080;
         
         if (this.moveTimer === 0) {
             if (isLowHealth) {
