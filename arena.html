@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html class="dark" lang="en"><head>
 <meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
 <title>CHIYA GANG WARRIORS - ARENA SELECTION</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:wght@100..800&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet"/>
@@ -131,6 +131,22 @@
         .pixel-text-shadow {
             text-shadow: 4px 4px 0px rgba(0, 243, 255, 0.5);
         }
+        
+        @media (max-width: 768px) {
+            .px-margin-desktop {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            aside.fixed {
+                display: none !important;
+            }
+            main {
+                margin-left: 0 !important;
+            }
+            .font-display-xl {
+                font-size: 32px !important;
+            }
+        }
     </style>
 </head>
 <body class="bg-background text-on-background overflow-x-hidden">
@@ -143,7 +159,7 @@
 <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="characterselect.html">ROSTER</a>
 <a class="font-label-bold text-label-bold text-primary border-b-4 border-primary pb-1" href="#">ARENAS</a>
 <a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="#">MECHANICS</a>
-<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="#">RANK</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="fighters.html">FIGHTERS</a>
 </nav>
 <div class="flex items-center gap-stack-md">
 <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">settings</span>
@@ -176,8 +192,8 @@
 <span class="font-label-sm text-label-sm uppercase">FRIENDS</span>
 </div>
 </nav>
-<div class="p-6 mt-auto">
-<button class="w-full skew-button bg-tertiary py-3 font-label-bold text-on-tertiary-fixed-variant shadow-[0_0_20px_rgba(0,219,233,0.5)] hover:brightness-110 active:scale-95" onclick="window.location.href='characterselect.html'">FIND MATCH</button>
+<div class="p-6 mt-auto border-t border-outline-variant/30">
+<button class="w-full skew-button bg-tertiary py-3 font-label-bold text-on-tertiary-fixed-variant shadow-[0_0_20px_rgba(0,219,233,0.5)] hover:brightness-110 active:scale-95 transition-all" onclick="window.location.href='characterselect.html'">QUICK MATCH</button>
 </div>
 </aside>
 
@@ -200,37 +216,37 @@
 <!-- Arena Selection Grid -->
 <div class="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-stack-md">
 <!-- Arena 1: NEO-TOKYO -->
-<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="NEO-TOKYO" data-desc="A sprawling urban landscape under perpetual neon rain. Watch out for the high-speed mag-lev train that passes through the arena center." data-hazards="4" data-bgcolor1="0x1a0a0a" data-bgcolor2="0x2a0a0a" data-accent="0xff5252">
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="NEO-TOKYO" data-desc="A sprawling urban landscape under perpetual neon rain." data-hazards="4" data-bgcolor1="0x1a0a0a" data-bgcolor2="0x2a0a0a" data-accent="0xff5252">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/neo-tokyo.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">NEO-TOKYO</div>
 </div>
 
 <!-- Arena 2: CYBER-SHRINE -->
-<div class="arena-card group cursor-pointer border-4 border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden scale-105 z-10 shadow-[0_0_30px_rgba(255,0,60,0.4)]" data-arena="CYBER-SHRINE" data-desc="Traditional aesthetics meet high-tech defense systems. The cherry blossom petals are actually holographic emitters that can disrupt radar." data-hazards="3" data-bgcolor1="0x0a0a2a" data-bgcolor2="0x1a0a3a" data-accent="0x9b59b6">
+<div class="arena-card group cursor-pointer border-4 border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden scale-105 z-10 shadow-[0_0_30px_rgba(255,0,60,0.4)]" data-arena="CYBER-SHRINE" data-desc="Traditional aesthetics meet high-tech defense systems." data-hazards="3" data-bgcolor1="0x0a0a2a" data-bgcolor2="0x1a0a3a" data-accent="0x9b59b6">
 <div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/cyber-shrine.jpg')"></div>
 <div class="p-2 font-label-bold text-white bg-retro-red text-center uppercase tracking-tighter">CYBER-SHRINE</div>
 </div>
 
 <!-- Arena 3: ORBITAL STATION -->
-<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="ORBITAL STATION" data-desc="Combat in zero gravity. The station's hull is failing, leading to sudden oxygen leaks and debris hazards." data-hazards="5" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x0a0a2a" data-accent="0x00dbe9">
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="ORBITAL STATION" data-desc="Combat in zero gravity aboard a failing space station." data-hazards="5" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x0a0a2a" data-accent="0x00dbe9">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/orbital-station.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">ORBITAL STATION</div>
 </div>
 
 <!-- Arena 4: MAGMA CORE -->
-<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="MAGMA CORE" data-desc="Deep beneath the Earth's crust. Lava bursts provide extreme hazard points. The floor is unstable." data-hazards="5" data-bgcolor1="0x1a0a00" data-bgcolor2="0x2a0a00" data-accent="0xff3b3b">
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="MAGMA CORE" data-desc="Deep beneath the Earth's crust. Lava flows create hazardous terrain." data-hazards="5" data-bgcolor1="0x1a0a00" data-bgcolor2="0x2a0a00" data-accent="0xff3b3b">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/magma-core.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">MAGMA CORE</div>
 </div>
 
-<!-- Arena 5: WASTELAND JUNKYARD -->
-<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="WASTELAND JUNKYARD" data-desc="A graveyard of giant robots from the last war. Terrain is uneven with rusted metal pits." data-hazards="2" data-bgcolor1="0x1a1a0a" data-bgcolor2="0x2a2a0a" data-accent="0xaaaaaa">
+<!-- Arena 5: WASTELAND JUNKYARD - FIXED label to match data-arena -->
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="WASTELAND JUNKYARD" data-desc="A graveyard of giant robots from the last war. Uneven terrain everywhere." data-hazards="2" data-bgcolor1="0x1a1a0a" data-bgcolor2="0x2a2a0a" data-accent="0xaaaaaa">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/junkyard.jpg')"></div>
-<div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">JUNKYARD</div>
+<div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">WASTELAND JUNKYARD</div>
 </div>
 
 <!-- Arena 6: VOID CHAMBER -->
-<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="VOID CHAMBER" data-desc="A mysterious dimension where reality is fractured. Endless expanse of the digital abyss." data-hazards="1" data-bgcolor1="0x001a1a" data-bgcolor2="0x002a2a" data-accent="0x00dbe9">
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="VOID CHAMBER" data-desc="A mysterious dimension where reality is fractured." data-hazards="1" data-bgcolor1="0x001a1a" data-bgcolor2="0x002a2a" data-accent="0x00dbe9">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/void-chamber.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">VOID CHAMBER</div>
 </div>
@@ -251,7 +267,7 @@
 <div class="flex-grow space-y-stack-md">
 <div>
 <h3 class="font-label-bold text-neon-cyan uppercase text-xs tracking-widest mb-1">DATA LOG</h3>
-<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed" id="arena-desc">Traditional aesthetics meet high-tech defense systems. The cherry blossom petals are actually holographic emitters that can disrupt radar.</p>
+<p class="font-body-md text-body-md text-on-surface-variant leading-relaxed" id="arena-desc">Traditional aesthetics meet high-tech defense systems.</p>
 </div>
 
 <div class="grid grid-cols-2 gap-stack-md">
@@ -304,7 +320,7 @@
 </section>
 </main>
 
-<!-- Footer -->
+<!-- Footer with updated copyright year -->
 <footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20">
 <div class="font-headline-lg text-headline-lg text-primary italic">CHIYA GANG WARRIORS</div>
 <div class="font-label-sm text-label-sm tracking-widest text-on-surface uppercase flex gap-stack-lg">
@@ -312,7 +328,7 @@
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">PRIVACY</a>
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">SUPPORT</a>
 </div>
-<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2024 CHIYA GANG ARCADE. ALL RIGHTS RESERVED.</div>
+<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED.</div>
 </footer>
 
 <script>
@@ -388,7 +404,7 @@
         window.location.href = `difficulty.html?fighter=${encodeURIComponent(fighter)}&arena=${encodeURIComponent(arena)}`;
     });
     
-    selectArena('CYBER-SHRINE', 'Traditional aesthetics meet high-tech defense systems. The cherry blossom petals are actually holographic emitters that can disrupt radar.', 3, '0x0a0a2a', '0x1a0a3a', '0x9b59b6');
+    selectArena('CYBER-SHRINE', 'Traditional aesthetics meet high-tech defense systems.', 3, '0x0a0a2a', '0x1a0a3a', '0x9b59b6');
 </script>
 </body>
 </html>

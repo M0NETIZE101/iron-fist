@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>CHIYA GANG WARRIORS - BATTLE ARENA</title>
     
     <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
@@ -12,95 +12,210 @@
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #0a0a0a; min-height: 100vh; display: flex; justify-content: center; align-items: center; font-family: 'Geist', sans-serif; overflow: hidden; }
-        #game-container { position: relative; box-shadow: 0 0 60px rgba(255, 179, 178, 0.15); border: 1px solid rgba(255, 179, 178, 0.2); border-radius: 8px; }
-        .controls-info { position: fixed; bottom: 30px; left: 30px; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(12px); padding: 12px 24px; border-left: 3px solid #ffb3b2; font-size: 11px; font-family: 'JetBrains Mono', monospace; color: rgba(233, 188, 186, 0.9); letter-spacing: 1px; z-index: 100; pointer-events: none; border-radius: 0 8px 8px 0; }
-        .controls-info span { color: #ffb3b2; }
-        .controls-info .key { border: 1px solid rgba(255,179,178,0.5); padding: 2px 8px; border-radius: 4px; margin: 0 2px; background: rgba(0,0,0,0.5); }
-        .back-button { position: fixed; top: 30px; left: 30px; background: rgba(10, 10, 10, 0.85); backdrop-filter: blur(12px); padding: 10px 20px; border: 1px solid rgba(255, 179, 178, 0.4); color: #e9bcba; text-decoration: none; font-size: 12px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; z-index: 100; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; border-radius: 8px; }
-        .back-button:hover { border-color: #ffb3b2; color: #ffb3b2; transform: translateX(-4px); }
-        .arena-name-display {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            background: rgba(10, 10, 10, 0.85);
-            backdrop-filter: blur(12px);
-            padding: 10px 20px;
-            border-right: 3px solid #ffb3b2;
-            font-size: 12px;
-            font-family: 'JetBrains Mono', monospace;
-            color: #e9bcba;
-            z-index: 100;
-            border-radius: 8px 0 0 8px;
-            letter-spacing: 1px;
+        body { 
+            background: #0a0a0a; 
+            min-height: 100vh; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            font-family: 'Geist', sans-serif; 
+            overflow: hidden;
+            touch-action: none;
         }
-        .arena-name-display span { color: #ffb3b2; font-weight: bold; }
-        .difficulty-badge {
+        #game-container { 
+            position: relative; 
+            box-shadow: 0 0 60px rgba(255, 179, 178, 0.15); 
+            border: 1px solid rgba(255, 179, 178, 0.2); 
+            border-radius: 8px;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        /* Mobile Controls Panel */
+        .mobile-controls {
             position: fixed;
-            top: 30px;
-            left: 150px;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 10px 15px;
             background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(12px);
-            padding: 10px 20px;
-            border-left: 3px solid #00dbe9;
-            font-size: 12px;
+            border-top: 1px solid rgba(255, 179, 178, 0.3);
+            z-index: 200;
+            gap: 15px;
+            flex-wrap: wrap;
+            pointer-events: auto;
+        }
+        
+        @media (min-width: 769px) {
+            .mobile-controls { display: none; }
+            .controls-info { display: flex !important; }
+        }
+        
+        @media (max-width: 768px) {
+            .controls-info { display: none !important; }
+        }
+        
+        .joystick-area {
+            width: 140px;
+            height: 140px;
+            background: rgba(30, 30, 40, 0.7);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+            border: 2px solid rgba(255, 179, 178, 0.4);
+            box-shadow: 0 0 15px rgba(255, 179, 178, 0.2);
+        }
+        
+        .joystick-base {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .joystick-thumb {
+            width: 55px;
+            height: 55px;
+            background: radial-gradient(circle at 30% 30%, #ffb3b2, #ff525c);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(255, 82, 92, 0.5);
+            transition: transform 0.05s ease;
+        }
+        
+        /* FIXED: Action buttons grid - 8 buttons in 4x2 layout */
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 70px);
+            gap: 12px;
+            background: rgba(20, 20, 30, 0.5);
+            padding: 12px 18px;
+            border-radius: 60px;
+            backdrop-filter: blur(8px);
+        }
+        
+        .action-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2a2a2a, #1a1a1a);
+            border: 2px solid rgba(255, 179, 178, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
             font-family: 'JetBrains Mono', monospace;
-            color: #e9bcba;
+            font-weight: bold;
+            font-size: 20px;
+            color: #ffb3b2;
+            cursor: pointer;
+            transition: all 0.08s linear;
+            touch-action: manipulation;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        
+        .action-btn:active {
+            transform: scale(0.92);
+            background: #ff525c;
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        .action-btn.special { border-color: #ffd700; color: #ffd700; }
+        .action-btn.block { border-color: #00dbe9; color: #00dbe9; }
+        .action-btn.super { border-color: #ffd700; color: #ffd700; background: linear-gradient(135deg, #3a2a00, #1a1a00); }
+        .action-btn.jump { border-color: #00ff88; color: #00ff88; }
+        .action-btn.dash { border-color: #ff69b4; color: #ff69b4; font-size: 14px; }
+        .btn-label { font-size: 10px; letter-spacing: 1px; margin-top: 2px; }
+        
+        .controls-info {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-left: 3px solid #ffb3b2;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: rgba(233, 188, 186, 0.9);
+            letter-spacing: 1px;
             z-index: 100;
+            pointer-events: none;
             border-radius: 0 8px 8px 0;
-            letter-spacing: 1px;
         }
-        .difficulty-badge span { color: #00dbe9; font-weight: bold; }
-        .super-status {
-            position: fixed;
-            bottom: 100px;
-            right: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: #ffd700;
-            pointer-events: none;
-            z-index: 100;
-            transition: transform 0.2s ease;
+        
+        .back-button { 
+            position: fixed; 
+            top: 10px; 
+            left: 10px; 
+            background: rgba(10, 10, 10, 0.85); 
+            backdrop-filter: blur(12px); 
+            padding: 8px 15px; 
+            border: 1px solid rgba(255, 179, 178, 0.4); 
+            color: #e9bcba; 
+            text-decoration: none; 
+            font-size: 12px; 
+            font-family: 'JetBrains Mono', monospace; 
+            letter-spacing: 1px; 
+            z-index: 100; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            border-radius: 8px; 
         }
-        @keyframes superPulse {
-            0%, 100% { transform: scale(1); opacity: 0.7; }
-            50% { transform: scale(1.2); opacity: 1; text-shadow: 0 0 10px #ffd700; }
+        
+        .arena-name-display, .difficulty-badge { top: 10px; padding: 5px 12px; font-size: 10px; }
+        .arena-name-display { right: 10px; }
+        .difficulty-badge { left: 80px; }
+        .super-status, .cpu-super-status { bottom: 120px; font-size: 9px; padding: 3px 8px; }
+        
+        @media (max-width: 768px) {
+            .action-buttons { grid-template-columns: repeat(4, 55px); gap: 8px; padding: 10px 12px; }
+            .action-btn { width: 55px; height: 55px; font-size: 16px; }
+            .btn-label { font-size: 8px; }
+            .joystick-area { width: 110px; height: 110px; }
+            .joystick-thumb { width: 45px; height: 45px; }
         }
-        .super-pulse {
-            animation: superPulse 0.5s ease-in-out infinite;
+        
+        @media (max-width: 480px) {
+            .action-buttons { grid-template-columns: repeat(4, 48px); gap: 6px; }
+            .action-btn { width: 48px; height: 48px; font-size: 14px; }
+            .joystick-area { width: 90px; height: 90px; }
+            .joystick-thumb { width: 38px; height: 38px; }
         }
-        .cpu-super-status {
-            position: fixed;
-            bottom: 100px;
-            left: 30px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 10px;
-            color: #ffd700;
-            pointer-events: none;
-            z-index: 100;
+        
+        .touch-active {
+            transform: scale(0.92);
+            background: #ff525c;
+            color: #fff;
         }
     </style>
 </head>
 <body>
     <a href="difficulty.html" class="back-button" id="backButton">
-        <span class="material-symbols-outlined" style="font-size: 16px;">arrow_back</span>
+        <span class="material-symbols-outlined" style="font-size: 14px;">arrow_back</span>
         BACK
     </a>
     
     <div class="controls-info">
-        <span>← →</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">A</span> LIGHT &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">S</span> MEDIUM &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">D</span> HEAVY &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">F</span> SPECIAL &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">G</span> BLOCK &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">H</span> SUPER
+        <span>← →</span> MOVE &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">SPACE</span> JUMP &nbsp;&nbsp;|&nbsp;&nbsp; 
+        <span class="key">A</span> <span class="key">S</span> <span class="key">D</span> ATTACK &nbsp;&nbsp;|&nbsp;&nbsp; 
+        <span class="key">F</span> SPECIAL &nbsp;&nbsp;|&nbsp;&nbsp; <span class="key">G</span> BLOCK &nbsp;&nbsp;|&nbsp;&nbsp; 
+        <span class="key">H</span> SUPER
     </div>
     
     <div class="arena-name-display">
         🏟️ <span id="arenaNameText">NEO-TOKYO</span>
     </div>
-    
     <div class="difficulty-badge">
         ⚔️ <span id="difficultyText">MEDIUM</span>
     </div>
@@ -108,1272 +223,283 @@
     <div class="super-status" id="superStatus">
         ⚡ SUPER READY ⚡
     </div>
-    
     <div class="cpu-super-status" id="cpuSuperStatus">
         ⚡ CPU SUPER READY ⚡
     </div>
     
     <div id="game-container"></div>
+    
+    <!-- Mobile Touch Controls -->
+    <div class="mobile-controls">
+        <div class="joystick-area" id="joystickArea">
+            <div class="joystick-base">
+                <div class="joystick-thumb" id="joystickThumb"></div>
+            </div>
+        </div>
+        
+        <!-- FIXED: 8 buttons for perfect 4x2 grid -->
+        <div class="action-buttons">
+            <div class="action-btn" data-action="light">
+                A<br><span class="btn-label">LIGHT</span>
+            </div>
+            <div class="action-btn" data-action="medium">
+                S<br><span class="btn-label">MEDIUM</span>
+            </div>
+            <div class="action-btn" data-action="heavy">
+                D<br><span class="btn-label">HEAVY</span>
+            </div>
+            <div class="action-btn special" data-action="special">
+                F<br><span class="btn-label">SPECIAL</span>
+            </div>
+            <div class="action-btn block" data-action="block">
+                G<br><span class="btn-label">BLOCK</span>
+            </div>
+            <div class="action-btn super" data-action="super">
+                H<br><span class="btn-label">SUPER</span>
+            </div>
+            <div class="action-btn jump" data-action="jump">
+                ⬆<br><span class="btn-label">JUMP</span>
+            </div>
+            <div class="action-btn dash" data-action="dash">
+                →→<br><span class="btn-label">DASH</span>
+            </div>
+        </div>
+    </div>
 
-    <!-- Shared Fighter Data -->
-    <script src="fighters.js"></script>
+    <!-- Scripts -->
+    <script src="js/fighters.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/cpu.js"></script>
+    <script src="js/scene-game.js"></script>
     
     <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        const playerFighter = urlParams.get('fighter') || 'ADARSHA';
-        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
-        const difficulty = urlParams.get('difficulty') || 'medium';
-        
-        document.getElementById('arenaNameText').innerText = arenaParam;
-        document.getElementById('difficultyText').innerText = difficulty.toUpperCase();
-        
-        const backButton = document.getElementById('backButton');
-        if (backButton) {
-            backButton.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
-        }
-        
-        const difficultySettings = {
-            easy: { blockChance: 0.3, damageMultiplier: 0.7, attackDelay: 1000, comboChance: 0.3, superUsageChance: 0.3, retreatThreshold: 0.25 },
-            medium: { blockChance: 0.5, damageMultiplier: 1.0, attackDelay: 800, comboChance: 0.5, superUsageChance: 0.5, retreatThreshold: 0.3 },
-            hard: { blockChance: 0.7, damageMultiplier: 1.3, attackDelay: 600, comboChance: 0.7, superUsageChance: 0.8, retreatThreshold: 0.35 }
-        };
-        const cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
-        
-        const arenaBackgrounds = {
-            'NEO-TOKYO': 'assets/background/neo-tokyo.jpg',
-            'CYBER-SHRINE': 'assets/background/cyber-shrine.jpg',
-            'ORBITAL STATION': 'assets/background/orbital-station.jpg',
-            'MAGMA CORE': 'assets/background/magma-core.jpg',
-            'WASTELAND JUNKYARD': 'assets/background/junkyard.jpg',
-            'VOID CHAMBER': 'assets/background/void-chamber.jpg'
-        };
-        const arenaBgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
-        
-        // Get fighter data from shared FIGHTERS object
-        const playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
-        
-        // Random CPU opponent (excluding player)
-        const allFighters = Object.keys(FIGHTERS);
-        const availableCPUs = allFighters.filter(f => f !== playerFighter);
-        const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
-        const cpuData = FIGHTERS[randomCPU];
-        const cpuPersonality = cpuData.personality;
-        
-        // UNIFIED CONSTANTS
-        const HEALTH_BAR_MAX_WIDTH = 400;
-        const SUPER_BAR_MAX_WIDTH = 360;
-        
-        class FightingGame extends Phaser.Scene {
-            constructor() {
-                super({ key: 'FightingGame' });
-                this.resetGameState();
-            }
+        // Mobile touch controls setup - ONLY runs on actual mobile devices
+        (function() {
+            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
             
-            resetGameState() {
-                this.isAttacking = false;
-                this.isBlocking = false;
-                this.currentAnim = 'idle';
-                this.comboCount = 0;
-                this.comboTimer = 0;
-                this.superMeter = 0;
-                this.specialCooldown = 0;
-                this.animationTimer = null;
-                this.cpuAnimationTimer = null;
-                this.cpuAttacking = false;
-                this.cpuHitStun = 0;
-                this.cpuBlocking = false;
-                this.cpuBlockDecision = false;
-                this.cpuSpecialCooldown = 0;
-                this.cpuSuperMeter = 0;
-                this.isSuperFrozen = false;
-                this.superFreezeTimer = 0;
-                this.minX = 200;
-                this.maxX = 1080;
-                this.playerHealth = 100;
-                this.cpuHealth = 100;
-                this.roundActive = true;
-                this.roundTimer = 99;
-                this.superFlashEffect = null;
-                this.hasSuperArmor = false;
+            // FIXED: Only initialize mobile controls on actual mobile devices
+            if (!isMobile) return;
+            
+            let joystickActive = false;
+            let joystickCenter = { x: 0, y: 0 };
+            let joystickVector = { x: 0, y: 0 };
+            const joystickArea = document.getElementById('joystickArea');
+            const joystickThumb = document.getElementById('joystickThumb');
+            const maxDist = 40;
+            let blockPressed = false;
+            
+            let gameScene = null;
+            
+            // Poll for game scene reference
+            const checkForGameScene = setInterval(() => {
+                if (window.gameSceneRef && window.gameSceneRef.playerAttacks) {
+                    gameScene = window.gameSceneRef;
+                    clearInterval(checkForGameScene);
+                    console.log('Mobile controls connected to game scene');
+                }
+            }, 100);
+            
+            // Joystick touch handlers
+            joystickArea.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                joystickActive = true;
+                const rect = joystickArea.getBoundingClientRect();
+                joystickCenter = {
+                    x: rect.left + rect.width / 2,
+                    y: rect.top + rect.height / 2
+                };
+                updateJoystick(e.touches[0]);
+            });
+            
+            joystickArea.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (joystickActive) updateJoystick(e.touches[0]);
+            });
+            
+            joystickArea.addEventListener('touchend', (e) => {
+                e.preventDefault();
+                joystickActive = false;
+                joystickThumb.style.transform = 'translate(0px, 0px)';
+                joystickVector = { x: 0, y: 0 };
+                if (gameScene) {
+                    gameScene.mobileLeftPressed = false;
+                    gameScene.mobileRightPressed = false;
+                }
+            });
+            
+            function updateJoystick(touch) {
+                if (!joystickActive) return;
                 
-                // Block height tracking
-                this.playerBlockHeight = 'mid';
-                this.cpuBlockHeight = 'mid';
-            }
-            
-            // Helper method to get facing direction
-            getFacingDirection(character) {
-                if (character === 'player') {
-                    return this.player.x < this.cpu.x ? 'right' : 'left';
-                } else {
-                    return this.cpu.x < this.player.x ? 'right' : 'left';
+                const dx = touch.clientX - joystickCenter.x;
+                const dy = touch.clientY - joystickCenter.y;
+                const distance = Math.min(Math.hypot(dx, dy), maxDist);
+                const angle = Math.atan2(dy, dx);
+                
+                const thumbX = Math.cos(angle) * distance;
+                const thumbY = Math.sin(angle) * distance;
+                
+                joystickThumb.style.transform = `translate(${thumbX}px, ${thumbY}px)`;
+                
+                const normX = Math.cos(angle) * (distance / maxDist);
+                joystickVector = { x: normX, y: 0 };
+                
+                if (gameScene) {
+                    if (joystickVector.x > 0.2) {
+                        gameScene.mobileRightPressed = true;
+                        gameScene.mobileLeftPressed = false;
+                    } else if (joystickVector.x < -0.2) {
+                        gameScene.mobileLeftPressed = true;
+                        gameScene.mobileRightPressed = false;
+                    } else {
+                        gameScene.mobileLeftPressed = false;
+                        gameScene.mobileRightPressed = false;
+                    }
                 }
             }
             
-            preload() {
-                this.load.image('arenaBg', arenaBgImage);
-                
-                // ADARSHA SPRITES
-                this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
-                this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
-                this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
-                this.load.image(`adarsha_kick`, `assets/characters/adarsha/kick.png`);
-                this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
-                this.load.image(`adarsha_victory`, `assets/characters/adarsha/victory.png`);
-                this.load.image(`adarsha_hurt`, `assets/characters/adarsha/hurt.png`);
-                
-                // ASHMIN SPRITES
-                this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
-                this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
-                this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
-                this.load.image(`ashmin_kick`, `assets/characters/ashmin/kick.png`);
-                this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
-                this.load.image(`ashmin_victory`, `assets/characters/ashmin/victory.png`);
-                this.load.image(`ashmin_hurt`, `assets/characters/ashmin/hurt.png`);
-                this.load.image(`ashmin_dragon_1`, `assets/characters/ashmin/dragon_frame1.png`);
-                this.load.image(`ashmin_dragon_2`, `assets/characters/ashmin/dragon_frame2.png`);
-                this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
-                this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
-                
-                // ALPINE SPRITES
-                this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
-                this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
-                this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
-                this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
-                this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
-                this.load.image(`alpine_special_drink`, `assets/characters/alpine/special_drink.png`);
-                this.load.image(`alpine_special_powerup`, `assets/characters/alpine/special_powerup.png`);
-                this.load.image(`alpine_special_attack`, `assets/characters/alpine/special_attack.png`);
-                this.load.image(`alpine_victory`, `assets/characters/alpine/victory.png`);
-                this.load.image(`alpine_hurt`, `assets/characters/alpine/hurt.png`);
-                this.load.image(`energyFist`, `assets/effects/energy_fist.png`);
-                
-                // PRESIDENT SPRITES
-                this.load.image(`president_idle`, `assets/characters/president/idle.png`);
-                this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
-                this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
-                this.load.image(`president_kick`, `assets/characters/president/kick.png`);
-                this.load.image(`president_special`, `assets/characters/president/special.png`);
-                this.load.image(`president_victory`, `assets/characters/president/victory.png`);
-                this.load.image(`president_hurt`, `assets/characters/president/hurt.png`);
-            }
-            
-            create() {
-                this.resetGameState();
-                
-                if (this.textures.exists('arenaBg')) {
-                    const bg = this.add.image(640, 360, 'arenaBg');
-                    bg.setDisplaySize(1280, 720);
-                    bg.setDepth(0);
-                } else {
-                    const bg = this.add.graphics();
-                    bg.fillStyle(0x0a0a0a, 1);
-                    bg.fillRect(0, 0, 1280, 720);
-                    bg.setDepth(0);
-                }
-                
-                const ground = this.add.rectangle(640, 580, 1280, 140, 0x000000);
-                ground.setAlpha(0.4);
-                ground.setDepth(1);
-                
-                this.player = this.add.sprite(400, 460, `${playerData.folder}_idle`);
-                this.player.setDisplaySize(180, 270);
-                this.player.setDepth(10);
-                
-                this.playerAura = this.add.ellipse(400, 500, 140, 180, playerData.color);
-                this.playerAura.setAlpha(0.15);
-                this.playerAura.setDepth(5);
-                
-                this.cpu = this.add.sprite(900, 460, `${cpuData.folder}_idle`);
-                this.cpu.setDisplaySize(180, 270);
-                this.cpu.setDepth(10);
-                
-                this.cpuAura = this.add.ellipse(900, 500, 140, 180, cpuData.color);
-                this.cpuAura.setAlpha(0.15);
-                this.cpuAura.setDepth(5);
-                
-                this.createHealthBars();
-                this.createSuperMeters();
-                
-                this.comboText = this.add.text(640, 160, '', { 
-                    fontFamily: 'Anybody', fontSize: '28px', color: '#ffd700', fontStyle: 'bold italic',
-                    stroke: '#000000', strokeThickness: 3
-                }).setOrigin(0.5);
-                this.comboText.setAlpha(0);
-                this.comboText.setDepth(30);
-                
-                const timerBg = this.add.rectangle(640, 40, 100, 36, 0x000000);
-                timerBg.setStrokeStyle(2, 0xff5252);
-                timerBg.setDepth(19);
-                
-                this.timerText = this.add.text(640, 40, '99', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '22px', color: '#ffb3b2', fontWeight: 'bold'
-                }).setOrigin(0.5).setDepth(20);
-                
-                this.add.text(640, 62, 'SECONDS', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#666666', letterSpacing: '2px'
-                }).setOrigin(0.5).setDepth(20);
-                
-                const vsText = this.add.text(640, 320, 'VS', { 
-                    fontFamily: 'Anybody', fontSize: '120px', color: '#ffffff', fontStyle: 'italic', 
-                    fontWeight: '900', stroke: '#ffb3b2', strokeThickness: 4
-                }).setOrigin(0.5);
-                vsText.setAlpha(0.3);
-                vsText.setAngle(-5);
-                vsText.setDepth(25);
-                this.tweens.add({ targets: vsText, alpha: 0, duration: 1000, delay: 1500, onComplete: () => vsText.destroy() });
-                
-                // Input keys
-                this.keyA = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A);
-                this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
-                this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
-                this.keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-                this.keyG = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.G);
-                this.keyH = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.H);
-                this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
-                this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
-                
-                this.setupGameTimers();
-                
-                this.impactFlash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
-                this.impactFlash.setAlpha(0);
-                this.impactFlash.setDepth(100);
-                
-                this.tweens.add({ targets: this.player, y: this.player.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-                this.tweens.add({ targets: this.cpu, y: this.cpu.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-            }
-            
-            createHealthBars() {
-                // PLAYER HEALTH BAR
-                const playerBarBg = this.add.rectangle(200, 40, HEALTH_BAR_MAX_WIDTH, 24, 0x1a1a1a);
-                playerBarBg.setStrokeStyle(2, playerData.accent);
-                playerBarBg.setOrigin(0, 0.5);
-                playerBarBg.setDepth(20);
-                
-                this.healthBarPlayer = this.add.rectangle(200, 40, HEALTH_BAR_MAX_WIDTH, 18, playerData.color);
-                this.healthBarPlayer.setOrigin(0, 0.5);
-                this.healthBarPlayer.setDepth(21);
-                
-                const playerNameBg = this.add.rectangle(200, 20, 140, 20, 0x000000);
-                playerNameBg.setOrigin(0, 0.5);
-                playerNameBg.setStrokeStyle(1, playerData.accent);
-                playerNameBg.setDepth(20);
-                this.add.text(200, 20, playerData.name, { 
-                    fontFamily: 'JetBrains Mono', fontSize: '10px', color: '#ffb3b2', letterSpacing: '2px', fontWeight: 'bold'
-                }).setOrigin(0, 0.5).setDepth(21);
-                
-                this.playerHealthText = this.add.text(200, 60, '100%', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#aaaaaa', fontWeight: 'bold'
-                }).setOrigin(0, 0.5).setDepth(21);
-                
-                // CPU HEALTH BAR - Right-aligned
-                const cpuBarBg = this.add.rectangle(1280, 40, HEALTH_BAR_MAX_WIDTH, 24, 0x1a1a1a);
-                cpuBarBg.setStrokeStyle(2, cpuData.accent);
-                cpuBarBg.setOrigin(1, 0.5);
-                cpuBarBg.setDepth(20);
-                
-                this.healthBarCPU = this.add.rectangle(1280, 40, HEALTH_BAR_MAX_WIDTH, 18, cpuData.color);
-                this.healthBarCPU.setOrigin(1, 0.5);
-                this.healthBarCPU.setDepth(21);
-                
-                const cpuNameBg = this.add.rectangle(1280, 20, 140, 20, 0x000000);
-                cpuNameBg.setOrigin(1, 0.5);
-                cpuNameBg.setStrokeStyle(1, cpuData.accent);
-                cpuNameBg.setDepth(20);
-                this.add.text(1280, 20, cpuData.name, { 
-                    fontFamily: 'JetBrains Mono', fontSize: '10px', color: '#00dbe9', letterSpacing: '2px', fontWeight: 'bold'
-                }).setOrigin(1, 0.5).setDepth(21);
-                
-                this.cpuHealthText = this.add.text(1280, 60, '100%', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '9px', color: '#aaaaaa', fontWeight: 'bold'
-                }).setOrigin(1, 0.5).setDepth(21);
-            }
-            
-            createSuperMeters() {
-                // PLAYER SUPER METER
-                const playerSuperBg = this.add.rectangle(200, 85, SUPER_BAR_MAX_WIDTH, 12, 0x1a1a1a);
-                playerSuperBg.setOrigin(0, 0.5);
-                playerSuperBg.setStrokeStyle(1, 0xffd700);
-                playerSuperBg.setDepth(19);
-                
-                this.superBar = this.add.rectangle(200, 85, 0, 8, 0xffd700);
-                this.superBar.setOrigin(0, 0.5);
-                this.superBar.setDepth(20);
-                
-                this.add.text(200, 78, 'SUPER METER', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#ffd700', letterSpacing: '3px', fontWeight: 'bold'
-                }).setOrigin(0, 0.5).setDepth(20);
-                
-                this.superText = this.add.text(200, 97, '0%', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#888888'
-                }).setOrigin(0, 0.5).setDepth(20);
-                
-                // CPU SUPER METER - Right-aligned
-                const cpuSuperBg = this.add.rectangle(1280, 85, SUPER_BAR_MAX_WIDTH, 12, 0x1a1a1a);
-                cpuSuperBg.setOrigin(1, 0.5);
-                cpuSuperBg.setStrokeStyle(1, 0xffd700);
-                cpuSuperBg.setDepth(19);
-                
-                this.cpuSuperBar = this.add.rectangle(1280, 85, 0, 8, 0xffd700);
-                this.cpuSuperBar.setOrigin(1, 0.5);
-                this.cpuSuperBar.setDepth(20);
-                this.cpuSuperBar.setAlpha(0.8);
-                
-                this.add.text(1280, 78, 'CPU SUPER', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#ffd700', letterSpacing: '2px', fontWeight: 'bold'
-                }).setOrigin(1, 0.5).setDepth(20);
-                
-                this.cpuSuperText = this.add.text(1280, 97, '0%', { 
-                    fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#888888'
-                }).setOrigin(1, 0.5).setDepth(20);
-            }
-            
-            setupGameTimers() {
-                this.time.addEvent({
-                    delay: 1000,
-                    callback: () => {
-                        if (this.roundActive && this.roundTimer > 0 && !this.isSuperFrozen) {
-                            this.roundTimer--;
-                            this.timerText.setText(this.roundTimer.toString().padStart(2, '0'));
-                            if (this.roundTimer <= 10) this.timerText.setColor('#ff003c');
-                            if (this.roundTimer === 0) this.endGameByTimeout();
-                        }
-                    },
-                    loop: true
-                });
-                
-                this.time.addEvent({
-                    delay: 100,
-                    callback: () => {
-                        if (this.roundActive && this.superMeter < 100 && !this.isSuperFrozen) {
-                            this.superMeter = Math.min(100, this.superMeter + 1);
-                            this.updateHealthBars();
-                            const superStatus = document.getElementById('superStatus');
-                            if (superStatus) {
-                                if (this.superMeter >= 100) {
-                                    superStatus.style.opacity = '1';
-                                    superStatus.classList.add('super-pulse');
-                                } else {
-                                    superStatus.style.opacity = '0';
-                                    superStatus.classList.remove('super-pulse');
+            // Action button handlers
+            const buttons = document.querySelectorAll('.action-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('touchstart', (e) => {
+                    e.preventDefault();
+                    btn.classList.add('touch-active');
+                    const action = btn.dataset.action;
+                    
+                    if (gameScene && gameScene.roundActive && !gameScene.isSuperFrozen) {
+                        switch(action) {
+                            case 'light':
+                                if (gameScene.playerAttacks) gameScene.playerAttacks.lightAttack();
+                                break;
+                            case 'medium':
+                                if (gameScene.playerAttacks) gameScene.playerAttacks.mediumAttack();
+                                break;
+                            case 'heavy':
+                                if (gameScene.playerAttacks) gameScene.playerAttacks.heavyAttack();
+                                break;
+                            case 'special':
+                                if (gameScene.playerAttacks && gameScene.specialCooldown === 0) {
+                                    if (gameScene.playerData.name === 'ASHMIN') {
+                                        gameScene.playerAttacks.goldenDragonFist();
+                                    } else {
+                                        gameScene.playerAttacks.standardSpecial();
+                                    }
                                 }
-                            }
-                        }
-                    },
-                    loop: true
-                });
-                
-                this.time.addEvent({
-                    delay: 100,
-                    callback: () => {
-                        if (this.roundActive && this.cpuSuperMeter < 100 && !this.isSuperFrozen) {
-                            this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 0.8);
-                            this.updateHealthBars();
-                            const cpuSuperStatus = document.getElementById('cpuSuperStatus');
-                            if (cpuSuperStatus) {
-                                cpuSuperStatus.style.opacity = this.cpuSuperMeter >= 100 ? '1' : '0';
-                            }
-                        }
-                    },
-                    loop: true
-                });
-                
-                this.time.addEvent({
-                    delay: 100,
-                    callback: () => {
-                        if (this.isSuperFrozen) return;
-                        if (this.comboTimer > 0) {
-                            this.comboTimer--;
-                            if (this.comboTimer === 0) {
-                                this.comboCount = 0;
-                                this.comboText.setAlpha(0);
-                            }
-                        }
-                        if (this.specialCooldown > 0) this.specialCooldown--;
-                        if (this.cpuSpecialCooldown > 0) this.cpuSpecialCooldown--;
-                        if (this.cpuHitStun > 0) this.cpuHitStun--;
-                    },
-                    loop: true
-                });
-                
-                this.time.addEvent({
-                    delay: cpuSettings.attackDelay,
-                    callback: () => this.cpuDecide(),
-                    loop: true
-                });
-            }
-            
-            updateHealthBars() {
-                let playerWidth = HEALTH_BAR_MAX_WIDTH * (this.playerHealth / 100);
-                playerWidth = Math.min(Math.max(playerWidth, 0), HEALTH_BAR_MAX_WIDTH);
-                this.healthBarPlayer.width = playerWidth;
-                
-                let cpuWidth = HEALTH_BAR_MAX_WIDTH * (this.cpuHealth / 100);
-                cpuWidth = Math.min(Math.max(cpuWidth, 0), HEALTH_BAR_MAX_WIDTH);
-                this.healthBarCPU.width = cpuWidth;
-                
-                let superWidth = SUPER_BAR_MAX_WIDTH * (this.superMeter / 100);
-                superWidth = Math.min(Math.max(superWidth, 0), SUPER_BAR_MAX_WIDTH);
-                this.superBar.width = superWidth;
-                
-                let cpuSuperWidth = SUPER_BAR_MAX_WIDTH * (this.cpuSuperMeter / 100);
-                cpuSuperWidth = Math.min(Math.max(cpuSuperWidth, 0), SUPER_BAR_MAX_WIDTH);
-                this.cpuSuperBar.width = cpuSuperWidth;
-                
-                this.playerHealthText.setText(`${Math.floor(this.playerHealth)}%`);
-                this.cpuHealthText.setText(`${Math.floor(this.cpuHealth)}%`);
-                this.superText.setText(`${Math.floor(this.superMeter)}%`);
-                this.cpuSuperText.setText(`${Math.floor(this.cpuSuperMeter)}%`);
-                
-                if (this.playerHealth < 25) {
-                    this.healthBarPlayer.setFillStyle(0xff003c);
-                    this.playerHealthText.setColor('#ff003c');
-                } else {
-                    this.healthBarPlayer.setFillStyle(playerData.color);
-                    this.playerHealthText.setColor('#aaaaaa');
-                }
-                
-                if (this.cpuHealth < 25) {
-                    this.healthBarCPU.setFillStyle(0xff003c);
-                    this.cpuHealthText.setColor('#ff003c');
-                } else {
-                    this.healthBarCPU.setFillStyle(cpuData.color);
-                    this.cpuHealthText.setColor('#aaaaaa');
-                }
-            }
-            
-            setPlayerAnimation(animName, duration = 200, bypassFreeze = false, bypassAttackGuard = false) {
-                if (this.isAttacking && !bypassAttackGuard && animName !== 'hurt') return;
-                if (!bypassFreeze && this.isSuperFrozen) return;
-                
-                let textureKey;
-                const facing = this.getFacingDirection('player');
-                
-                switch(animName) {
-                    case 'hurt': textureKey = `${playerData.folder}_hurt`; break;
-                    case 'light': textureKey = `${playerData.folder}_punch-${facing}`; break;
-                    case 'medium': textureKey = `${playerData.folder}_punch-${facing}`; break;
-                    case 'heavy': 
-                        if (playerData.name === 'ALPINE') {
-                            textureKey = `${playerData.folder}_kick-${facing}`;
-                        } else {
-                            textureKey = `${playerData.folder}_kick`;
-                        }
-                        break;
-                    case 'special': 
-                        if (playerData.name === 'ALPINE') {
-                            textureKey = `${playerData.folder}_special_drink`;
-                        } else {
-                            textureKey = `${playerData.folder}_special`;
-                        }
-                        break;
-                    case 'special_drink': textureKey = `${playerData.folder}_special_drink`; break;
-                    case 'special_powerup': textureKey = `${playerData.folder}_special_powerup`; break;
-                    case 'special_attack': textureKey = `${playerData.folder}_special_attack`; break;
-                    case 'victory': textureKey = `${playerData.folder}_victory`; break;
-                    default: textureKey = `${playerData.folder}_idle`;
-                }
-                
-                if (this.textures.exists(textureKey)) {
-                    if (animName !== 'hurt' && !bypassAttackGuard) this.isAttacking = true;
-                    this.currentAnim = animName;
-                    this.player.setTexture(textureKey);
-                    
-                    if (this.animationTimer) this.animationTimer.remove();
-                    
-                    this.animationTimer = this.time.delayedCall(duration, () => {
-                        if (this.roundActive && this.currentAnim !== 'victory') {
-                            this.player.setTexture(`${playerData.folder}_idle`);
-                            this.currentAnim = 'idle';
-                        }
-                        if (animName !== 'hurt' && !bypassAttackGuard) this.isAttacking = false;
-                        this.animationTimer = null;
-                    });
-                }
-            }
-            
-            setCPUAnimation(animName, duration = 200, bypassFreeze = false) {
-                if (this.cpuAttacking && animName !== 'hurt') return;
-                if (!bypassFreeze && this.isSuperFrozen) return;
-                
-                let textureKey;
-                const facing = this.getFacingDirection('cpu');
-                
-                switch(animName) {
-                    case 'hurt': textureKey = `${cpuData.folder}_hurt`; break;
-                    case 'light': textureKey = `${cpuData.folder}_punch-${facing}`; break;
-                    case 'medium': textureKey = `${cpuData.folder}_punch-${facing}`; break;
-                    case 'heavy':
-                        if (cpuData.name === 'ALPINE') {
-                            textureKey = `${cpuData.folder}_kick-${facing}`;
-                        } else {
-                            textureKey = `${cpuData.folder}_kick`;
-                        }
-                        break;
-                    case 'special':
-                        if (cpuData.name === 'ALPINE') {
-                            textureKey = `${cpuData.folder}_special_drink`;
-                        } else {
-                            textureKey = `${cpuData.folder}_special`;
-                        }
-                        break;
-                    case 'victory': textureKey = `${cpuData.folder}_victory`; break;
-                    default: textureKey = `${cpuData.folder}_idle`;
-                }
-                
-                if (this.textures.exists(textureKey)) {
-                    if (animName !== 'hurt') this.cpuAttacking = true;
-                    this.cpu.setTexture(textureKey);
-                    
-                    if (this.cpuAnimationTimer) this.cpuAnimationTimer.remove();
-                    
-                    this.cpuAnimationTimer = this.time.delayedCall(duration, () => {
-                        if (this.roundActive) {
-                            this.cpu.setTexture(`${cpuData.folder}_idle`);
-                        }
-                        if (animName !== 'hurt') this.cpuAttacking = false;
-                        this.cpuAnimationTimer = null;
-                    });
-                }
-            }
-            
-            startSuperFreeze(durationMs = 200) {
-                this.isSuperFrozen = true;
-                this.time.timeScale = 0.05;
-                this.time.delayedCall(durationMs, () => {
-                    this.time.timeScale = 1;
-                    this.isSuperFrozen = false;
-                });
-            }
-            
-            // ========== PLAYER ATTACKS ==========
-            
-            playerLightAttack() {
-                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                
-                const attackData = playerData.attacks.light;
-                const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < attackData.range;
-                const damage = attackData.damage;
-                
-                this.setPlayerAnimation('light', attackData.startup + attackData.active + attackData.recovery);
-                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 10), duration: 50, yoyo: true });
-                
-                if (canHit) {
-                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
-                    this.applyHitEffect(this.cpu, finalDamage, false);
-                    this.setCPUAnimation('light', 100);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.updateCombo();
-                        this.cpuHitStun = 10;
-                        this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 3);
-                    }
-                    
-                    if (this.cpuHealth <= 0) this.endGame('player');
-                }
-            }
-            
-            playerMediumAttack() {
-                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                
-                const attackData = playerData.attacks.medium;
-                const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < attackData.range;
-                const damage = attackData.damage;
-                
-                this.setPlayerAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
-                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.1, scaleY: 0.95, duration: 80, yoyo: true, ease: 'Back' });
-                
-                if (canHit) {
-                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
-                    this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('medium', 120);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.updateCombo();
-                        this.cpuHitStun = 15;
-                        this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 5);
-                    }
-                    
-                    if (this.cpuHealth <= 0) this.endGame('player');
-                }
-            }
-            
-            playerHeavyAttack() {
-                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                
-                const attackData = playerData.attacks.heavy;
-                const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < attackData.range;
-                const damage = attackData.damage;
-                
-                this.setPlayerAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
-                this.tweens.add({ targets: this.player, x: this.player.x + (canHit ? attackData.pushback : 15), scaleX: 1.15, scaleY: 0.9, duration: 100, yoyo: true, ease: 'Back' });
-                
-                if (canHit) {
-                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
-                    this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('heavy', 120);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.updateCombo();
-                        this.cpuHitStun = 20;
-                        this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 8);
-                    }
-                    
-                    if (this.cpuHealth <= 0) this.endGame('player');
-                }
-            }
-            
-            // Original special for non-ASHMIN characters
-            originalSpecial() {
-                const attackData = playerData.attacks.special;
-                const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < attackData.range;
-                const damage = attackData.damage;
-                
-                this.setPlayerAnimation('special', attackData.startup + attackData.active + attackData.recovery);
-                this.cameras.main.shake(150, 0.015);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.5, duration: 100, yoyo: true });
-                
-                if (canHit) {
-                    const isBlocked = this.cpuBlocking && attackData.height === this.cpuBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
-                    this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('special', 150);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.updateCombo();
-                        this.cpuHitStun = 25;
-                        this.cpuSuperMeter = Math.min(100, this.cpuSuperMeter + 12);
-                    }
-                    
-                    if (this.cpuHealth <= 0) this.endGame('player');
-                }
-            }
-            
-            // ASHMIN'S GOLDEN DRAGON FIST SPECIAL
-            playerSpecialAttack() {
-                if (!this.roundActive || this.isAttacking || this.isSuperFrozen) return;
-                if (this.specialCooldown > 0) return;
-                
-                // Only ASHMIN has this special
-                if (playerData.name !== 'ASHMIN') {
-                    this.originalSpecial();
-                    return;
-                }
-                
-                // Set cooldown immediately
-                this.specialCooldown = 240; // 4 seconds
-                this.hasSuperArmor = true;
-                
-                // ========== STEP 1: Punch animation ==========
-                this.setPlayerAnimation('light', 150);
-                
-                // Determine direction
-                const facing = this.getFacingDirection('player');
-                const direction = facing === 'right' ? 1 : -1;
-                const startX = this.player.x + (direction * 50);
-                const startY = this.player.y - 30;
-                
-                // ========== STEP 2: Golden Dragon appears at fist ==========
-                this.time.delayedCall(100, () => {
-                    if (!this.roundActive) return;
-                    
-                    // Create dragon frame 1
-                    const dragon1 = this.add.image(startX, startY, 'ashmin_dragon_1');
-                    dragon1.setDisplaySize(80, 80);
-                    dragon1.setDepth(50);
-                    dragon1.setAlpha(0.9);
-                    
-                    // Flash effect
-                    this.tweens.add({ targets: dragon1, alpha: 0.5, duration: 50, yoyo: true });
-                    
-                    // ========== STEP 3: Dragon flies across screen ==========
-                    this.time.delayedCall(80, () => {
-                        if (!this.roundActive) return;
-                        
-                        dragon1.setTexture('ashmin_dragon_2');
-                        dragon1.setDisplaySize(100, 100);
-                        
-                        // Move dragon toward opponent
-                        const targetX = this.cpu.x - (direction * 30);
-                        this.tweens.add({
-                            targets: dragon1,
-                            x: targetX,
-                            y: this.cpu.y - 40,
-                            duration: 200,
-                            ease: 'Power2'
-                        });
-                        
-                        // ========== STEP 4: Dragon transforms to frame 3 ==========
-                        this.time.delayedCall(200, () => {
-                            if (!this.roundActive || !dragon1.active) return;
-                            
-                            dragon1.setTexture('ashmin_dragon_3');
-                            dragon1.setDisplaySize(120, 120);
-                            this.cameras.main.shake(150, 0.01);
-                            
-                            // Check if dragon hit opponent
-                            const distance = Math.abs(dragon1.x - this.cpu.x);
-                            const canHit = distance < 60;
-                            
-                            if (canHit) {
-                                const isBlocked = this.cpuBlocking;
-                                
-                                // ========== STEP 5: Visual effect based on block/hit ==========
-                                if (isBlocked) {
-                                    // Show block spark
-                                    const blockSpark = this.add.rectangle(this.cpu.x, this.cpu.y - 30, 50, 50, 0x00dbe9);
-                                    blockSpark.setAlpha(0.7);
-                                    this.tweens.add({ targets: blockSpark, alpha: 0, scale: 0.5, duration: 150, onComplete: () => blockSpark.destroy() });
-                                } else {
-                                    // Show coin explosion
-                                    const coinExplosion = this.add.image(this.cpu.x, this.cpu.y - 50, 'ashmin_coin_explosion');
-                                    coinExplosion.setDisplaySize(120, 120);
-                                    coinExplosion.setDepth(60);
-                                    this.tweens.add({ targets: coinExplosion, scale: 1.3, alpha: 0, duration: 400, onComplete: () => coinExplosion.destroy() });
-                                    
-                                    // Add a second smaller explosion for impact feel
-                                    const impactFlash = this.add.image(this.cpu.x, this.cpu.y - 20, 'ashmin_coin_explosion');
-                                    impactFlash.setDisplaySize(60, 60);
-                                    impactFlash.setDepth(61);
-                                    this.tweens.add({ targets: impactFlash, scale: 1.5, alpha: 0, duration: 200, onComplete: () => impactFlash.destroy() });
+                                break;
+                            case 'block':
+                                blockPressed = true;
+                                gameScene.mobileBlockPressed = true;
+                                break;
+                            case 'super':
+                                if (gameScene.playerAttacks && gameScene.superMeter >= 100) {
+                                    gameScene.playerAttacks.superMove();
                                 }
-                                
-                                // Damage opponent (scaled with power stat)
-                                const baseDamage = 25;
-                                const damage = isBlocked ? Math.floor(baseDamage * 0.25) : Math.floor(baseDamage * (playerData.power / 100));
-                                this.cpuHealth = Math.max(0, this.cpuHealth - damage);
-                                this.applyHitEffect(this.cpu, damage, true);
-                                this.setCPUAnimation('heavy', 150);
-                                this.updateHealthBars();
-                                
-                                // Impact freeze frame
-                                this.time.timeScale = 0.1;
-                                this.time.delayedCall(100, () => { this.time.timeScale = 1; });
-                                
-                                // Special impact text
-                                const specialText = this.add.text(640, 360, 'GOLDEN DRAGON FIST!', {
-                                    fontFamily: 'Anybody', fontSize: '32px', color: '#ffd700', fontStyle: 'bold italic',
-                                    stroke: '#000000', strokeThickness: 3
-                                }).setOrigin(0.5);
-                                this.tweens.add({ targets: specialText, alpha: 0, scale: 1.5, duration: 600, onComplete: () => specialText.destroy() });
-                                
-                                // Extra combo
-                                if (!isBlocked) {
-                                    this.comboCount += 3;
-                                    this.comboText.setText(`DRAGON FIST! ${this.comboCount} HITS!`);
-                                    this.comboText.setAlpha(1);
+                                break;
+                            case 'jump':
+                                if (!gameScene.isJumping && !gameScene.isAttacking && gameScene.roundActive && !gameScene.isSuperFrozen) {
+                                    gameScene.mobileJumpRequested = true;
                                 }
-                                
-                                if (this.cpuHealth <= 0) this.endGame('player');
-                            } else {
-                                // MISS - clean up dragon
-                                this.time.delayedCall(100, () => {
-                                    if (dragon1 && dragon1.active) dragon1.destroy();
-                                });
-                            }
-                            
-                            // Clean up dragon after hit/miss
-                            this.time.delayedCall(400, () => {
-                                if (dragon1 && dragon1.active) dragon1.destroy();
-                            });
-                        });
-                    });
+                                break;
+                            case 'dash':
+                                // Quick dash forward
+                                if (gameScene.player && !gameScene.isAttacking && !gameScene.isJumping) {
+                                    const direction = gameScene.getFacingDirection?.('player') === 'right' ? 80 : -80;
+                                    gameScene.player.x += direction;
+                                    gameScene.player.x = Math.min(Math.max(gameScene.player.x, MIN_X), MAX_X - 100);
+                                }
+                                break;
+                        }
+                    }
                 });
                 
-                // ========== STEP 6: Clean up super armor ==========
-                this.time.delayedCall(700, () => {
-                    this.hasSuperArmor = false;
+                btn.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    btn.classList.remove('touch-active');
+                    const action = btn.dataset.action;
+                    
+                    if (gameScene && action === 'block') {
+                        blockPressed = false;
+                        gameScene.mobileBlockPressed = false;
+                    }
                 });
-            }
+            });
+        })();
+    </script>
+    
+    <script>
+        // FIXED: Clean FightingGame subclass with no redundant code
+        (function() {
+            const originalFightingGame = FightingGame;
             
-            playerSuperMove() {
-                if (!this.roundActive || this.isAttacking) return;
-                if (this.superMeter < 100) return;
-                
-                const distance = Math.abs(this.player.x - this.cpu.x);
-                const canHit = distance < 150;
-                const damage = 35;
-                
-                this.startSuperFreeze(250);
-                
-                this.superMeter = 0;
-                this.updateHealthBars();
-                const superStatus = document.getElementById('superStatus');
-                if (superStatus) {
-                    superStatus.style.opacity = '0';
-                    superStatus.classList.remove('super-pulse');
+            window.FightingGame = class extends originalFightingGame {
+                constructor() {
+                    super();
+                    this.mobileLeftPressed = false;
+                    this.mobileRightPressed = false;
+                    this.mobileBlockPressed = false;
+                    this.mobileJumpRequested = false;
                 }
                 
-                const superText = this.add.text(640, 300, 'SUPER!!!', { 
-                    fontFamily: 'Anybody', fontSize: '80px', color: '#ffd700', fontStyle: 'bold italic',
-                    stroke: '#000000', strokeThickness: 4
-                }).setOrigin(0.5);
-                superText.setAlpha(0.8);
-                superText.setDepth(200);
-                this.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
-                
-                this.setPlayerAnimation('heavy', 300, true);
-                this.cameras.main.shake(300, 0.03);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
-                
-                if (canHit) {
-                    const isBlocked = this.cpuBlocking;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.cpuHealth = Math.max(0, this.cpuHealth - finalDamage);
-                    this.applyHitEffect(this.cpu, finalDamage, true);
-                    this.setCPUAnimation('heavy', 200, true);
-                    this.updateHealthBars();
-                    
-                    this.comboCount += 5;
-                    this.comboText.setText(`SUPER COMBO! ${this.comboCount} HITS!`);
-                    this.comboText.setAlpha(1);
-                    
-                    if (this.cpuHealth <= 0) this.endGame('player');
-                } else {
-                    this.superMeter = 50;
-                    this.updateHealthBars();
+                create() {
+                    super.create();
+                    window.gameSceneRef = this;
                 }
-            }
-            
-            // ========== CPU ATTACKS ==========
-            
-            cpuLightAttack() {
-                if (this.hasSuperArmor) return;
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
                 
-                const attackData = cpuData.attacks.light;
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < attackData.range;
-                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
-                
-                this.setCPUAnimation('light', attackData.startup + attackData.active + attackData.recovery);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, false);
-                    this.updateHealthBars();
+                // FIXED: Simplified updateMobileMovement with no redundant checks
+                updateMobileMovement() {
+                    if (!this.player || !this.roundActive || this.isSuperFrozen) return;
                     
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 3);
+                    // Mobile movement
+                    if (this.mobileLeftPressed) this.player.x -= 7;
+                    if (this.mobileRightPressed) this.player.x += 7;
+                    
+                    // Mobile jump - with reset on round inactive
+                    if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+                        this.isJumping = true;
+                        this.playerYVelocity = JUMP_VELOCITY;
+                        if (this.animations) this.animations.setPlayerAnimation('jump', 300);
+                        this.mobileJumpRequested = false;
+                    }
+                    // FIXED: Reset jump request if round inactive to prevent stuck state
+                    if (!this.roundActive && this.mobileJumpRequested) {
+                        this.mobileJumpRequested = false;
                     }
                     
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuMediumAttack() {
-                if (this.hasSuperArmor) return;
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                
-                const attackData = cpuData.attacks.medium;
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < attackData.range;
-                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
-                
-                this.setCPUAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 5);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuHeavyAttack() {
-                if (this.hasSuperArmor) return;
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                
-                const attackData = cpuData.attacks.heavy;
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < attackData.range;
-                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
-                
-                this.setCPUAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 8);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuSpecialAttack() {
-                if (this.hasSuperArmor) return;
-                if (this.cpuAttacking || !this.roundActive || this.isSuperFrozen) return;
-                if (this.cpuSpecialCooldown > 0) return;
-                
-                const attackData = cpuData.attacks.special;
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < attackData.range;
-                const damage = Math.floor(attackData.damage * cpuSettings.damageMultiplier);
-                
-                this.cpuSpecialCooldown = 180;
-                this.setCPUAnimation('special', attackData.startup + attackData.active + attackData.recovery);
-                this.cameras.main.shake(120, 0.01);
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking && attackData.height === this.playerBlockHeight;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (!isBlocked) {
-                        this.superMeter = Math.min(100, this.superMeter + 12);
-                    }
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuSuperMove() {
-                if (!this.roundActive || this.cpuAttacking) return;
-                if (this.cpuSuperMeter < 100) return;
-                
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const canHit = distance < 150;
-                const damage = 32;
-                
-                this.startSuperFreeze(250);
-                
-                this.cpuSuperMeter = 0;
-                this.updateHealthBars();
-                const cpuSuperStatus = document.getElementById('cpuSuperStatus');
-                if (cpuSuperStatus) cpuSuperStatus.style.opacity = '0';
-                
-                const superText = this.add.text(640, 300, 'CPU SUPER!!!', { 
-                    fontFamily: 'Anybody', fontSize: '70px', color: '#ffd700', fontStyle: 'bold italic',
-                    stroke: '#000000', strokeThickness: 4
-                }).setOrigin(0.5);
-                superText.setAlpha(0.8);
-                superText.setDepth(200);
-                this.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
-                
-                this.setCPUAnimation('heavy', 300, true);
-                this.cameras.main.shake(300, 0.03);
-                this.tweens.add({ targets: this.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
-                
-                if (canHit) {
-                    const isBlocked = this.isBlocking;
-                    const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-                    this.playerHealth = Math.max(0, this.playerHealth - finalDamage);
-                    this.applyHitEffect(this.player, finalDamage, true);
-                    this.updateHealthBars();
-                    
-                    if (this.playerHealth <= 0) this.endGame('cpu');
-                }
-            }
-            
-            cpuDecide() {
-                if (!this.roundActive || this.cpuAttacking || this.cpuHitStun > 0 || this.isSuperFrozen) return;
-                
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const healthPercent = this.cpuHealth / 100;
-                const retreatThreshold = cpuSettings.retreatThreshold;
-                const isLowHealth = healthPercent < retreatThreshold;
-                
-                // Continuous movement
-                const movementSpeed = 7;
-                const optimalRange = cpuPersonality.optimalRange;
-                
-                if (isLowHealth) {
-                    // Retreat behavior - move away from player
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    } else {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
-                    }
-                } else if (distance > optimalRange + 20) {
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
-                    } else {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    }
-                } else if (distance < optimalRange - 30 && cpuPersonality.movementStyle !== 'FORWARD') {
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    } else {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
+                    // FIXED: Simplified block logic - removed redundant check
+                    if (this.mobileBlockPressed && !this.isAttacking && !this.isJumping) {
+                        this.isBlocking = true;
+                        if (this.playerAura) {
+                            this.playerAura.setAlpha(0.3);
+                            this.playerAura.setFillStyle(0x00dbe9);
+                        }
+                        this.playerBlockHeight = 'mid';
+                    } else if (!this.mobileBlockPressed && !this.keyG?.isDown) {
+                        this.isBlocking = false;
+                        if (this.playerAura) {
+                            this.playerAura.setAlpha(0.15);
+                            this.playerAura.setFillStyle(this.playerData?.color || 0xff5252);
+                        }
                     }
                 }
                 
-                // Check for super usage
-                if (this.cpuSuperMeter >= 100 && Math.random() < cpuSettings.superUsageChance && distance < 140) {
-                    this.cpuSuperMove();
-                    return;
-                }
-                
-                // Block decision based on personality
-                let blockChance = cpuSettings.blockChance;
-                if (cpuPersonality.defenseStyle === 'AGGRESSIVE_BLOCK') blockChance += 0.1;
-                if (cpuPersonality.defenseStyle === 'PASSIVE_BLOCK') blockChance -= 0.1;
-                this.cpuBlockDecision = Math.random() < blockChance && distance < 120;
-                if (!this.cpuAttacking) {
-                    this.cpuBlocking = this.cpuBlockDecision;
-                    this.cpuBlockHeight = Math.random() < 0.5 ? 'mid' : 'low';
-                }
-                
-                // Attack decision
-                const attackRange = cpuPersonality.optimalRange + 30;
-                const shouldAttack = !isLowHealth || distance < 80;
-                
-                if (distance < attackRange && Math.random() < 0.5 && !this.cpuAttacking && shouldAttack) {
-                    const attackChoice = Math.random();
-                    const personality = cpuPersonality;
+                // FIXED: Clean update method
+                update(time, delta) {
+                    this.updateMobileMovement();
+                    super.update(time, delta);
                     
-                    let specialChance;
-                    if (personality.type === 'ZONER') {
-                        specialChance = 0.4;
-                    } else if (personality.specialUsage === 'OFFENSIVE') {
-                        specialChance = 0.25;
-                    } else if (personality.specialUsage === 'REACTIVE') {
-                        specialChance = 0.2;
-                    } else {
-                        specialChance = 0.15;
-                    }
-                    
-                    if (attackChoice < specialChance && this.cpuSpecialCooldown === 0) {
-                        this.cpuSpecialAttack();
-                        return;
-                    }
-                    
-                    let lightWeight = 0.33, mediumWeight = 0.33, heavyWeight = 0.34;
-                    
-                    if (personality.type === 'ZONER') {
-                        lightWeight = 0.2;
-                        mediumWeight = 0.4;
-                        heavyWeight = 0.2;
-                    } else if (personality.playStyle === 'AGGRESSIVE') {
-                        lightWeight = 0.5;
-                        mediumWeight = 0.3;
-                        heavyWeight = 0.2;
-                    } else if (personality.playStyle === 'DEFENSIVE') {
-                        lightWeight = 0.5;
-                        mediumWeight = 0.3;
-                        heavyWeight = 0.2;
-                    } else if (personality.playStyle === 'BULLDOZER') {
-                        heavyWeight = 0.6;
-                        mediumWeight = 0.25;
-                        lightWeight = 0.15;
-                    } else if (personality.playStyle === 'COUNTER') {
-                        mediumWeight = 0.45;
-                        lightWeight = 0.3;
-                        heavyWeight = 0.25;
-                    }
-                    
-                    if (attackChoice < lightWeight) {
-                        this.cpuLightAttack();
-                    } else if (attackChoice < lightWeight + mediumWeight) {
-                        this.cpuMediumAttack();
-                    } else {
-                        this.cpuHeavyAttack();
+                    // Ensure bounds after all movement
+                    if (this.player) {
+                        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - 100);
                     }
                 }
-            }
-            
-            applyHitEffect(target, damage, isHeavy) {
-                this.cameras.main.shake(isHeavy ? 120 : 80, 0.008);
-                
-                if (target === this.cpu) {
-                    this.setCPUAnimation('hurt', 150);
-                } else {
-                    this.setPlayerAnimation('hurt', 150);
-                }
-                
-                target.setAlpha(0.5);
-                this.time.delayedCall(100, () => target.setAlpha(1));
-                
-                const dmgText = this.add.text(target.x, target.y - 50, `${damage}`, {
-                    fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '32px' : '24px',
-                    color: isHeavy ? '#ff003c' : '#ffb3b2', fontStyle: 'bold',
-                    stroke: '#000000', strokeThickness: 2
-                }).setOrigin(0.5);
-                dmgText.setDepth(50);
-                this.tweens.add({ targets: dmgText, y: dmgText.y - 60, alpha: 0, scale: 1.3, duration: 500, onComplete: () => dmgText.destroy() });
-                
-                if (target === this.cpu) {
-                    target.x += isHeavy ? 40 : 25;
-                } else {
-                    target.x -= isHeavy ? 40 : 25;
-                }
-                
-                if (isHeavy) {
-                    this.tweens.add({ targets: this.impactFlash, alpha: 0.4, duration: 100, yoyo: true });
-                }
-            }
-            
-            updateCombo() {
-                this.comboCount++;
-                this.comboTimer = 30;
-                this.comboText.setText(`${this.comboCount} HIT COMBO!`);
-                this.comboText.setAlpha(1);
-                this.comboText.setScale(1.2);
-                this.tweens.add({ targets: this.comboText, scale: 1, duration: 200 });
-                
-                this.superMeter = Math.min(100, this.superMeter + 5);
-                this.updateHealthBars();
-            }
-            
-            endGameByTimeout() {
-                if (this.playerHealth > this.cpuHealth) {
-                    this.endGame('player');
-                } else if (this.cpuHealth > this.playerHealth) {
-                    this.endGame('cpu');
-                } else {
-                    this.endGame('draw');
-                }
-            }
-            
-            update() {
-                if (!this.roundActive || this.isSuperFrozen) return;
-                
-                // Player movement
-                let move = 0;
-                if (this.keyLeft.isDown && !this.isAttacking) move = -1;
-                if (this.keyRight.isDown && !this.isAttacking) move = 1;
-                if (move !== 0) this.player.x += move * 7;
-                
-                // Continuous CPU movement
-                const distance = Math.abs(this.cpu.x - this.player.x);
-                const healthPercent = this.cpuHealth / 100;
-                const retreatThreshold = cpuSettings.retreatThreshold;
-                const isLowHealth = healthPercent < retreatThreshold;
-                const movementSpeed = 7;
-                const optimalRange = cpuPersonality.optimalRange;
-                
-                if (isLowHealth) {
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    } else {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
-                    }
-                } else if (distance > optimalRange + 20) {
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
-                    } else {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    }
-                } else if (distance < optimalRange - 30 && cpuPersonality.movementStyle !== 'FORWARD') {
-                    if (this.cpu.x < this.player.x) {
-                        this.cpu.x = Math.max(this.cpu.x - movementSpeed, this.minX + 50);
-                    } else {
-                        this.cpu.x = Math.min(this.cpu.x + movementSpeed, this.maxX - 50);
-                    }
-                }
-                
-                // Boundaries
-                this.player.x = Math.min(Math.max(this.player.x, this.minX), this.maxX - 100);
-                this.cpu.x = Math.min(Math.max(this.cpu.x, this.minX + 100), this.maxX);
-                
-                // Prevent overlap
-                if (Math.abs(this.player.x - this.cpu.x) < 90) {
-                    if (this.player.x < this.cpu.x) {
-                        this.player.x = this.cpu.x - 90;
-                    } else {
-                        this.cpu.x = this.player.x + 90;
-                    }
-                }
-                
-                // Update facing directions
-                const playerFacing = this.getFacingDirection('player');
-                const cpuFacing = this.getFacingDirection('cpu');
-                
-                this.player.setFlipX(playerFacing === 'left');
-                this.cpu.setFlipX(cpuFacing === 'left');
-                
-                // Attack inputs
-                if (Phaser.Input.Keyboard.JustDown(this.keyA)) this.playerLightAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyS)) this.playerMediumAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyD)) this.playerHeavyAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyF)) this.playerSpecialAttack();
-                if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.superMeter >= 100) this.playerSuperMove();
-                
-                this.isBlocking = this.keyG.isDown && !this.isAttacking;
-                if (this.isBlocking) {
-                    this.playerAura.setAlpha(0.3);
-                    this.playerAura.setFillStyle(0x00dbe9);
-                    this.playerBlockHeight = 'mid';
-                } else {
-                    this.playerAura.setAlpha(0.15);
-                    this.playerAura.setFillStyle(playerData.color);
-                }
-                
-                this.playerAura.setPosition(this.player.x, this.player.y + 10);
-                this.cpuAura.setPosition(this.cpu.x, this.cpu.y + 10);
-            }
-            
-            endGame(winner) {
-                this.roundActive = false;
-                this.time.timeScale = 1;
-                this.hasSuperArmor = false;  // FIXED: Reset super armor on round end
-                
-                let resultText;
-                let resultColor;
-                
-                if (winner === 'player') {
-                    const isPerfect = this.playerHealth === 100;
-                    resultText = isPerfect ? `PERFECT! ${playerData.name} VICTORY!` : `${playerData.name} VICTORY!`;
-                    resultColor = '#ffb3b2';
-                    if (this.player.setTexture) this.player.setTexture(`${playerData.folder}_victory`);
-                } else if (winner === 'cpu') {
-                    resultText = `${cpuData.name} VICTORY!`;
-                    resultColor = '#00dbe9';
-                    if (this.cpu.setTexture) this.cpu.setTexture(`${cpuData.folder}_victory`);
-                } else {
-                    resultText = 'DRAW GAME!';
-                    resultColor = '#ffffff';
-                }
-                
-                const announcement = this.add.text(640, 360, resultText, {
-                    fontFamily: 'Anybody', fontSize: '52px', color: resultColor,
-                    fontStyle: 'bold italic', letterSpacing: '4px',
-                    stroke: '#000000', strokeThickness: 4
-                }).setOrigin(0.5);
-                announcement.setAlpha(0);
-                announcement.setScale(0.8);
-                announcement.setDepth(200);
-                
-                this.tweens.add({ targets: announcement, alpha: 1, scale: 1, duration: 600, ease: 'Back.Out' });
-                
-                this.time.delayedCall(4000, () => {
-                    window.location.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
-                });
-            }
-        }
-        
+            };
+        })();
+    </script>
+    
+    <script>
         const config = {
             type: Phaser.AUTO,
             width: 1280,
@@ -1381,10 +507,20 @@
             parent: 'game-container',
             backgroundColor: '#050505',
             scene: FightingGame,
-            scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH }
+            scale: { 
+                mode: Phaser.Scale.FIT, 
+                autoCenter: Phaser.Scale.CENTER_BOTH,
+                width: 1280,
+                height: 720
+            },
+            input: {
+                activePointers: 3,
+                touch: true
+            }
         };
         
         const game = new Phaser.Game(config);
+        window.game = game;
     </script>
 </body>
 </html>

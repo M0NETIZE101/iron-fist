@@ -1,86 +1,155 @@
-/* ========== SHARED GLOBAL STYLES ========== */
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* Adjust text sizes */
+    .font-display-xl {
+        font-size: 36px !important;
+        line-height: 40px !important;
+    }
+    
+    .font-display-lg {
+        font-size: 28px !important;
+        line-height: 32px !important;
+    }
+    
+    .font-headline-lg {
+        font-size: 20px !important;
+        line-height: 28px !important;
+    }
+    
+    /* Adjust spacing */
+    .px-margin-desktop {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    
+    /* Navigation adjustments */
+    nav {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+    
+    nav .font-display-lg {
+        font-size: 18px !important;
+    }
+    
+    /* Hide desktop nav on mobile (if needed) */
+    nav .hidden.md\\:flex {
+        display: none !important;
+    }
+    
+    /* Character select grid adjustments */
+    #roster-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    /* Detail panel adjustments */
+    .detail-portrait-container img {
+        height: 250px !important;
+    }
+    
+    /* Stats panel adjustments */
+    .glass-panel.p-6 {
+        padding: 12px !important;
+    }
+    
+    /* Fighter cards adjustments */
+    .fighter-card .p-6 {
+        padding: 12px !important;
+    }
+    
+    .fighter-card h3 {
+        font-size: 20px !important;
+    }
+    
+    /* Difficulty card adjustments */
+    .difficulty-card {
+        padding: 16px !important;
+    }
+    
+    .difficulty-card h2 {
+        font-size: 20px !important;
+    }
+    
+    /* Arena selection adjustments */
+    .arena-card .h-32 {
+        height: 100px !important;
+    }
+    
+    /* Sidebar hidden on mobile */
+    aside.fixed {
+        display: none !important;
+    }
+    
+    main.lg\\:ml-64 {
+        margin-left: 0 !important;
+    }
+}
 
+/* Small phones */
+@media (max-width: 480px) {
+    #roster-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    .detail-portrait-container img {
+        height: 200px !important;
+    }
+    
+    .fighter-card {
+        margin-bottom: 12px;
+    }
+    
+    .difficulty-card {
+        margin-bottom: 12px;
+    }
+}
+
+/* Landscape mode on mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .mobile-controls {
+        padding: 5px 10px;
+    }
+    
+    .joystick-area {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .joystick-thumb {
+        width: 35px;
+        height: 35px;
+    }
+    
+    .action-buttons {
+        grid-template-columns: repeat(4, 45px);
+        gap: 6px;
+    }
+    
+    .action-btn {
+        width: 45px;
+        height: 45px;
+        font-size: 12px;
+    }
+    
+    .action-btn .btn-label {
+        font-size: 7px;
+    }
+}
+
+/* Prevent text selection on buttons */
+.action-btn {
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Smooth transitions for all elements */
 * {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
-body {
-  background-color: #131313;
-  color: #e5e2e1;
-  font-family: 'Geist', system-ui, -apple-system, sans-serif;
-  overflow-x: hidden;
-}
-
-/* Custom Utility Classes */
-.skew-btn {
-  clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
-  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-  cursor: pointer;
-}
-
-.skew-btn:active {
-  transform: scale(0.96);
-}
-
-.skew-box {
-  transform: skewX(-12deg);
-  display: inline-block;
-}
-
-.skew-box-reverse {
-  transform: skewX(12deg);
-  display: inline-block;
-}
-
-.glass-panel {
-  background: rgba(28, 27, 27, 0.65);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 179, 178, 0.15);
-}
-
-.hero-glow-bg {
-  background: radial-gradient(circle at 40% 50%, rgba(255, 82, 92, 0.22) 0%, transparent 70%);
-}
-
-.scanline {
-  background: linear-gradient(to bottom, transparent 45%, rgba(0, 0, 0, 0.2) 50%, transparent 55%);
-  background-size: 100% 6px;
-  pointer-events: none;
-}
-
-/* Animations */
-@keyframes pulse-slow {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s ease-in-out infinite;
-}
-
-/* Custom Scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #1c1b1b;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #ffb3b2;
-  border-radius: 8px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #ff525c;
-}
-
-/* Selection Color */
-::selection {
-  background-color: #ffb3b2;
-  color: #680012;
+/* Better touch targets */
+button, a, .action-btn, .fighter-card, .arena-card, .difficulty-card {
+    cursor: pointer;
+    touch-action: manipulation;
 }

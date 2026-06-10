@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
   <title>CHIYA GANG WARRIORS · Character Roster | Select Your Fighter</title>
   
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -47,6 +47,46 @@
     
     #confirm-btn { position: relative; overflow: hidden; transition: all 0.3s ease; }
     #confirm-btn:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(0, 219, 233, 0.6); }
+    
+    /* Mobile responsive adjustments */
+    @media (max-width: 768px) {
+      .fixed.left-0 {
+        display: none !important;
+      }
+      main {
+        margin-left: 0 !important;
+        padding-top: 80px !important;
+      }
+      #roster-grid {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+      }
+      .detail-portrait-container img {
+        height: 200px !important;
+      }
+      .glass-panel.p-6 {
+        padding: 12px !important;
+      }
+      .font-display-xl {
+        font-size: 36px !important;
+      }
+      nav {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+      }
+      nav .font-display-lg {
+        font-size: 16px !important;
+      }
+      nav .hidden.md\\:flex {
+        display: none !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      #roster-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
   </style>
   
   <script>
@@ -100,7 +140,7 @@
     </div>
   </nav>
 
-  <!-- Side Status Bar -->
+  <!-- Side Status Bar - Hidden on mobile -->
   <aside class="fixed left-0 top-24 bottom-24 w-14 rounded-r-xl bg-surface-container-low/90 backdrop-blur-md border-r border-tertiary/30 shadow-[3px_0_20px_rgba(0,219,233,0.1)] flex flex-col items-center py-stack-lg gap-gutter z-40 hidden lg:flex">
     <div class="flex flex-col items-center gap-5">
       <div class="group relative cursor-help"><span class="material-symbols-outlined text-tertiary text-2xl">sensors</span><div class="absolute left-full ml-4 px-2 py-1 bg-surface-container border border-tertiary text-label-sm whitespace-nowrap opacity-0 group-hover:opacity-100">Server: ONLINE</div></div>
