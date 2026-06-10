@@ -2,7 +2,7 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>CHIYA GANG WARRIORS | Forge Your Legacy</title>
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
@@ -14,6 +14,53 @@
     .glass-panel { background: rgba(28, 27, 27, 0.65); backdrop-filter: blur(16px); border: 1px solid rgba(255, 179, 178, 0.15); }
     .hero-glow-bg { background: radial-gradient(circle at 40% 50%, rgba(255, 82, 92, 0.22) 0%, transparent 70%); }
     .scanline { background: linear-gradient(to bottom, transparent 45%, rgba(0, 0, 0, 0.2) 50%, transparent 55%); background-size: 100% 6px; pointer-events: none; }
+    
+    /* Video trailer styles */
+    .trailer-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 20;
+      display: none;
+      background: #000;
+    }
+    .trailer-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .close-trailer {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.7);
+      border: 2px solid #ffb3b2;
+      color: #ffb3b2;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 30;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+    }
+    .close-trailer:hover {
+      background: #ffb3b2;
+      color: #000;
+      transform: scale(1.1);
+    }
+    .hero-content {
+      transition: opacity 0.3s ease;
+    }
+    .hero-content.hidden {
+      opacity: 0;
+      visibility: hidden;
+    }
   </style>
   <script>
     tailwind.config = {
@@ -84,12 +131,20 @@
   <!-- Hero Section -->
   <section class="relative h-screen w-full flex items-center justify-center overflow-hidden">
     <div class="absolute inset-0 z-0">
-      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzplKdtd2XBOFNajnsQHPZgYS7Z9zSRBea3CzINgDHtdEZlBjxFruIqS9orLdfHTpS4ZPMPFkHoVh2s-oysXvZpDT_XiOq3w1bcbN9vT7Jy53Hdne-DiSPHy_hQnGkFe3eRmJnAFljwlUuXJ0h1NuuOlvUUNWuwy4kDmabxLaLZNoCyF6pEXXRXdyvoNvtSsq8QQy1bSiDJAk8Y-vk2v8VgpW8GVu6cFlb48WTlhbtCdB7OZauu4_H8VVGGe3oMQicmZWvek9fCzE" alt="cinematic clash" class="w-full h-full object-cover opacity-70 scale-105 hero-parallax-img" />
+      <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzplKdtd2XBOFNajnsQHPZgYS7Z9zSRBea3CzINgDHtdEZlBjxFruIqS9orLdfHTpS4ZPMPFkHoVh2s-oysXvZpDT_XiOq3w1bcbN9vT7Jy53Hdne-DiSPHy_hQnGkFe3eRmJnAFljwlUuXJ0h1NuuOlvUUNWuwy4kDmabxLaLZNoCyF6pEXXRXdyvoNvtSsq8QQy1bSiDJAk8Y-vk2v8VgpW8GVu6cFlb48WTlhbtCdB7OZauu4_H8VVGGe3oMQicmZWvek9fCzE" alt="cinematic clash" class="w-full h-full object-cover opacity-70 scale-105 hero-parallax-img" id="heroBgImage" />
       <div class="absolute inset-0 bg-gradient-to-t from-surface via-transparent to-surface/40"></div>
       <div class="absolute inset-0 scanline opacity-25"></div>
       <div class="absolute inset-0 hero-glow-bg"></div>
     </div>
-    <div class="relative z-10 text-center px-margin-mobile md:px-0 max-w-6xl mx-auto">
+    
+    <!-- Trailer Video Container -->
+    <div class="trailer-container" id="trailerContainer">
+      <div class="close-trailer" id="closeTrailerBtn">✕</div>
+      <video id="trailerVideo" src="videos/trailer.mp4" preload="auto"></video>
+    </div>
+    
+    <!-- Hero Content -->
+    <div class="hero-content relative z-10 text-center px-margin-mobile md:px-0 max-w-6xl mx-auto" id="heroContent">
       <h1 class="font-display-xl text-display-lg md:text-display-xl uppercase italic tracking-tighter text-on-background drop-shadow-[0_15px_35px_rgba(255,82,92,0.6)] animate-pulse">
         FORGE YOUR <span class="text-primary">LEGACY</span>
       </h1>
@@ -101,7 +156,7 @@
           PLAY FREE NOW
           <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
         </a>
-        <button class="skew-btn bg-surface/60 backdrop-blur-lg border-2 border-primary/60 text-primary px-10 md:px-12 py-4 md:py-5 font-headline-lg text-headline-lg hover:bg-primary hover:text-on-primary transition-all">
+        <button id="watchTrailerBtn" class="skew-btn bg-surface/60 backdrop-blur-lg border-2 border-primary/60 text-primary px-10 md:px-12 py-4 md:py-5 font-headline-lg text-headline-lg hover:bg-primary hover:text-on-primary transition-all">
           WATCH TRAILER
         </button>
       </div>
@@ -157,6 +212,7 @@
   </div>
 
   <script>
+    // Parallax effect
     const heroImg = document.querySelector('.hero-parallax-img');
     if (heroImg) {
       window.addEventListener('scroll', () => {
@@ -165,11 +221,67 @@
       });
     }
     
+    // Button effects
     const skewBtns = document.querySelectorAll('.skew-btn');
     skewBtns.forEach(btn => {
       btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.96)');
       btn.addEventListener('mouseup', () => btn.style.transform = 'scale(1)');
       btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+    });
+    
+    // ========== TRAILER VIDEO FUNCTIONALITY ==========
+    const trailerContainer = document.getElementById('trailerContainer');
+    const trailerVideo = document.getElementById('trailerVideo');
+    const heroContent = document.getElementById('heroContent');
+    const watchTrailerBtn = document.getElementById('watchTrailerBtn');
+    const closeTrailerBtn = document.getElementById('closeTrailerBtn');
+    const heroBgImage = document.getElementById('heroBgImage');
+    
+    function showTrailer() {
+      // Hide hero content
+      heroContent.classList.add('hidden');
+      // Hide background image
+      if (heroBgImage) heroBgImage.style.opacity = '0';
+      // Show trailer container
+      trailerContainer.style.display = 'block';
+      // Play video
+      trailerVideo.play();
+    }
+    
+    function hideTrailer() {
+      // Pause video
+      trailerVideo.pause();
+      // Reset video to beginning
+      trailerVideo.currentTime = 0;
+      // Hide trailer container
+      trailerContainer.style.display = 'none';
+      // Show background image
+      if (heroBgImage) heroBgImage.style.opacity = '1';
+      // Show hero content
+      heroContent.classList.remove('hidden');
+    }
+    
+    // Watch Trailer button click
+    watchTrailerBtn.addEventListener('click', showTrailer);
+    
+    // Close button click
+    closeTrailerBtn.addEventListener('click', hideTrailer);
+    
+    // Auto-close when video ends
+    trailerVideo.addEventListener('ended', hideTrailer);
+    
+    // Also close when clicking outside video (optional)
+    trailerContainer.addEventListener('click', (e) => {
+      if (e.target === trailerContainer) {
+        hideTrailer();
+      }
+    });
+    
+    // Prevent video from playing in background when not visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && trailerContainer.style.display === 'block') {
+        trailerVideo.pause();
+      }
     });
   </script>
 </body>
