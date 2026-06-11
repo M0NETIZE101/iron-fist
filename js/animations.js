@@ -39,12 +39,15 @@ class Animations {
             case 'special_powerup': textureKey = `${this.playerData.folder}_special_powerup`; break;
             case 'special_attack': textureKey = `${this.playerData.folder}_special_attack`; break;
             case 'victory': textureKey = `${this.playerData.folder}_victory`; break;
-            case 'jump': textureKey = `${this.playerData.folder}_idle`; break;
+            case 'idle': textureKey = `${this.playerData.folder}_idle`; break;
             default: textureKey = `${this.playerData.folder}_idle`;
         }
         
         if (scene.textures.exists(textureKey)) {
-            if (animName !== 'hurt' && !bypassAttackGuard) scene.isAttacking = true;
+            // FIXED: idle should NOT set isAttacking
+            if (animName !== 'hurt' && animName !== 'idle' && !bypassAttackGuard) {
+                scene.isAttacking = true;
+            }
             scene.currentAnim = animName;
             scene.player.setTexture(textureKey);
             
@@ -55,7 +58,10 @@ class Animations {
                     scene.player.setTexture(`${this.playerData.folder}_idle`);
                     scene.currentAnim = 'idle';
                 }
-                if (animName !== 'hurt' && !bypassAttackGuard) scene.isAttacking = false;
+                // FIXED: idle should NOT reset isAttacking here either
+                if (animName !== 'hurt' && animName !== 'idle' && !bypassAttackGuard) {
+                    scene.isAttacking = false;
+                }
                 scene.animationTimer = null;
             });
         }
@@ -88,11 +94,12 @@ class Animations {
                 }
                 break;
             case 'victory': textureKey = `${this.cpuData.folder}_victory`; break;
+            case 'idle': textureKey = `${this.cpuData.folder}_idle`; break;
             default: textureKey = `${this.cpuData.folder}_idle`;
         }
         
         if (scene.textures.exists(textureKey)) {
-            if (animName !== 'hurt') scene.cpuAttacking = true;
+            if (animName !== 'hurt' && animName !== 'idle') scene.cpuAttacking = true;
             scene.cpu.setTexture(textureKey);
             
             if (scene.cpuAnimationTimer) scene.cpuAnimationTimer.remove();
@@ -101,7 +108,7 @@ class Animations {
                 if (scene.roundActive) {
                     scene.cpu.setTexture(`${this.cpuData.folder}_idle`);
                 }
-                if (animName !== 'hurt') scene.cpuAttacking = false;
+                if (animName !== 'hurt' && animName !== 'idle') scene.cpuAttacking = false;
                 scene.cpuAnimationTimer = null;
             });
         }

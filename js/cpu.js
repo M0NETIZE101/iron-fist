@@ -10,121 +10,29 @@ class CPUAttacks {
         this.cpuPersonality = cpuPersonality;
         this.cpuData = scene.cpuData;
         this.moveTimer = 0;
+        this.baseAttack = new BaseAttack(scene, scene.cpu, scene.player, animations, null, true);
     }
     
     lightAttack() {
-        const scene = this.scene;
-        if (scene.hasSuperArmor) return;
-        if (scene.cpuAttacking || !scene.roundActive || scene.isSuperFrozen) return;
-        
         const attackData = this.cpuData.attacks.light;
-        const distance = Math.abs(scene.cpu.x - scene.player.x);
-        const canHit = distance < attackData.range;
-        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
-        
-        this.animations.setCPUAnimation('light', attackData.startup + attackData.active + attackData.recovery);
-        
-        if (canHit) {
-            const isBlocked = scene.isBlocking && attackData.height === scene.playerBlockHeight;
-            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-            scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
-            scene.applyHitEffect(scene.player, finalDamage, false);
-            // FIXED: Use ui.updateHealthBars()
-            if (scene.ui) scene.ui.updateHealthBars();
-            
-            if (!isBlocked) {
-                scene.superMeter = Math.min(100, scene.superMeter + 3);
-            }
-            
-            if (scene.playerHealth <= 0) scene.endGame('cpu');
-        }
+        this.baseAttack.execute('light', attackData);
     }
     
     mediumAttack() {
-        const scene = this.scene;
-        if (scene.hasSuperArmor) return;
-        if (scene.cpuAttacking || !scene.roundActive || scene.isSuperFrozen) return;
-        
         const attackData = this.cpuData.attacks.medium;
-        const distance = Math.abs(scene.cpu.x - scene.player.x);
-        const canHit = distance < attackData.range;
-        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
-        
-        this.animations.setCPUAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
-        
-        if (canHit) {
-            const isBlocked = scene.isBlocking && attackData.height === scene.playerBlockHeight;
-            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-            scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
-            scene.applyHitEffect(scene.player, finalDamage, true);
-            // FIXED: Use ui.updateHealthBars()
-            if (scene.ui) scene.ui.updateHealthBars();
-            
-            if (!isBlocked) {
-                scene.superMeter = Math.min(100, scene.superMeter + 5);
-            }
-            
-            if (scene.playerHealth <= 0) scene.endGame('cpu');
-        }
+        this.baseAttack.execute('medium', attackData);
     }
     
     heavyAttack() {
-        const scene = this.scene;
-        if (scene.hasSuperArmor) return;
-        if (scene.cpuAttacking || !scene.roundActive || scene.isSuperFrozen) return;
-        
         const attackData = this.cpuData.attacks.heavy;
-        const distance = Math.abs(scene.cpu.x - scene.player.x);
-        const canHit = distance < attackData.range;
-        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
-        
-        this.animations.setCPUAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
-        
-        if (canHit) {
-            const isBlocked = scene.isBlocking && attackData.height === scene.playerBlockHeight;
-            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-            scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
-            scene.applyHitEffect(scene.player, finalDamage, true);
-            // FIXED: Use ui.updateHealthBars()
-            if (scene.ui) scene.ui.updateHealthBars();
-            
-            if (!isBlocked) {
-                scene.superMeter = Math.min(100, scene.superMeter + 8);
-            }
-            
-            if (scene.playerHealth <= 0) scene.endGame('cpu');
-        }
+        this.baseAttack.execute('heavy', attackData);
     }
     
     specialAttack() {
-        const scene = this.scene;
-        if (scene.hasSuperArmor) return;
-        if (scene.cpuAttacking || !scene.roundActive || scene.isSuperFrozen) return;
-        if (scene.cpuSpecialCooldown > 0) return;
-        
+        if (this.scene.cpuSpecialCooldown > 0) return;
         const attackData = this.cpuData.attacks.special;
-        const distance = Math.abs(scene.cpu.x - scene.player.x);
-        const canHit = distance < attackData.range;
-        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
-        
-        scene.cpuSpecialCooldown = 180;
-        this.animations.setCPUAnimation('special', attackData.startup + attackData.active + attackData.recovery);
-        scene.cameras.main.shake(120, 0.01);
-        
-        if (canHit) {
-            const isBlocked = scene.isBlocking && attackData.height === scene.playerBlockHeight;
-            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-            scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
-            scene.applyHitEffect(scene.player, finalDamage, true);
-            // FIXED: Use ui.updateHealthBars()
-            if (scene.ui) scene.ui.updateHealthBars();
-            
-            if (!isBlocked) {
-                scene.superMeter = Math.min(100, scene.superMeter + 12);
-            }
-            
-            if (scene.playerHealth <= 0) scene.endGame('cpu');
-        }
+        this.scene.cpuSpecialCooldown = 180;
+        this.baseAttack.execute('special', attackData);
     }
     
     superMove() {
@@ -139,10 +47,7 @@ class CPUAttacks {
         scene.startSuperFreeze(250);
         
         scene.cpuSuperMeter = 0;
-        // FIXED: Use ui.updateHealthBars()
         if (scene.ui) scene.ui.updateHealthBars();
-        const cpuSuperStatus = document.getElementById('cpuSuperStatus');
-        if (cpuSuperStatus) cpuSuperStatus.style.opacity = '0';
         
         const superText = scene.add.text(640, 300, 'CPU SUPER!!!', { 
             fontFamily: 'Anybody', fontSize: '70px', color: '#ffd700', fontStyle: 'bold italic',
@@ -161,7 +66,6 @@ class CPUAttacks {
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
             scene.applyHitEffect(scene.player, finalDamage, true);
-            // FIXED: Use ui.updateHealthBars()
             if (scene.ui) scene.ui.updateHealthBars();
             
             if (scene.playerHealth <= 0) scene.endGame('cpu');
@@ -185,8 +89,6 @@ class CPUAttacks {
         const movementSpeed = 7;
         const optimalRange = this.cpuPersonality.optimalRange;
         const movementDelay = this.cpuSettings.movementDelay;
-        const MIN_X = 200;
-        const MAX_X = 1080;
         
         if (this.moveTimer === 0) {
             if (isLowHealth) {

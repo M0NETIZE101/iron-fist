@@ -47,10 +47,6 @@ class FightingGame extends Phaser.Scene {
         this.playerBlockHeight = 'mid';
         this.cpuBlockHeight = 'mid';
         
-        // Position bounds
-        this.minX = 200;
-        this.maxX = 1080;
-        
         // Arena and fighter data (will be set in create)
         this.playerData = null;
         this.cpuData = null;
@@ -60,6 +56,9 @@ class FightingGame extends Phaser.Scene {
         this.ui = null;
         this.playerAttacks = null;
         this.cpuAttacks = null;
+        
+        // CPU selection storage
+        this.cpuSelected = null;
     }
     
     preload() {
@@ -71,11 +70,14 @@ class FightingGame extends Phaser.Scene {
         // Set player data first so preload knows which sprites to load
         this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
-        // Set random CPU opponent
+        // FIXED: Set CPU opponent ONCE here and reuse in create()
         const allFighters = Object.keys(FIGHTERS);
         const availableCPUs = allFighters.filter(f => f !== playerFighter);
         const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
         this.cpuData = FIGHTERS[randomCPU];
+        this.cpuSelected = randomCPU;
+        
+        debugLog('CPU selected in preload:', this.cpuData.name);
         
         // Load arena background
         const bgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
@@ -127,11 +129,11 @@ class FightingGame extends Phaser.Scene {
         
         // Error handling
         this.load.on('loaderror', (file) => {
-            console.warn('Failed to load:', file.src, 'Key:', file.key);
+            debugLog('Failed to load:', file.src, 'Key:', file.key);
         });
         
         this.load.on('loadcomplete', () => {
-            console.log('All assets loaded successfully');
+            debugLog('All assets loaded successfully');
         });
     }
     
@@ -139,72 +141,80 @@ class FightingGame extends Phaser.Scene {
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const difficulty = urlParams.get('difficulty') || 'medium';
+        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
         
         this.cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
         
-        // Set player data (already set in preload, but ensure)
+        // Set player data
         const playerFighter = urlParams.get('fighter') || 'ADARSHA';
         this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
-        // Set random CPU opponent
-        const allFighters = Object.keys(FIGHTERS);
-        const availableCPUs = allFighters.filter(f => f !== playerFighter);
-        const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
-        this.cpuData = FIGHTERS[randomCPU];
+        // FIXED: Use cpuData already set in preload(), don't randomize again
+        // this.cpuData is already set in preload()
         this.cpuPersonality = this.cpuData.personality;
         
-        console.log('Player:', this.playerData.name, 'Folder:', this.playerData.folder);
-        console.log('CPU:', this.cpuData.name, 'Folder:', this.cpuData.folder);
+        debugLog('Player:', this.playerData.name);
+        debugLog('CPU (from preload):', this.cpuData.name);
         
         // Verify textures exist
         const playerIdleKey = `${this.playerData.folder}_idle`;
         const cpuIdleKey = `${this.cpuData.folder}_idle`;
         
-        console.log('Player idle texture exists?', this.textures.exists(playerIdleKey));
-        console.log('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
+        debugLog('Player idle texture exists?', this.textures.exists(playerIdleKey));
+        debugLog('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
         
         // Background
-        const bgImage = arenaBackgrounds[urlParams.get('arena') || 'NEO-TOKYO'] || arenaBackgrounds['NEO-TOKYO'];
         if (this.textures.exists('arenaBg')) {
-            const bg = this.add.image(640, 360, 'arenaBg');
-            bg.setDisplaySize(1280, 720);
+            const bg = this.add.image(BASE_WIDTH / 2, BASE_HEIGHT / 2, 'arenaBg');
+            bg.setDisplaySize(BASE_WIDTH, BASE_HEIGHT);
             bg.setDepth(0);
         } else {
-            // Fallback background
             const bg = this.add.graphics();
             bg.fillStyle(0x0a0a0a, 1);
-            bg.fillRect(0, 0, 1280, 720);
+            bg.fillRect(0, 0, BASE_WIDTH, BASE_HEIGHT);
             bg.setDepth(0);
         }
         
         // Ground shadow
-        const ground = this.add.rectangle(640, 580, 1280, 140, 0x000000);
+        const ground = this.add.rectangle(BASE_WIDTH / 2, GROUND_Y + 120, BASE_WIDTH, 140, 0x000000);
         ground.setAlpha(0.4);
         ground.setDepth(1);
         
         // Player sprite
-        this.player = this.add.sprite(400, GROUND_Y, playerIdleKey);
-        this.player.setDisplaySize(180, 270);
+        this.player = this.add.sprite(START_POSITIONS.PLAYER_X, START_POSITIONS.PLAYER_Y, playerIdleKey);
+        this.player.setDisplaySize(CHARACTER_WIDTH, CHARACTER_HEIGHT);
         this.player.setDepth(10);
         this.player.setVisible(true);
         
-        this.playerAura = this.add.ellipse(400, 500, 140, 180, this.playerData.color);
+        // Player aura
+        this.playerAura = this.add.ellipse(
+            START_POSITIONS.PLAYER_X, 
+            START_POSITIONS.PLAYER_Y + UI.AURA_Y_OFFSET, 
+            AURA_WIDTH, AURA_HEIGHT, 
+            this.playerData.color
+        );
         this.playerAura.setAlpha(0.15);
         this.playerAura.setDepth(5);
         
         // CPU sprite
-        this.cpu = this.add.sprite(900, GROUND_Y, cpuIdleKey);
-        this.cpu.setDisplaySize(180, 270);
+        this.cpu = this.add.sprite(START_POSITIONS.CPU_X, START_POSITIONS.CPU_Y, cpuIdleKey);
+        this.cpu.setDisplaySize(CHARACTER_WIDTH, CHARACTER_HEIGHT);
         this.cpu.setDepth(10);
         this.cpu.setVisible(true);
         
-        this.cpuAura = this.add.ellipse(900, 500, 140, 180, this.cpuData.color);
+        // CPU aura
+        this.cpuAura = this.add.ellipse(
+            START_POSITIONS.CPU_X, 
+            START_POSITIONS.CPU_Y + UI.AURA_Y_OFFSET, 
+            AURA_WIDTH, AURA_HEIGHT, 
+            this.cpuData.color
+        );
         this.cpuAura.setAlpha(0.15);
         this.cpuAura.setDepth(5);
         
         // Initialize modules
         this.animations = new Animations(this, this.playerData, this.cpuData);
-        this.ui = new UI(this, this.playerData, this.cpuData);
+        this.ui = new FightingUI(this, this.playerData, this.cpuData);
         this.playerAttacks = new PlayerAttacks(this, this.animations, this.ui);
         this.cpuAttacks = new CPUAttacks(this, this.animations, this.cpuSettings, this.cpuPersonality);
         
@@ -213,7 +223,7 @@ class FightingGame extends Phaser.Scene {
         this.ui.createSuperMeters();
         
         // Combo text
-        this.comboText = this.add.text(640, 160, '', { 
+        this.comboText = this.add.text(UI.COMBO_X, UI.COMBO_Y, '', { 
             fontFamily: 'Anybody', fontSize: '28px', color: '#ffd700', fontStyle: 'bold italic',
             stroke: '#000000', strokeThickness: 3
         }).setOrigin(0.5);
@@ -221,20 +231,20 @@ class FightingGame extends Phaser.Scene {
         this.comboText.setDepth(30);
         
         // Timer
-        const timerBg = this.add.rectangle(640, 40, 100, 36, 0x000000);
+        const timerBg = this.add.rectangle(UI.TIMER_X, UI.TIMER_Y, UI.TIMER_WIDTH, UI.TIMER_HEIGHT, 0x000000);
         timerBg.setStrokeStyle(2, 0xff5252);
         timerBg.setDepth(19);
         
-        this.timerText = this.add.text(640, 40, '99', { 
+        this.timerText = this.add.text(UI.TIMER_X, UI.TIMER_Y, '99', { 
             fontFamily: 'JetBrains Mono', fontSize: '22px', color: '#ffb3b2', fontWeight: 'bold'
         }).setOrigin(0.5).setDepth(20);
         
-        this.add.text(640, 62, 'SECONDS', { 
+        this.add.text(UI.TIMER_X, UI.TIMER_Y + 22, 'SECONDS', { 
             fontFamily: 'JetBrains Mono', fontSize: '7px', color: '#666666', letterSpacing: '2px'
         }).setOrigin(0.5).setDepth(20);
         
         // VS Text
-        const vsText = this.add.text(640, 320, 'VS', { 
+        const vsText = this.add.text(UI.VS_X, UI.VS_Y, 'VS', { 
             fontFamily: 'Anybody', fontSize: '120px', color: '#ffffff', fontStyle: 'italic', 
             fontWeight: '900', stroke: '#ffb3b2', strokeThickness: 4
         }).setOrigin(0.5);
@@ -258,7 +268,7 @@ class FightingGame extends Phaser.Scene {
         this.setupGameTimers();
         
         // Effects
-        this.impactFlash = this.add.rectangle(640, 360, 1280, 720, 0xffffff);
+        this.impactFlash = this.add.rectangle(BASE_WIDTH / 2, BASE_HEIGHT / 2, BASE_WIDTH, BASE_HEIGHT, 0xffffff);
         this.impactFlash.setAlpha(0);
         this.impactFlash.setDepth(100);
         
@@ -269,7 +279,7 @@ class FightingGame extends Phaser.Scene {
         // Set global reference for mobile controls
         window.gameSceneRef = this;
         
-        console.log('Game created successfully!');
+        debugLog('Game created successfully!');
     }
     
     setupGameTimers() {
@@ -412,9 +422,11 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        this.player.x = Math.min(Math.max(this.player.x, this.minX), this.maxX - 100);
-        this.cpu.x = Math.min(Math.max(this.cpu.x, this.minX + 100), this.maxX);
+        // Boundaries
+        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
+        this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + CHARACTER_WIDTH), MAX_X);
         
+        // Prevent overlap
         if (Math.abs(this.player.x - this.cpu.x) < 90) {
             if (this.player.x < this.cpu.x) {
                 this.player.x = this.cpu.x - 90;
@@ -423,12 +435,14 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
+        // Facing direction
         const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
         const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
         
         this.player.setFlipX(playerFacing === 'left');
         this.cpu.setFlipX(cpuFacing === 'left');
         
+        // Attack inputs
         if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks) this.playerAttacks.lightAttack();
         if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks) this.playerAttacks.mediumAttack();
         if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks) this.playerAttacks.heavyAttack();
@@ -441,18 +455,22 @@ class FightingGame extends Phaser.Scene {
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100) this.playerAttacks.superMove();
         
-        this.isBlocking = this.keyG.isDown && !this.isAttacking && !this.isJumping;
-        if (this.isBlocking && !this.mobileBlockPressed) {
+        // FIXED: Blocking logic - combine keyboard and mobile
+        const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
+        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+        
+        if (this.isBlocking) {
             this.playerAura.setAlpha(0.3);
             this.playerAura.setFillStyle(0x00dbe9);
             this.playerBlockHeight = 'mid';
-        } else if (!this.isBlocking && !this.mobileBlockPressed) {
+        } else {
             this.playerAura.setAlpha(0.15);
             this.playerAura.setFillStyle(this.playerData.color);
         }
         
-        this.playerAura.setPosition(this.player.x, this.player.y + 10);
-        this.cpuAura.setPosition(this.cpu.x, this.cpu.y + 10);
+        // Aura positions
+        this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
+        this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
     }
     
     applyHitEffect(target, damage, isHeavy) {
@@ -518,7 +536,7 @@ class FightingGame extends Phaser.Scene {
             resultColor = '#ffffff';
         }
         
-        const announcement = this.add.text(640, 360, resultText, {
+        const announcement = this.add.text(BASE_WIDTH / 2, BASE_HEIGHT / 2, resultText, {
             fontFamily: 'Anybody', fontSize: '52px', color: resultColor,
             fontStyle: 'bold italic', letterSpacing: '4px',
             stroke: '#000000', strokeThickness: 4
