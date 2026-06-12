@@ -10,26 +10,49 @@ class PlayerAttacks {
         this.playerData = scene.playerData;
         this.baseAttack = new BaseAttack(scene, scene.player, scene.cpu, animations, ui, false);
         this.createdObjects = [];
+        this.attackState = null;
+        this.timeoutId = null;  // FIXED: Declared timeoutId
     }
     
     lightAttack() {
         const attackData = this.playerData.attacks.light;
+        this.attackState = { type: 'light', active: true };
         this.baseAttack.execute('light', attackData);
+        // FIXED: Clear previous timeout before setting new one
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(() => { 
+            if (this.attackState) this.attackState = null; 
+        }, 500);
     }
     
     mediumAttack() {
         const attackData = this.playerData.attacks.medium;
+        this.attackState = { type: 'medium', active: true };
         this.baseAttack.execute('medium', attackData);
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(() => { 
+            if (this.attackState) this.attackState = null; 
+        }, 500);
     }
     
     heavyAttack() {
         const attackData = this.playerData.attacks.heavy;
+        this.attackState = { type: 'heavy', active: true };
         this.baseAttack.execute('heavy', attackData);
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(() => { 
+            if (this.attackState) this.attackState = null; 
+        }, 500);
     }
     
     standardSpecial() {
         const attackData = this.playerData.attacks.special;
+        this.attackState = { type: 'special', active: true };
         this.baseAttack.execute('special', attackData);
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.timeoutId = setTimeout(() => { 
+            if (this.attackState) this.attackState = null; 
+        }, 500);
     }
     
     destroyObject(obj) {
@@ -39,6 +62,11 @@ class PlayerAttacks {
     clearCreatedObjects() {
         this.createdObjects.forEach(obj => this.destroyObject(obj));
         this.createdObjects = [];
+        this.attackState = null;
+        if (this.timeoutId) {
+            clearTimeout(this.timeoutId);
+            this.timeoutId = null;
+        }
     }
     
     // ASHMIN'S GOLDEN DRAGON FIST SPECIAL
@@ -49,6 +77,7 @@ class PlayerAttacks {
         
         scene.specialCooldown = 300;
         scene.hasSuperArmor = true;
+        this.attackState = { type: 'special', active: true };
         
         this.animations.setPlayerAnimation('light', 200);
         
@@ -126,7 +155,7 @@ class PlayerAttacks {
                                 const baseDamage = 25;
                                 const damage = isBlocked ? Math.floor(baseDamage * 0.25) : Math.floor(baseDamage * (this.playerData.power / 100));
                                 scene.cpuHealth = Math.max(0, scene.cpuHealth - damage);
-                                scene.applyHitEffect(scene.cpu, damage, true);
+                                scene.applyHitEffect(scene.cpu, damage, true, 'special');
                                 this.animations.setCPUAnimation('heavy', 200);
                                 if (this.ui) this.ui.updateHealthBars();
                                 
@@ -220,6 +249,7 @@ class PlayerAttacks {
         
         scene.time.delayedCall(1200, () => {
             scene.hasSuperArmor = false;
+            this.attackState = null;
             this.clearCreatedObjects();
         });
     }
@@ -228,6 +258,9 @@ class PlayerAttacks {
         const scene = this.scene;
         if (!scene.roundActive || scene.isAttacking || scene.isJumping) return;
         if (scene.superMeter < 100) return;
+        
+        if (this.timeoutId) clearTimeout(this.timeoutId);
+        this.attackState = { type: 'super', active: true };
         
         const distance = Math.abs(scene.player.x - scene.cpu.x);
         const canHit = distance < 150;
@@ -254,7 +287,7 @@ class PlayerAttacks {
             const isBlocked = scene.cpuBlocking;
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             scene.cpuHealth = Math.max(0, scene.cpuHealth - finalDamage);
-            scene.applyHitEffect(scene.cpu, finalDamage, true);
+            scene.applyHitEffect(scene.cpu, finalDamage, true, 'super');
             this.animations.setCPUAnimation('heavy', 200, true);
             if (this.ui) this.ui.updateHealthBars();
             
@@ -267,5 +300,9 @@ class PlayerAttacks {
             scene.superMeter = 50;
             if (this.ui) this.ui.updateHealthBars();
         }
+        
+        this.timeoutId = setTimeout(() => { 
+            if (this.attackState) this.attackState = null; 
+        }, 500);
     }
 }

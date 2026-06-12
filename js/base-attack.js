@@ -1,5 +1,5 @@
 /**
- * BASE ATTACK - Unified attack logic for Player and CPU
+ * BASE ATTACK - Unified attack logic with rectangle hitboxes
  */
 
 class BaseAttack {
@@ -23,11 +23,37 @@ class BaseAttack {
             if (!this.scene.roundActive || this.scene.isAttacking || this.scene.isSuperFrozen) return false;
         }
         
-        const distance = Math.abs(this.attacker.x - this.target.x);
-        const canHit = distance < attackData.range;
-        const damage = this.isCPU ? 
+        // Get attacker and target positions
+        const attackerX = this.attacker.x;
+        const attackerY = this.attacker.y;
+        const targetX = this.target.x;
+        const targetY = this.target.y;
+        
+        // Get facing direction
+        const facing = this.isCPU ? 
+            getFacingDirection(this.scene.player.x, this.scene.cpu.x, 'cpu') :
+            getFacingDirection(this.scene.player.x, this.scene.cpu.x, 'player');
+        
+        // Get attack hitbox
+        const attackHitbox = getAttackHitbox(this.attacker, attackType, facing, attackerX, attackerY);
+        
+        // Get target hurtboxes with difficulty scaling for CPU
+        const targetHurtboxes = this.isCPU ?
+            getHurtboxes('cpu', targetX, targetY, this.scene.cpuSettings?.name || 'medium') :
+            getHurtboxes('player', targetX, targetY, 'medium');
+        
+        // Check collision using rectangles
+        const collision = getCollisionResult(attackHitbox, targetHurtboxes);
+        const canHit = collision.hit;
+        
+        // Calculate damage with body part multiplier
+        let damage = this.isCPU ? 
             Math.floor(attackData.damage * this.scene.cpuSettings.damageMultiplier) : 
             attackData.damage;
+        
+        if (canHit) {
+            damage = Math.floor(damage * collision.multiplier);
+        }
         
         // Play animation
         const animDuration = attackData.startup + attackData.active + attackData.recovery;
@@ -56,26 +82,30 @@ class BaseAttack {
             
             if (this.isCPU) {
                 this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
-                this.scene.applyHitEffect(this.target, finalDamage, attackType === 'heavy');
+                this.scene.applyHitEffect(this.target, finalDamage, attackType === 'heavy', collision.bodyPart);
                 if (!isBlocked) {
                     this.scene.superMeter = Math.min(100, this.scene.superMeter + this.getMeterGain(attackType));
                 }
+                if (this.ui) this.ui.updateHealthBars();
             } else {
                 this.scene.cpuHealth = Math.max(0, this.scene.cpuHealth - finalDamage);
-                this.scene.applyHitEffect(this.target, finalDamage, attackType === 'heavy');
+                this.scene.applyHitEffect(this.target, finalDamage, attackType === 'heavy', collision.bodyPart);
                 if (!isBlocked) {
                     if (this.ui) this.ui.showCombo();
                     this.scene.cpuHitStun = this.getHitStun(attackType);
-                    // CPU gains meter on taking damage (removed - only on dealing)
                 }
+                if (this.ui) this.ui.updateHealthBars();
             }
-            
-            this.ui.updateHealthBars();
             
             if (this.isCPU) {
                 if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
             } else {
                 if (this.scene.cpuHealth <= 0) this.scene.endGame('player');
+            }
+            
+            // Debug log for hit location
+            if (window.DEBUG_HITBOXES) {
+                console.log(`Hit ${collision.bodyPart}! Damage: ${finalDamage} (x${collision.multiplier})`);
             }
             
             return true;

@@ -47,7 +47,7 @@ class FightingGame extends Phaser.Scene {
         this.playerBlockHeight = 'mid';
         this.cpuBlockHeight = 'mid';
         
-        // Arena and fighter data (will be set in create)
+        // Arena and fighter data
         this.playerData = null;
         this.cpuData = null;
         this.cpuPersonality = null;
@@ -59,6 +59,10 @@ class FightingGame extends Phaser.Scene {
         
         // CPU selection storage
         this.cpuSelected = null;
+        
+        // Debug mode
+        this.debugGraphics = null;
+        this.keyD = null;
     }
     
     preload() {
@@ -67,10 +71,10 @@ class FightingGame extends Phaser.Scene {
         const playerFighter = urlParams.get('fighter') || 'ADARSHA';
         const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
         
-        // Set player data first so preload knows which sprites to load
+        // Set player data first
         this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
-        // FIXED: Set CPU opponent ONCE here and reuse in create()
+        // Set CPU opponent ONCE here
         const allFighters = Object.keys(FIGHTERS);
         const availableCPUs = allFighters.filter(f => f !== playerFighter);
         const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
@@ -83,8 +87,7 @@ class FightingGame extends Phaser.Scene {
         const bgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
         this.load.image('arenaBg', bgImage);
         
-        // Load ALL character sprites with fallbacks
-        // ADARSHA
+        // Load ADARSHA sprites
         this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
         this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
         this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
@@ -93,7 +96,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`adarsha_victory`, `assets/characters/adarsha/idle.png`);
         this.load.image(`adarsha_hurt`, `assets/characters/adarsha/idle.png`);
         
-        // ASHMIN
+        // Load ASHMIN sprites
         this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
         this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
         this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
@@ -106,7 +109,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
         this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
         
-        // ALPINE
+        // Load ALPINE sprites
         this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
         this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
         this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
@@ -118,7 +121,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`alpine_victory`, `assets/characters/alpine/idle.png`);
         this.load.image(`alpine_hurt`, `assets/characters/alpine/idle.png`);
         
-        // PRESIDENT
+        // Load PRESIDENT sprites
         this.load.image(`president_idle`, `assets/characters/president/idle.png`);
         this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
         this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
@@ -141,7 +144,6 @@ class FightingGame extends Phaser.Scene {
         // Get URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const difficulty = urlParams.get('difficulty') || 'medium';
-        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
         
         this.cpuSettings = difficultySettings[difficulty] || difficultySettings.medium;
         
@@ -149,8 +151,7 @@ class FightingGame extends Phaser.Scene {
         const playerFighter = urlParams.get('fighter') || 'ADARSHA';
         this.playerData = FIGHTERS[playerFighter] || FIGHTERS['ADARSHA'];
         
-        // FIXED: Use cpuData already set in preload(), don't randomize again
-        // this.cpuData is already set in preload()
+        // Use cpuData already set in preload()
         this.cpuPersonality = this.cpuData.personality;
         
         debugLog('Player:', this.playerData.name);
@@ -159,9 +160,6 @@ class FightingGame extends Phaser.Scene {
         // Verify textures exist
         const playerIdleKey = `${this.playerData.folder}_idle`;
         const cpuIdleKey = `${this.cpuData.folder}_idle`;
-        
-        debugLog('Player idle texture exists?', this.textures.exists(playerIdleKey));
-        debugLog('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
         
         // Background
         if (this.textures.exists('arenaBg')) {
@@ -263,6 +261,11 @@ class FightingGame extends Phaser.Scene {
         this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D); // Debug toggle
+        
+        // Debug graphics layer
+        this.debugGraphics = this.add.graphics();
+        this.debugGraphics.setDepth(200);
         
         // Timers
         this.setupGameTimers();
@@ -443,19 +446,27 @@ class FightingGame extends Phaser.Scene {
         this.cpu.setFlipX(cpuFacing === 'left');
         
         // Attack inputs
-        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks) this.playerAttacks.lightAttack();
-        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks) this.playerAttacks.mediumAttack();
-        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks) this.playerAttacks.heavyAttack();
-        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.lightAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.mediumAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.heavyAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
             if (this.playerData.name === 'ASHMIN') {
                 this.playerAttacks.goldenDragonFist();
             } else {
                 this.playerAttacks.standardSpecial();
             }
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100) this.playerAttacks.superMove();
+        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.superMove();
+        }
         
-        // FIXED: Blocking logic - combine keyboard and mobile
+        // Blocking logic - combine keyboard and mobile
         const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
         this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
         
@@ -471,9 +482,50 @@ class FightingGame extends Phaser.Scene {
         // Aura positions
         this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
         this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
+        
+        // ========== DEBUG MODE VISUALIZATION ==========
+        // Toggle debug mode with D key
+        if (Phaser.Input.Keyboard.JustDown(this.keyD)) {
+            toggleDebugMode();
+        }
+        
+        // Draw hitboxes if debug mode is on
+        if (window.DEBUG_HITBOXES && this.debugGraphics) {
+            this.debugGraphics.clear();
+            
+            // Draw player hurtboxes
+            const playerHurtboxes = getHurtboxes('player', this.player.x, this.player.y, 'medium');
+            for (const [part, box] of Object.entries(playerHurtboxes)) {
+                drawHitbox(this.debugGraphics, box, box.color, true);
+                this.debugGraphics.fillStyle(0xffffff, 1);
+                this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+            }
+            
+            // Draw CPU hurtboxes (scaled by difficulty)
+            const cpuDifficulty = this.cpuSettings?.name || 'medium';
+            const cpuHurtboxes = getHurtboxes('cpu', this.cpu.x, this.cpu.y, cpuDifficulty);
+            for (const [part, box] of Object.entries(cpuHurtboxes)) {
+                drawHitbox(this.debugGraphics, box, box.color, true);
+                this.debugGraphics.fillStyle(0xffffff, 1);
+                this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+            }
+            
+            // Draw active attack hitbox if attacking
+            if (this.playerAttacks && this.playerAttacks.attackState) {
+                const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y);
+                if (attackHitbox) {
+                    drawHitbox(this.debugGraphics, attackHitbox, 0xffaa00, true);
+                    this.debugGraphics.fillStyle(0xffffff, 1);
+                    this.debugGraphics.fillText('ATTACK', attackHitbox.x + 5, attackHitbox.y - 5);
+                }
+            }
+        } else if (this.debugGraphics && !window.DEBUG_HITBOXES) {
+            this.debugGraphics.clear();
+        }
     }
     
-    applyHitEffect(target, damage, isHeavy) {
+    applyHitEffect(target, damage, isHeavy, bodyPart = 'body') {
         this.cameras.main.shake(isHeavy ? 120 : 80, 0.008);
         
         if (target === this.cpu) {
@@ -485,7 +537,9 @@ class FightingGame extends Phaser.Scene {
         target.setAlpha(0.5);
         this.time.delayedCall(100, () => target.setAlpha(1));
         
-        const dmgText = this.add.text(target.x, target.y - 50, `${damage}`, {
+        // Show body part in damage text for debug mode
+        const partText = window.DEBUG_HITBOXES ? ` [${bodyPart.toUpperCase()}]` : '';
+        const dmgText = this.add.text(target.x, target.y - 50, `${damage}${partText}`, {
             fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '32px' : '24px',
             color: isHeavy ? '#ff003c' : '#ffb3b2', fontStyle: 'bold',
             stroke: '#000000', strokeThickness: 2
@@ -554,5 +608,8 @@ class FightingGame extends Phaser.Scene {
         this.time.delayedCall(4000, () => {
             window.location.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
         });
+        
+        // Clean up player attack state
+        if (this.playerAttacks) this.playerAttacks.clearCreatedObjects();
     }
 }
