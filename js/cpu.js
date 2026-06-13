@@ -14,65 +14,158 @@ class CPUAttacks {
     }
     
     lightAttack() {
+        // Guard: Don't attack while launched
+        if (this.scene.cpuLaunched) return;
+        if (this.scene.hasSuperArmor) return;
+        if (this.scene.cpuAttacking || !this.scene.roundActive || this.scene.isSuperFrozen) return;
+        
         const attackData = this.cpuData.attacks.light;
-        this.baseAttack.execute('light', attackData);
+        const distance = Math.abs(this.scene.cpu.x - this.scene.player.x);
+        const canHit = distance < attackData.range;
+        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
+        
+        this.animations.setCPUAnimation('light', attackData.startup + attackData.active + attackData.recovery);
+        
+        if (canHit) {
+            const isBlocked = this.scene.isBlocking && attackData.height === this.scene.playerBlockHeight;
+            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+            this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
+            this.scene.applyHitEffect(this.scene.player, finalDamage, false);
+            if (this.scene.ui) this.scene.ui.updateHealthBars();
+            
+            if (!isBlocked) {
+                this.scene.superMeter = Math.min(100, this.scene.superMeter + 3);
+            }
+            
+            if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
+        }
     }
     
     mediumAttack() {
+        if (this.scene.cpuLaunched) return;
+        if (this.scene.hasSuperArmor) return;
+        if (this.scene.cpuAttacking || !this.scene.roundActive || this.scene.isSuperFrozen) return;
+        
         const attackData = this.cpuData.attacks.medium;
-        this.baseAttack.execute('medium', attackData);
+        const distance = Math.abs(this.scene.cpu.x - this.scene.player.x);
+        const canHit = distance < attackData.range;
+        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
+        
+        this.animations.setCPUAnimation('medium', attackData.startup + attackData.active + attackData.recovery);
+        
+        if (canHit) {
+            const isBlocked = this.scene.isBlocking && attackData.height === this.scene.playerBlockHeight;
+            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+            this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
+            this.scene.applyHitEffect(this.scene.player, finalDamage, true);
+            if (this.scene.ui) this.scene.ui.updateHealthBars();
+            
+            if (!isBlocked) {
+                this.scene.superMeter = Math.min(100, this.scene.superMeter + 5);
+            }
+            
+            if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
+        }
     }
     
     heavyAttack() {
+        if (this.scene.cpuLaunched) return;
+        if (this.scene.hasSuperArmor) return;
+        if (this.scene.cpuAttacking || !this.scene.roundActive || this.scene.isSuperFrozen) return;
+        
         const attackData = this.cpuData.attacks.heavy;
-        this.baseAttack.execute('heavy', attackData);
+        const distance = Math.abs(this.scene.cpu.x - this.scene.player.x);
+        const canHit = distance < attackData.range;
+        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
+        
+        this.animations.setCPUAnimation('heavy', attackData.startup + attackData.active + attackData.recovery);
+        
+        if (canHit) {
+            const isBlocked = this.scene.isBlocking && attackData.height === this.scene.playerBlockHeight;
+            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+            this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
+            this.scene.applyHitEffect(this.scene.player, finalDamage, true);
+            if (this.scene.ui) this.scene.ui.updateHealthBars();
+            
+            if (!isBlocked) {
+                this.scene.superMeter = Math.min(100, this.scene.superMeter + 8);
+            }
+            
+            if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
+        }
     }
     
     specialAttack() {
+        if (this.scene.cpuLaunched) return;
+        if (this.scene.hasSuperArmor) return;
+        if (this.scene.cpuAttacking || !this.scene.roundActive || this.scene.isSuperFrozen) return;
         if (this.scene.cpuSpecialCooldown > 0) return;
+        
         const attackData = this.cpuData.attacks.special;
+        const distance = Math.abs(this.scene.cpu.x - this.scene.player.x);
+        const canHit = distance < attackData.range;
+        const damage = Math.floor(attackData.damage * this.cpuSettings.damageMultiplier);
+        
         this.scene.cpuSpecialCooldown = 180;
-        this.baseAttack.execute('special', attackData);
+        this.animations.setCPUAnimation('special', attackData.startup + attackData.active + attackData.recovery);
+        this.scene.cameras.main.shake(120, 0.01);
+        
+        if (canHit) {
+            const isBlocked = this.scene.isBlocking && attackData.height === this.scene.playerBlockHeight;
+            const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
+            this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
+            this.scene.applyHitEffect(this.scene.player, finalDamage, true);
+            if (this.scene.ui) this.scene.ui.updateHealthBars();
+            
+            if (!isBlocked) {
+                this.scene.superMeter = Math.min(100, this.scene.superMeter + 12);
+            }
+            
+            if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
+        }
     }
     
     superMove() {
-        const scene = this.scene;
-        if (!scene.roundActive || scene.cpuAttacking) return;
-        if (scene.cpuSuperMeter < 100) return;
+        if (this.scene.cpuLaunched) return;
+        if (!this.scene.roundActive || this.scene.cpuAttacking) return;
+        if (this.scene.cpuSuperMeter < 100) return;
         
-        const distance = Math.abs(scene.cpu.x - scene.player.x);
+        const distance = Math.abs(this.scene.cpu.x - this.scene.player.x);
         const canHit = distance < 150;
         const damage = 32;
         
-        scene.startSuperFreeze(250);
+        this.scene.startSuperFreeze(250);
         
-        scene.cpuSuperMeter = 0;
-        if (scene.ui) scene.ui.updateHealthBars();
+        this.scene.cpuSuperMeter = 0;
+        if (this.scene.ui) this.scene.ui.updateHealthBars();
         
-        const superText = scene.add.text(640, 300, 'CPU SUPER!!!', { 
+        const superText = this.scene.add.text(640, 300, 'CPU SUPER!!!', { 
             fontFamily: 'Anybody', fontSize: '70px', color: '#ffd700', fontStyle: 'bold italic',
             stroke: '#000000', strokeThickness: 4
         }).setOrigin(0.5);
         superText.setAlpha(0.8);
         superText.setDepth(200);
-        scene.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
+        this.scene.tweens.add({ targets: superText, alpha: 0, scale: 1.5, duration: 500, onComplete: () => superText.destroy() });
         
         this.animations.setCPUAnimation('heavy', 300, true);
-        scene.cameras.main.shake(300, 0.03);
-        scene.tweens.add({ targets: scene.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
+        this.scene.cameras.main.shake(300, 0.03);
+        this.scene.tweens.add({ targets: this.scene.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
         
         if (canHit) {
-            const isBlocked = scene.isBlocking;
+            const isBlocked = this.scene.isBlocking;
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
-            scene.playerHealth = Math.max(0, scene.playerHealth - finalDamage);
-            scene.applyHitEffect(scene.player, finalDamage, true);
-            if (scene.ui) scene.ui.updateHealthBars();
+            this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
+            this.scene.applyHitEffect(this.scene.player, finalDamage, true);
+            if (this.scene.ui) this.scene.ui.updateHealthBars();
             
-            if (scene.playerHealth <= 0) scene.endGame('cpu');
+            if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
         }
     }
     
     decide() {
+        // Guard: Don't make decisions while launched
+        if (this.scene.cpuLaunched) return;
+        
         const scene = this.scene;
         if (!scene.roundActive || scene.cpuAttacking || scene.cpuHitStun > 0 || scene.isSuperFrozen) return;
         
@@ -88,7 +181,6 @@ class CPUAttacks {
         
         const movementSpeed = 7;
         const optimalRange = this.cpuPersonality.optimalRange;
-        const movementDelay = this.cpuSettings.movementDelay;
         
         if (this.moveTimer === 0) {
             if (isLowHealth) {
@@ -97,23 +189,14 @@ class CPUAttacks {
                 } else {
                     scene.cpu.x = Math.min(scene.cpu.x + movementSpeed, MAX_X - 50);
                 }
-                this.moveTimer = Math.floor(10 + Math.random() * 20);
-            } else if (distance > optimalRange + 30) {
-                if (scene.cpu.x < scene.player.x) {
-                    scene.cpu.x = Math.min(scene.cpu.x + movementSpeed, MAX_X - 50);
-                } else {
-                    scene.cpu.x = Math.max(scene.cpu.x - movementSpeed, MIN_X + 50);
-                }
-                this.moveTimer = Math.floor(5 + Math.random() * (20 * movementDelay));
-            } else if (distance < optimalRange - 20 && this.cpuPersonality.movementStyle !== 'FORWARD') {
-                if (scene.cpu.x < scene.player.x) {
-                    scene.cpu.x = Math.max(scene.cpu.x - movementSpeed, MIN_X + 50);
-                } else {
-                    scene.cpu.x = Math.min(scene.cpu.x + movementSpeed, MAX_X - 50);
-                }
-                this.moveTimer = Math.floor(15 + Math.random() * 25);
+                this.moveTimer = 5;
             } else {
-                this.moveTimer = Math.floor(10 + Math.random() * 30);
+                if (scene.cpu.x < scene.player.x) {
+                    scene.cpu.x = Math.min(scene.cpu.x + movementSpeed, MAX_X - 50);
+                } else {
+                    scene.cpu.x = Math.max(scene.cpu.x - movementSpeed, MIN_X + 50);
+                }
+                this.moveTimer = 3;
             }
         }
         
@@ -142,15 +225,10 @@ class CPUAttacks {
             const personality = this.cpuPersonality;
             
             let specialChance;
-            if (personality.type === 'ZONER') {
-                specialChance = 0.4;
-            } else if (personality.specialUsage === 'OFFENSIVE') {
-                specialChance = 0.25;
-            } else if (personality.specialUsage === 'REACTIVE') {
-                specialChance = 0.2;
-            } else {
-                specialChance = 0.15;
-            }
+            if (personality.type === 'ZONER') specialChance = 0.4;
+            else if (personality.specialUsage === 'OFFENSIVE') specialChance = 0.25;
+            else if (personality.specialUsage === 'REACTIVE') specialChance = 0.2;
+            else specialChance = 0.15;
             
             if (attackChoice < specialChance && scene.cpuSpecialCooldown === 0) {
                 this.specialAttack();
@@ -158,36 +236,21 @@ class CPUAttacks {
             }
             
             let lightWeight = 0.33, mediumWeight = 0.33, heavyWeight = 0.34;
-            
             if (personality.type === 'ZONER') {
-                lightWeight = 0.2;
-                mediumWeight = 0.4;
-                heavyWeight = 0.2;
+                lightWeight = 0.2; mediumWeight = 0.4; heavyWeight = 0.2;
             } else if (personality.playStyle === 'AGGRESSIVE') {
-                lightWeight = 0.5;
-                mediumWeight = 0.3;
-                heavyWeight = 0.2;
+                lightWeight = 0.5; mediumWeight = 0.3; heavyWeight = 0.2;
             } else if (personality.playStyle === 'DEFENSIVE') {
-                lightWeight = 0.5;
-                mediumWeight = 0.3;
-                heavyWeight = 0.2;
+                lightWeight = 0.5; mediumWeight = 0.3; heavyWeight = 0.2;
             } else if (personality.playStyle === 'BULLDOZER') {
-                heavyWeight = 0.6;
-                mediumWeight = 0.25;
-                lightWeight = 0.15;
+                heavyWeight = 0.6; mediumWeight = 0.25; lightWeight = 0.15;
             } else if (personality.playStyle === 'COUNTER') {
-                mediumWeight = 0.45;
-                lightWeight = 0.3;
-                heavyWeight = 0.25;
+                mediumWeight = 0.45; lightWeight = 0.3; heavyWeight = 0.25;
             }
             
-            if (attackChoice < lightWeight) {
-                this.lightAttack();
-            } else if (attackChoice < lightWeight + mediumWeight) {
-                this.mediumAttack();
-            } else {
-                this.heavyAttack();
-            }
+            if (attackChoice < lightWeight) this.lightAttack();
+            else if (attackChoice < lightWeight + mediumWeight) this.mediumAttack();
+            else this.heavyAttack();
         }
     }
 }

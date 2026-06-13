@@ -58,6 +58,7 @@ const fighters = [
     unlocked: true
   },
   // UPCOMING FIGHTERS (placeholder for future updates)
+  
   { 
     name: "???", 
     archetype: "COMING SOON", 

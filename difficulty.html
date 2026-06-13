@@ -2,7 +2,7 @@
 <html class="dark" lang="en">
 <head>
 <meta charset="utf-8">
-<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" name="viewport">
 <title>CHIYA GANG WARRIORS - Select Challenge Level</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&amp;family=JetBrains+Mono:wght@100..800&amp;family=Geist:wght@100..900&amp;display=swap" rel="stylesheet">
@@ -131,18 +131,79 @@
             50% { opacity: 1; }
             100% { opacity: 0.98; }
         }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .px-margin-desktop {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            aside.fixed {
+                display: none !important;
+            }
+            main {
+                margin-left: 0 !important;
+            }
+            .grid-cols-1.md\\:grid-cols-5 {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+            .difficulty-card {
+                height: auto !important;
+                min-height: 280px;
+                padding: 12px !important;
+            }
+            .difficulty-card img {
+                width: 64px !important;
+                height: 64px !important;
+            }
+            .difficulty-card .text-\\[10px\\] {
+                font-size: 8px !important;
+            }
+            .glass-panel {
+                backdrop-filter: blur(12px);
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .grid-cols-1.md\\:grid-cols-5 {
+                grid-template-columns: repeat(1, 1fr) !important;
+            }
+            .flex-col.md\\:flex-row {
+                flex-direction: column !important;
+                gap: 12px !important;
+            }
+            .confirm-selection {
+                flex-direction: column !important;
+                text-align: center !important;
+                gap: 16px !important;
+            }
+            .confirm-selection > div:first-child {
+                display: none !important;
+            }
+        }
+        
+        /* Prevent text selection on buttons */
+        .skew-button, .difficulty-card {
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            cursor: pointer;
+        }
     </style>
 </head>
-<body class="bg-background text-on-surface font-body-md overflow-hidden h-screen selection:bg-primary-container selection:text-on-primary-container">
-<div class="fixed inset-0 z-[100] crt-overlay opacity-30"></div>
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden h-screen selection:bg-primary-container selection:text-on-primary-container">
 
-<header class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
+<!-- CRT Effect Layer -->
+<div class="fixed inset-0 z-[100] crt-overlay opacity-30" style="opacity: 0.284988;"></div>
+
+<!-- Navigation Shell (TopAppBar) -->
+<header class="sticky top-0 z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
 <div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic">CHIYA GANG WARRIORS</div>
 <nav class="hidden md:flex gap-stack-lg items-center">
-<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="characterselect.html">ROSTER</a>
-<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="arena.html">ARENAS</a>
-<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary transition-all" href="#">MECHANICS</a>
-<a class="font-label-bold text-label-bold text-primary border-b-4 border-primary pb-1" href="#">RANK</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all active:scale-95 duration-75" href="characterselect.html">ROSTER</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all active:scale-95 duration-75" href="arena.html">ARENAS</a>
+<a class="font-label-bold text-label-bold text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all active:scale-95 duration-75" href="#">MECHANICS</a>
+<a class="font-label-bold text-label-bold text-primary border-b-4 border-primary pb-1" href="fighters.html">FIGHTERS</a>
 </nav>
 <div class="flex items-center gap-stack-md">
 <span class="material-symbols-outlined text-primary cursor-pointer hover:scale-110 transition-transform">settings</span>
@@ -152,7 +213,8 @@
 </header>
 
 <div class="flex h-[calc(100vh-80px)]">
-<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 bg-surface-container-highest/60 backdrop-blur-2xl h-screen w-64 left-0 border-r border-outline-variant shadow-2xl">
+<!-- Side Navigation Shell -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 bg-surface-container-highest/60 backdrop-blur-2xl h-screen w-64 left-0 border-r border-outline-variant shadow-2xl hidden lg:flex">
 <div class="px-6 mb-8">
 <div class="font-display-xl text-display-xl text-primary leading-none">P1</div>
 <div class="mt-4 flex items-center gap-3">
@@ -192,14 +254,17 @@
 </div>
 </aside>
 
-<main class="ml-64 flex-grow flex flex-col items-center justify-center relative px-margin-desktop">
+<!-- Main Content Area -->
+<main class="flex-grow flex flex-col items-center justify-center relative px-margin-mobile md:px-margin-desktop">
 <div class="z-10 w-full max-w-6xl flex flex-col items-center">
 <h1 class="font-display-lg text-display-lg text-primary uppercase tracking-widest italic mb-stack-lg text-center drop-shadow-[0_0_10px_rgba(255,82,92,0.8)]">
                     SELECT CHALLENGE LEVEL
                 </h1>
 
-<div class="grid grid-cols-1 md:grid-cols-5 gap-stack-md w-full mb-stack-lg">
-<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-green-500/50 hover:active-card transition-all cursor-pointer group" data-difficulty="practice" onclick="selectDifficulty(this, 'PRACTICE')">
+<!-- Difficulty Cards Grid - Responsive -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-stack-md w-full mb-stack-lg">
+<!-- PRACTICE -->
+<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-green-500/50 hover:active-card transition-all cursor-pointer group difficulty-card" data-difficulty="easy" onclick="selectDifficulty(this, 'PRACTICE')">
 <div class="font-label-bold text-label-bold text-green-400 uppercase tracking-widest">PRACTICE</div>
 <div class="flex flex-col items-center">
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAeQBHFSXx6V8ucW8uXYP9TipfvAC4MHWX0JqifghIsRhozuM6KVsLmwxuQoUhK6-S3xYu_BBhJdX341nRbLS8m2a00_jhVM05BOjY0tuFcIkSQSsFmoEVBOdrX8t0yPN5gAZ6vtwosPaJdbHYlrYUw4cWfWx2X7ljlkI0hRrD2BrgDIgthhlu5O0pJAmYN0Fj_kWzuTlQdwZoW132ZLlbWGlzWuGRnXkHwP-mj-AaMR0GkO8WyhKexcxi2ZtJf38ngTolhb_kyzwY" alt="Practice Difficulty" class="w-32 h-32 object-contain arcade-flicker">
@@ -210,7 +275,8 @@
 </div>
 </div>
 
-<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-cyan-500/50 hover:active-card transition-all cursor-pointer group" data-difficulty="easy" onclick="selectDifficulty(this, 'EASY')">
+<!-- EASY -->
+<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-cyan-500/50 hover:active-card transition-all cursor-pointer group difficulty-card" data-difficulty="easy" onclick="selectDifficulty(this, 'EASY')">
 <div class="font-label-bold text-label-bold text-cyan-400 uppercase tracking-widest">EASY</div>
 <div class="flex flex-col items-center">
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgQUK0K1s_M9aQjOf_-vMvQYRYKuk8CL7v4pTEnRYRHDwfEu89t0X8l8o508kJQ27qigYk8wFAzvNVXetZrIomDPMZmHR2VCByrcOimtW4a6k9lzy30ezbi-HOa21WIJ4VBriya5u33ctrXJ71ohcME_fwkwCRLIY3_aHWZ7cDLkJ_fJ3J030xuaZKa4LGMyea2gZQny7OwCvl_AVTbl1olXod8Kb7yKBJBFlS1oAYcIjh0mGOLvbWPoFKUZ7yoO3oxb-fdu3Xmzk" alt="Easy Difficulty" class="w-32 h-32 object-contain arcade-flicker">
@@ -221,7 +287,8 @@
 </div>
 </div>
 
-<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-yellow-500 active-card transition-all cursor-pointer group" data-difficulty="normal" onclick="selectDifficulty(this, 'NORMAL')">
+<!-- NORMAL -->
+<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-yellow-500 active-card transition-all cursor-pointer group difficulty-card selected" data-difficulty="medium" onclick="selectDifficulty(this, 'NORMAL')">
 <div class="font-label-bold text-label-bold text-yellow-400 uppercase tracking-widest">NORMAL</div>
 <div class="flex flex-col items-center">
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8en9MBFNGHitTky9J5mUti8T-JKPGPQj4FHYSAUXUoGSYWIq1asnlwLgFlu1VZ51ZV2LTlfBIrnVNtglFjWqFz7WZo9PnFXvEBVrYw317Rdb-iyUpgvYK9S1rQtJKJ1v9zcokNXN0RGVuvTs6EzJKUNDA9JVACyh45HbW1faPSEabi9L_-y70agv5VdVvLui1-AobvNyokmiNCO3NgPC7-Ah0PD9t4JeTbhJnv34HXltVvYQLCEXP4JbH_d1_GSFh1kGYZBt6LXs" alt="Normal Difficulty" class="w-32 h-32 object-contain arcade-flicker">
@@ -232,7 +299,8 @@
 </div>
 </div>
 
-<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-orange-500/50 hover:active-card transition-all cursor-pointer group" data-difficulty="hard" onclick="selectDifficulty(this, 'HARD')">
+<!-- HARD -->
+<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-orange-500/50 hover:active-card transition-all cursor-pointer group difficulty-card" data-difficulty="hard" onclick="selectDifficulty(this, 'HARD')">
 <div class="font-label-bold text-label-bold text-orange-400 uppercase tracking-widest">HARD</div>
 <div class="flex flex-col items-center">
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTP_0a-RUYkMcdp3xx2aJQ_HnU30vpu8KiQoCnYlDHJ5KJ1v2kLYl32W91lfmZuoFNycnzNu6SN2OKGxzzG-P27k0_AYf3U3cB6p20joN0uUYECxAy2zC18T_Js-9yGe4OCPpEoEGap1Q-MOKGfyuQkVU-mUnLkcHrhA57862ZLSemE7X5xgIt1U7QI9Db0lO6Pj_Ovhpa8bfTGOpi2a81ejUeMeF994RPxZZYJTJHh0zm1jWLiTmCXscsT58DhLVRQKFDYzBdsHI" alt="Hard Difficulty" class="w-32 h-32 object-contain arcade-flicker">
@@ -243,7 +311,8 @@
 </div>
 </div>
 
-<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-red-600/50 hover:active-card transition-all cursor-pointer group" data-difficulty="deathmatch" onclick="selectDifficulty(this, 'DEATHMATCH')">
+<!-- DEATHMATCH -->
+<div class="glass-panel p-stack-md flex flex-col items-center justify-between h-[400px] border-t-2 border-red-600/50 hover:active-card transition-all cursor-pointer group difficulty-card" data-difficulty="hard" onclick="selectDifficulty(this, 'DEATHMATCH')">
 <div class="font-label-bold text-label-bold text-red-500 uppercase tracking-widest">DEATHMATCH</div>
 <div class="flex flex-col items-center">
 <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBLppnEdbpWmO4zvqUsu1K0DhMOqxHEvkoNlK3Axy9uX0em2QrJjgEr75m_b5h0dW3Rz5bV7U_91HZW372lONzcz99prmdj7iL87d0OuPySeIhrfm_L62cO_6D2pqhHZr-Lnxd5t9MZ8Yp4fjrKUvol8UWENPBPx4YZKutnjkBjbnQuA3aqeJT5vQkb_fqc3r0svE1Px5iqE10AXkePqt3hSNVM4wGQUYTRZl3fEKC9Nv1T-RKb3F3Vz29DBOxb5961gI5Dqv4Z_z4" alt="Deathmatch Difficulty" class="w-32 h-32 object-contain arcade-flicker">
@@ -255,7 +324,8 @@
 </div>
 </div>
 
-<div class="w-full flex justify-between items-center bg-surface-container-high/40 p-stack-md glass-panel border-x-4 border-primary">
+<!-- Action Footer Area -->
+<div class="w-full flex justify-between items-center bg-surface-container-high/40 p-stack-md glass-panel border-x-4 border-primary confirm-selection flex-wrap">
 <div class="flex gap-stack-lg">
 <div class="flex flex-col">
 <span class="font-label-sm text-label-sm text-on-surface-variant uppercase">CREDITS</span>
@@ -266,7 +336,7 @@
 <span class="material-symbols-outlined text-tertiary">toll</span>
 </div>
 </div>
-<button class="skew-button bg-primary text-on-primary font-display-lg text-headline-lg px-12 py-4 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,82,92,0.5)] uppercase italic" id="confirmBtn">
+<button id="confirmBtn" class="skew-button bg-primary text-on-primary font-display-lg text-headline-lg px-8 py-4 hover:scale-105 active:scale-95 transition-all shadow-[0_0_30px_rgba(255,82,92,0.5)] uppercase italic">
                         CONFIRM SELECTION
                     </button>
 <div class="text-right">
@@ -278,9 +348,10 @@
 </main>
 </div>
 
-<footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
+<!-- Global Footer -->
+<footer class="w-full py-stack-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
 <div class="font-headline-lg text-headline-lg text-primary uppercase italic">CHIYA GANG WARRIORS</div>
-<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2024 CHIYA GANG ARCADE. ALL RIGHTS RESERVED. HIGH SCORE: 999,999</div>
+<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED. HIGH SCORE: 999,999</div>
 <div class="flex gap-stack-md">
 <a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-tertiary transition-colors cursor-pointer" href="#">LEGAL</a>
 <a class="font-label-sm text-label-sm tracking-widest text-on-surface-variant hover:text-tertiary transition-colors cursor-pointer" href="#">PRIVACY</a>
@@ -290,24 +361,32 @@
 </footer>
 
 <script>
+        // Get fighter and arena from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const fighter = urlParams.get('fighter') || 'ADARSHA';
         const arena = urlParams.get('arena') || 'NEO-TOKYO';
         
-        let selectedDifficulty = 'normal';
+        let selectedDifficulty = 'medium';
         let selectedDifficultyName = 'NORMAL';
         
         function selectDifficulty(element, name) {
-            document.querySelectorAll('.glass-panel').forEach(card => {
+            // Remove active class from all
+            document.querySelectorAll('.difficulty-card').forEach(card => {
                 card.classList.remove('active-card');
+                card.classList.remove('selected');
             });
+
+            // Add active class to clicked
             element.classList.add('active-card');
+            element.classList.add('selected');
             
+            // Update display text and color
             const display = document.getElementById('selectedDisplay');
             const confirmBtn = document.getElementById('confirmBtn');
             display.innerText = name;
             selectedDifficultyName = name;
             
+            // Map difficulty names to values for game.html
             const difficultyMap = {
                 'PRACTICE': 'easy',
                 'EASY': 'easy',
@@ -334,17 +413,21 @@
             console.log('Difficulty changed to: ' + name);
         }
 
+        // Confirm button - navigate to game.html with parameters
         document.getElementById('confirmBtn').addEventListener('click', () => {
             window.location.href = `game.html?fighter=${encodeURIComponent(fighter)}&arena=${encodeURIComponent(arena)}&difficulty=${selectedDifficulty}`;
         });
         
+        // Back button functionality - go back to arena selection
         const backButtons = document.querySelectorAll('[onclick*="window.location.href=\'arena.html\'"]');
         backButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', (e) => {
+                e.preventDefault();
                 window.location.href = `arena.html?fighter=${encodeURIComponent(fighter)}`;
             });
         });
         
+        // Random glitch effect for CRT aesthetic
         setInterval(() => {
             const overlay = document.querySelector('.crt-overlay');
             if (overlay) {

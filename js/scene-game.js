@@ -37,6 +37,10 @@ class FightingGame extends Phaser.Scene {
         this.isJumping = false;
         this.playerYVelocity = 0;
         
+        // CPU launch state (for Adarsha's special)
+        this.cpuLaunched = false;
+        this.cpuLaunchVelocity = 0;
+        
         // Mobile controls
         this.mobileLeftPressed = false;
         this.mobileRightPressed = false;
@@ -62,7 +66,7 @@ class FightingGame extends Phaser.Scene {
         
         // Debug mode
         this.debugGraphics = null;
-        this.keyD = null;
+        this.keyO = null;
     }
     
     preload() {
@@ -95,6 +99,12 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
         this.load.image(`adarsha_victory`, `assets/characters/adarsha/idle.png`);
         this.load.image(`adarsha_hurt`, `assets/characters/adarsha/idle.png`);
+        this.load.image(`adarsha_jumpstart`, `assets/characters/adarsha/jumpstart.png`);
+        this.load.image(`adarsha_jump`, `assets/characters/adarsha/jump.png`);
+        this.load.image(`adarsha_jumpkick`, `assets/characters/adarsha/jumpkick.png`);
+        this.load.image(`adarsha_firestart`, `assets/characters/adarsha/firestart.png`);
+        this.load.image(`adarsha_firing`, `assets/characters/adarsha/firing.png`);
+        this.load.image(`adarsha_fireball`, `assets/characters/adarsha/fireball.png`);
         
         // Load ASHMIN sprites
         this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
@@ -115,9 +125,9 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
         this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
         this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
-        this.load.image(`alpine_special_drink`, `assets/characters/alpine/idle.png`);
-        this.load.image(`alpine_special_powerup`, `assets/characters/alpine/idle.png`);
-        this.load.image(`alpine_special_attack`, `assets/characters/alpine/kick-right.png`);
+        this.load.image(`alpine_special_drink`, `assets/characters/alpine/special_drink.png`);
+        this.load.image(`alpine_special_powerup`, `assets/characters/alpine/special_powerup.png`);
+        this.load.image(`alpine_special_attack`, `assets/characters/alpine/special_attack.png`);
         this.load.image(`alpine_victory`, `assets/characters/alpine/idle.png`);
         this.load.image(`alpine_hurt`, `assets/characters/alpine/idle.png`);
         
@@ -129,6 +139,17 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`president_special`, `assets/characters/president/kick.png`);
         this.load.image(`president_victory`, `assets/characters/president/idle.png`);
         this.load.image(`president_hurt`, `assets/characters/president/idle.png`);
+
+        // Load IRON MAN sprites
+this.load.image(`ironman_idle`, `assets/characters/ironman/idle.png`);
+this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
+this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
+this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
+this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
+this.load.image(`ironman_special`, `assets/characters/ironman/ironman_special.png`);
+this.load.image(`ironman_victory`, `assets/characters/ironman/victory.png`);
+this.load.image(`ironman_hurt`, `assets/characters/ironman/hurt.png`);
+this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); // Optional
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -161,7 +182,7 @@ class FightingGame extends Phaser.Scene {
         const playerIdleKey = `${this.playerData.folder}_idle`;
         const cpuIdleKey = `${this.cpuData.folder}_idle`;
         
-        // Background
+        // Background - centered
         if (this.textures.exists('arenaBg')) {
             const bg = this.add.image(BASE_WIDTH / 2, BASE_HEIGHT / 2, 'arenaBg');
             bg.setDisplaySize(BASE_WIDTH, BASE_HEIGHT);
@@ -261,7 +282,7 @@ class FightingGame extends Phaser.Scene {
         this.keyLeft = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.LEFT);
         this.keyRight = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.RIGHT);
         this.keySpace = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-        this.keyD = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D); // Debug toggle
+        this.keyO = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.O);
         
         // Debug graphics layer
         this.debugGraphics = this.add.graphics();
@@ -371,7 +392,7 @@ class FightingGame extends Phaser.Scene {
         if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
-            if (this.animations) this.animations.setPlayerAnimation('jump', 300);
+            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
             this.mobileJumpRequested = false;
         }
         
@@ -407,12 +428,14 @@ class FightingGame extends Phaser.Scene {
             if (move !== 0) this.player.x += move * 7;
         }
         
+        // Keyboard jump
         if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
-            if (this.animations) this.animations.setPlayerAnimation('jump', 300);
+            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
         }
         
+        // Player jump physics
         if (this.isJumping) {
             this.playerYVelocity += GRAVITY * (1/60);
             this.player.y += this.playerYVelocity * (1/60);
@@ -422,6 +445,18 @@ class FightingGame extends Phaser.Scene {
                 this.isJumping = false;
                 this.playerYVelocity = 0;
                 if (this.animations) this.animations.setPlayerAnimation('idle', 100);
+            }
+        }
+        
+        // ========== FIXED: CPU LAUNCH PHYSICS ==========
+        if (this.cpuLaunched) {
+            this.cpu.y += this.cpuLaunchVelocity * (1/60);
+            this.cpuLaunchVelocity += GRAVITY * (1/60);
+            
+            if (this.cpu.y >= GROUND_Y) {
+                this.cpu.y = GROUND_Y;
+                this.cpuLaunched = false;
+                this.cpuLaunchVelocity = 0;
             }
         }
         
@@ -445,7 +480,7 @@ class FightingGame extends Phaser.Scene {
         this.player.setFlipX(playerFacing === 'left');
         this.cpu.setFlipX(cpuFacing === 'left');
         
-        // Attack inputs
+        // Attack inputs - FIXED: Use dispatcher for special
         if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
             this.playerAttacks.lightAttack();
         }
@@ -456,11 +491,7 @@ class FightingGame extends Phaser.Scene {
             this.playerAttacks.heavyAttack();
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
-            if (this.playerData.name === 'ASHMIN') {
-                this.playerAttacks.goldenDragonFist();
-            } else {
-                this.playerAttacks.standardSpecial();
-            }
+            this.playerAttacks.playerSpecialAttack();  // FIXED: Use dispatcher method
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
             this.playerAttacks.superMove();
@@ -484,16 +515,13 @@ class FightingGame extends Phaser.Scene {
         this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
         
         // ========== DEBUG MODE VISUALIZATION ==========
-        // Toggle debug mode with D key
-        if (Phaser.Input.Keyboard.JustDown(this.keyD)) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyO)) {
             toggleDebugMode();
         }
         
-        // Draw hitboxes if debug mode is on
         if (window.DEBUG_HITBOXES && this.debugGraphics) {
             this.debugGraphics.clear();
             
-            // Draw player hurtboxes
             const playerHurtboxes = getHurtboxes('player', this.player.x, this.player.y, 'medium');
             for (const [part, box] of Object.entries(playerHurtboxes)) {
                 drawHitbox(this.debugGraphics, box, box.color, true);
@@ -501,7 +529,6 @@ class FightingGame extends Phaser.Scene {
                 this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
             }
             
-            // Draw CPU hurtboxes (scaled by difficulty)
             const cpuDifficulty = this.cpuSettings?.name || 'medium';
             const cpuHurtboxes = getHurtboxes('cpu', this.cpu.x, this.cpu.y, cpuDifficulty);
             for (const [part, box] of Object.entries(cpuHurtboxes)) {
@@ -510,7 +537,6 @@ class FightingGame extends Phaser.Scene {
                 this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
             }
             
-            // Draw active attack hitbox if attacking
             if (this.playerAttacks && this.playerAttacks.attackState) {
                 const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
                 const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y);
@@ -537,7 +563,6 @@ class FightingGame extends Phaser.Scene {
         target.setAlpha(0.5);
         this.time.delayedCall(100, () => target.setAlpha(1));
         
-        // Show body part in damage text for debug mode
         const partText = window.DEBUG_HITBOXES ? ` [${bodyPart.toUpperCase()}]` : '';
         const dmgText = this.add.text(target.x, target.y - 50, `${damage}${partText}`, {
             fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '32px' : '24px',
@@ -609,7 +634,6 @@ class FightingGame extends Phaser.Scene {
             window.location.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
         });
         
-        // Clean up player attack state
         if (this.playerAttacks) this.playerAttacks.clearCreatedObjects();
     }
 }

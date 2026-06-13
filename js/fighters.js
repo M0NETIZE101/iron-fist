@@ -151,7 +151,46 @@ const FIGHTERS = {
         // Display assets
         portrait: 'assets/characters/president/portrait.png',
         thumb: 'assets/characters/president/portrait.png'
-    }
+    },
+
+    'IRONMAN': { 
+    name: 'IRONMAN', 
+    title: 'THE INVINCIBLE IRON MAN',
+    archetype: 'TECH',
+    rank: 'AVENGER RANK',
+    power: 92, 
+    speed: 85, 
+    defense: 90,
+    range: 75,
+    color: 0xc71f1f,      // Iron Man red
+    accent: 0xffd700,     // Gold accent
+    folder: 'ironman',
+    specialName: 'REPULSOR BLAST', 
+    specialDamage: 24,
+    // AI Personality
+    personality: {
+        type: 'TECH',
+        playStyle: 'BALANCED',
+        optimalRange: 90,
+        preferredAttacks: ['medium', 'heavy', 'special'],
+        specialUsage: 'OFFENSIVE',
+        movementStyle: 'FORWARD',
+        defenseStyle: 'TECH_BLOCK',
+        comboPreference: 'MEDIUM_START'
+    },
+    // Attack frame data
+    attacks: {
+        light: { startup: 90, active: 50, recovery: 160, damage: 7, range: 72, height: 'mid', pushback: 22 },
+        medium: { startup: 130, active: 60, recovery: 210, damage: 11, range: 78, height: 'mid', pushback: 30 },
+        heavy: { startup: 190, active: 80, recovery: 310, damage: 17, range: 85, height: 'overhead', pushback: 38 },
+        special: { startup: 280, active: 100, recovery: 400, damage: 24, range: 200, height: 'projectile', pushback: 30 }
+    },
+    // Display assets
+    portrait: 'assets/characters/ironman/portrait.png',
+    thumb: 'assets/characters/ironman/portrait.png'
+}
+
+    
 };
 
 // Helper function to get fighter by name

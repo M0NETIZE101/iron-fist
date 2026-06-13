@@ -2,7 +2,7 @@
  * CONFIGURATION - Game Settings & Constants
  */
 
-// Debug mode (press D in game to toggle) - GLOBAL
+// Debug mode (press O in game to toggle) - GLOBAL
 window.DEBUG_HITBOXES = false;
 
 function toggleDebugMode() {
@@ -12,7 +12,7 @@ function toggleDebugMode() {
     if (window.DEBUG_HITBOXES) {
         console.log('   → Hitboxes are now VISIBLE');
         console.log('   → Damage numbers show body parts');
-        console.log('   → Press D again to disable');
+        console.log('   → Press O again to disable');
     }
     console.log('═══════════════════════════════════════');
 }
@@ -45,35 +45,39 @@ const AURA_HEIGHT = 180;
 const BASE_WIDTH = 1280;
 const BASE_HEIGHT = 720;
 
-// UI Positions (responsive)
+// UI Positions (adjusted for better spacing)
 const UI = {
+    // Health Bars
     PLAYER_HEALTH_X: 200,
-    PLAYER_HEALTH_Y: 40,
+    PLAYER_HEALTH_Y: 45,
     PLAYER_HEALTH_BAR_WIDTH: 400,
     PLAYER_HEALTH_BAR_HEIGHT: 24,
     PLAYER_HEALTH_FILL_HEIGHT: 18,
     
     CPU_HEALTH_X: 1280,
-    CPU_HEALTH_Y: 40,
+    CPU_HEALTH_Y: 45,
     CPU_HEALTH_BAR_WIDTH: 400,
     CPU_HEALTH_BAR_HEIGHT: 24,
     CPU_HEALTH_FILL_HEIGHT: 18,
     
+    // Name Plates
     PLAYER_NAME_X: 200,
-    PLAYER_NAME_Y: 20,
+    PLAYER_NAME_Y: 25,
     PLAYER_NAME_WIDTH: 140,
     PLAYER_NAME_HEIGHT: 20,
     
     CPU_NAME_X: 1280,
-    CPU_NAME_Y: 20,
+    CPU_NAME_Y: 25,
     CPU_NAME_WIDTH: 140,
     CPU_NAME_HEIGHT: 20,
     
+    // Health Text
     PLAYER_HEALTH_TEXT_X: 200,
-    PLAYER_HEALTH_TEXT_Y: 60,
+    PLAYER_HEALTH_TEXT_Y: 65,
     CPU_HEALTH_TEXT_X: 1280,
-    CPU_HEALTH_TEXT_Y: 60,
+    CPU_HEALTH_TEXT_Y: 65,
     
+    // Super Meters
     PLAYER_SUPER_X: 200,
     PLAYER_SUPER_Y: 85,
     PLAYER_SUPER_WIDTH: 360,
@@ -86,27 +90,33 @@ const UI = {
     CPU_SUPER_HEIGHT: 12,
     CPU_SUPER_FILL_HEIGHT: 8,
     
+    // Super Labels
     PLAYER_SUPER_LABEL_X: 200,
     PLAYER_SUPER_LABEL_Y: 78,
     CPU_SUPER_LABEL_X: 1280,
     CPU_SUPER_LABEL_Y: 78,
     
+    // Super Text
     PLAYER_SUPER_TEXT_X: 200,
     PLAYER_SUPER_TEXT_Y: 97,
     CPU_SUPER_TEXT_X: 1280,
     CPU_SUPER_TEXT_Y: 97,
     
-    TIMER_X: 640,
-    TIMER_Y: 40,
-    TIMER_WIDTH: 100,
+    // Timer – moved right and narrower
+    TIMER_X: 680,
+    TIMER_Y: 35,
+    TIMER_WIDTH: 90,
     TIMER_HEIGHT: 36,
     
+    // VS Text
     VS_X: 640,
     VS_Y: 320,
     
+    // Combo Text
     COMBO_X: 640,
     COMBO_Y: 160,
     
+    // Aura offset
     AURA_Y_OFFSET: 10
 };
 
