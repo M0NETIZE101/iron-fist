@@ -30,8 +30,8 @@
             top: 0;
             left: 0;
             width: 100vw;
-            height: 100vh;      /* Fallback for older browsers */
-            height: 100dvh;     /* Modern Samsung Android */
+            height: 100vh;
+            height: 100dvh;
             background: #050505;
             z-index: 1;
         }
@@ -78,6 +78,7 @@
         }
         .back-button:hover { border-color: #ffb3b2; color: #ffb3b2; transform: translateX(-4px); }
         
+        /* Mobile styles - moved to top level */
         @media (max-width: 768px) {
             .controls-info { display: none !important; }
             
@@ -147,12 +148,6 @@
                 left: 50%;
                 transform: translateX(-50%);
                 color: #ffb3b2;
-            }
-            
-            @keyframes rotateAnim {
-                0% { transform: rotate(0deg); }
-                50% { transform: rotate(90deg); }
-                100% { transform: rotate(90deg); }
             }
             
             .rotate-text {
@@ -250,31 +245,40 @@
                 border-color: rgba(255, 255, 255, 0.8);
             }
             
-            @media (max-width: 768px) {
-                .action-buttons { grid-template-columns: repeat(4, 58px); gap: 10px; padding: 10px 12px; }
-                .action-btn { width: 58px; height: 58px; font-size: 16px; }
-                .btn-label { font-size: 8px; }
-                .joystick-area { width: 110px; height: 110px; }
-                .joystick-thumb { width: 45px; height: 45px; }
-            }
-            
-            @media (max-width: 480px) {
-                .action-buttons { grid-template-columns: repeat(4, 50px); gap: 8px; }
-                .action-btn { width: 50px; height: 50px; font-size: 14px; }
-                .joystick-area { width: 95px; height: 95px; }
-                .joystick-thumb { width: 40px; height: 40px; }
-            }
-            
             body {
                 touch-action: pan-x pan-y;
                 overscroll-behavior: none;
             }
-            
-            @media (prefers-reduced-motion: reduce) {
-                .action-btn:active { transform: none; }
-                .joystick-thumb { transition: none; }
-                .rotate-icon { animation: none; }
-            }
+        }
+        
+        /* Medium screens - top level */
+        @media (max-width: 768px) and (min-width: 481px) {
+            .action-buttons { grid-template-columns: repeat(4, 58px); gap: 10px; padding: 10px 12px; }
+            .action-btn { width: 58px; height: 58px; font-size: 16px; }
+            .btn-label { font-size: 8px; }
+            .joystick-area { width: 110px; height: 110px; }
+            .joystick-thumb { width: 45px; height: 45px; }
+        }
+        
+        /* Small screens - top level */
+        @media (max-width: 480px) {
+            .action-buttons { grid-template-columns: repeat(4, 50px); gap: 8px; }
+            .action-btn { width: 50px; height: 50px; font-size: 14px; }
+            .joystick-area { width: 95px; height: 95px; }
+            .joystick-thumb { width: 40px; height: 40px; }
+        }
+        
+        /* Reduced motion - top level, not nested inside mobile query */
+        @media (prefers-reduced-motion: reduce) {
+            .action-btn:active { transform: none; }
+            .joystick-thumb { transition: none; }
+            .rotate-icon { animation: none; }
+        }
+        
+        /* Keyframes outside media query for maximum compatibility */
+        @keyframes rotateAnim {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
         }
         
         @media (min-width: 769px) {
@@ -341,16 +345,24 @@
         let isBatteryLow = false;
         let isCharging = true;
         
+        // Battery promise - will update after resolution
         if ('getBattery' in navigator) {
             navigator.getBattery().then(battery => {
                 isBatteryLow = battery.level < 0.2 && !battery.charging;
                 isCharging = battery.charging;
                 battery.addEventListener('levelchange', () => {
                     isBatteryLow = battery.level < 0.2 && !battery.charging;
+                    // Update game scene if exists
+                    if (window.gameSceneRef) {
+                        window.gameSceneRef.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
+                    }
                 });
                 battery.addEventListener('chargingchange', () => {
                     isCharging = battery.charging;
                     isBatteryLow = battery.level < 0.2 && !battery.charging;
+                    if (window.gameSceneRef) {
+                        window.gameSceneRef.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
+                    }
                 });
             });
         }
@@ -363,11 +375,6 @@
             orientationTimeout = setTimeout(() => {
                 if (window.game && window.game.scale && isMobileDevice) {
                     window.game.scale.resize(window.innerWidth, window.innerHeight);
-                    const canvas = document.querySelector('canvas');
-                    if (canvas) {
-                        canvas.style.width = '100%';
-                        canvas.style.height = '100%';
-                    }
                 }
                 if (typeof checkOrientation === 'function') checkOrientation();
             }, 50);
@@ -397,11 +404,10 @@
         
         // ========== MOBILE TOUCH CONTROLS ==========
         (function() {
-            const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
             const mobileControls = document.getElementById('mobileControls');
             const rotateOverlay = document.getElementById('rotateOverlay');
             
-            if (!isMobile) return;
+            if (!isMobileDevice) return;
             
             let isLandscape = window.innerWidth > window.innerHeight;
             
@@ -530,7 +536,7 @@
                         break;
                     case 'dash':
                         if (gameScene.player && !gameScene.isAttacking && !gameScene.isJumping) {
-                            const direction = gameScene.getFacingDirection?.('player') === 'right' ? 80 : -80;
+                            const direction = gameScene.player.x < gameScene.cpu.x ? 80 : -80;
                             gameScene.player.x += direction;
                             gameScene.player.x = Math.min(Math.max(gameScene.player.x, 200), 1080 - 100);
                         }
@@ -591,12 +597,16 @@
                     this.mobileRightPressed = false;
                     this.mobileBlockPressed = false;
                     this.mobileJumpRequested = false;
-                    this.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
+                    // MOVED to create() - battery values not ready in constructor
+                    this.batterySaveMode = false;
                 }
                 
                 create() {
                     super.create();
                     window.gameSceneRef = this;
+                    
+                    // FIXED: Battery save mode set here AFTER promise may have resolved
+                    this.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
                     
                     if (this.batterySaveMode) {
                         if (this.impactFlash) this.impactFlash.setAlpha(0.2);
@@ -656,9 +666,8 @@
     </script>
     
     <script>
-        // ========== PHASER CONFIG - FIXED FOR SAMSUNG A12 ==========
+        // ========== PHASER CONFIG ==========
         const config = {
-            // FIXED: Explicit renderType on mobile, AUTO on desktop
             type: isMobileDevice ? Phaser.CANVAS : Phaser.AUTO,
             width: isMobileDevice ? window.innerWidth : 1280,
             height: isMobileDevice ? window.innerHeight : 720,
@@ -683,9 +692,8 @@
             },
             antialias: !isMobileDevice,
             pixelArt: isMobileDevice,
-            // FIXED: Apply willReadFrequently via preBoot callback instead of manual canvas
             callbacks: {
-                preBoot: (game) => {
+                postBoot: (game) => {
                     if (isMobileDevice && game.canvas) {
                         game.canvas.setAttribute('willReadFrequently', 'true');
                     }
@@ -693,7 +701,6 @@
             }
         };
         
-        // Delayed init on mobile for browser chrome to settle
         if (isMobileDevice) {
             setTimeout(() => {
                 const game = new Phaser.Game(config);
@@ -704,7 +711,6 @@
             window.game = game;
         }
         
-        // ResizeObserver for container
         if (window.ResizeObserver && isMobileDevice) {
             const container = document.getElementById('game-container');
             const resizeObserver = new ResizeObserver(() => {
