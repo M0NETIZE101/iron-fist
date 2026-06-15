@@ -6,6 +6,8 @@ class FightingGame extends Phaser.Scene {
     constructor() {
         super({ key: 'FightingGame' });
         this.resetGameState();
+        this.playerFloatTween = null;
+        this.cpuFloatTween = null;
     }
     
     resetGameState() {
@@ -139,17 +141,17 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`president_special`, `assets/characters/president/kick.png`);
         this.load.image(`president_victory`, `assets/characters/president/idle.png`);
         this.load.image(`president_hurt`, `assets/characters/president/idle.png`);
-
-        // Load IRON MAN sprites
-this.load.image(`ironman_idle`, `assets/characters/ironman/idle.png`);
-this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
-this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
-this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
-this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
-this.load.image(`ironman_special`, `assets/characters/ironman/ironman_special.png`);
-this.load.image(`ironman_victory`, `assets/characters/ironman/victory.png`);
-this.load.image(`ironman_hurt`, `assets/characters/ironman/hurt.png`);
-this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); // Optional
+        
+        // Load IRONMAN sprites
+        this.load.image(`ironman_idle`, `assets/characters/ironman/idle.png`);
+        this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
+        this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
+        this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
+        this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
+        this.load.image(`ironman_special`, `assets/characters/ironman/kick-right.png`);
+        this.load.image(`ironman_victory`, `assets/characters/ironman/victory.png`);
+        this.load.image(`ironman_hurt`, `assets/characters/ironman/hurt.png`);
+        this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`);
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -181,6 +183,9 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
         // Verify textures exist
         const playerIdleKey = `${this.playerData.folder}_idle`;
         const cpuIdleKey = `${this.cpuData.folder}_idle`;
+        
+        debugLog('Player idle texture exists?', this.textures.exists(playerIdleKey));
+        debugLog('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
         
         // Background - centered
         if (this.textures.exists('arenaBg')) {
@@ -296,9 +301,24 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
         this.impactFlash.setAlpha(0);
         this.impactFlash.setDepth(100);
         
-        // Floating animation
-        this.tweens.add({ targets: this.player, y: this.player.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-        this.tweens.add({ targets: this.cpu, y: this.cpu.y - 3, duration: 1500, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+        // FIXED: Store float tweens for pause/resume control
+        this.playerFloatTween = this.tweens.add({ 
+            targets: this.player, 
+            y: this.player.y - 3, 
+            duration: 1500, 
+            yoyo: true, 
+            repeat: -1, 
+            ease: 'Sine.easeInOut' 
+        });
+        
+        this.cpuFloatTween = this.tweens.add({ 
+            targets: this.cpu, 
+            y: this.cpu.y - 3, 
+            duration: 1500, 
+            yoyo: true, 
+            repeat: -1, 
+            ease: 'Sine.easeInOut' 
+        });
         
         // Set global reference for mobile controls
         window.gameSceneRef = this;
@@ -428,11 +448,13 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
             if (move !== 0) this.player.x += move * 7;
         }
         
-        // Keyboard jump
+        // Keyboard jump - FIXED: Pause float tween during jump
         if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
             if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+            // Pause float tween while jumping
+            if (this.playerFloatTween) this.playerFloatTween.pause();
         }
         
         // Player jump physics
@@ -445,11 +467,15 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
                 this.isJumping = false;
                 this.playerYVelocity = 0;
                 if (this.animations) this.animations.setPlayerAnimation('idle', 100);
+                // Resume float tween when landing
+                if (this.playerFloatTween) this.playerFloatTween.resume();
             }
         }
         
-        // ========== FIXED: CPU LAUNCH PHYSICS ==========
+        // CPU launch physics - FIXED: Pause CPU float tween during launch
         if (this.cpuLaunched) {
+            if (this.cpuFloatTween) this.cpuFloatTween.pause();
+            
             this.cpu.y += this.cpuLaunchVelocity * (1/60);
             this.cpuLaunchVelocity += GRAVITY * (1/60);
             
@@ -457,6 +483,7 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
                 this.cpu.y = GROUND_Y;
                 this.cpuLaunched = false;
                 this.cpuLaunchVelocity = 0;
+                if (this.cpuFloatTween) this.cpuFloatTween.resume();
             }
         }
         
@@ -480,7 +507,7 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
         this.player.setFlipX(playerFacing === 'left');
         this.cpu.setFlipX(cpuFacing === 'left');
         
-        // Attack inputs - FIXED: Use dispatcher for special
+        // Attack inputs
         if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
             this.playerAttacks.lightAttack();
         }
@@ -491,7 +518,7 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
             this.playerAttacks.heavyAttack();
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
-            this.playerAttacks.playerSpecialAttack();  // FIXED: Use dispatcher method
+            this.playerAttacks.playerSpecialAttack();
         }
         if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
             this.playerAttacks.superMove();
@@ -514,7 +541,7 @@ this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`); /
         this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
         this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
         
-        // ========== DEBUG MODE VISUALIZATION ==========
+        // Debug mode
         if (Phaser.Input.Keyboard.JustDown(this.keyO)) {
             toggleDebugMode();
         }

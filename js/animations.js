@@ -22,45 +22,41 @@ class Animations {
             case 'light': textureKey = `${this.playerData.folder}_punch-${facing}`; break;
             case 'medium': textureKey = `${this.playerData.folder}_punch-${facing}`; break;
             case 'heavy': 
-    if (this.playerData.name === 'ALPINE' || this.playerData.name === 'IRONMAN') {
-        textureKey = `${this.playerData.folder}_kick-${facing}`;
-    } else {
-        textureKey = `${this.playerData.folder}_kick`;
-    }
-    break;
+                if (this.playerData.name === 'ALPINE' || this.playerData.name === 'IRONMAN') {
+                    textureKey = `${this.playerData.folder}_kick-${facing}`;
+                } else {
+                    textureKey = `${this.playerData.folder}_kick`;
+                }
+                break;
             case 'special': 
                 if (this.playerData.name === 'ALPINE') {
                     textureKey = `${this.playerData.folder}_special_drink`;
                 } else if (this.playerData.name === 'ADARSHA') {
                     textureKey = `${this.playerData.folder}_jumpstart`;
+                } else if (this.playerData.name === 'IRONMAN') {
+                    textureKey = `${this.playerData.folder}_repulsor`;
                 } else {
                     textureKey = `${this.playerData.folder}_special`;
                 }
                 break;
-            // ADARSHA SPECIAL MOVE ANIMATIONS
+            // FIXED: repulsor_charge moved BEFORE default
+            case 'repulsor_charge': textureKey = `${this.playerData.folder}_repulsor`; break;
+            // ADARSHA SPECIAL ANIMATIONS
             case 'jumpstart': textureKey = `${this.playerData.folder}_jumpstart`; break;
             case 'jump': textureKey = `${this.playerData.folder}_jump`; break;
             case 'jumpkick': textureKey = `${this.playerData.folder}_jumpkick`; break;
             case 'firestart': textureKey = `${this.playerData.folder}_firestart`; break;
             case 'firing': textureKey = `${this.playerData.folder}_firing`; break;
-            // ALPINE THREE-PHASE SPECIAL ANIMATIONS
+            // ALPINE SPECIAL ANIMATIONS
             case 'special_drink': textureKey = `${this.playerData.folder}_special_drink`; break;
             case 'special_powerup': textureKey = `${this.playerData.folder}_special_powerup`; break;
             case 'special_attack': textureKey = `${this.playerData.folder}_special_attack`; break;
-            // VICTORY
             case 'victory': textureKey = `${this.playerData.folder}_victory`; break;
-            // IDLE
             case 'idle': textureKey = `${this.playerData.folder}_idle`; break;
-            // JUMP (regular jump)
-            case 'jump_regular': textureKey = `${this.playerData.folder}_idle`; break;
             default: textureKey = `${this.playerData.folder}_idle`;
-
-            // For IRON MAN special
-case 'repulsor_charge': textureKey = `${this.playerData.folder}_special`; break;
         }
         
         if (scene.textures.exists(textureKey)) {
-            // idle should NOT set isAttacking
             if (animName !== 'hurt' && animName !== 'idle' && !bypassAttackGuard) {
                 scene.isAttacking = true;
             }
@@ -96,27 +92,24 @@ case 'repulsor_charge': textureKey = `${this.playerData.folder}_special`; break;
             case 'hurt': textureKey = `${this.cpuData.folder}_hurt`; break;
             case 'light': textureKey = `${this.cpuData.folder}_punch-${facing}`; break;
             case 'medium': textureKey = `${this.cpuData.folder}_punch-${facing}`; break;
-        
-                case 'heavy':
-    if (this.cpuData.name === 'ALPINE') {
-        textureKey = `${this.cpuData.folder}_kick-${facing}`;
-    } else if (this.cpuData.name === 'IRONMAN') {
-        textureKey = `${this.cpuData.folder}_kick-${facing}`;  // Iron Man CPU uses kick-left/kick-right
-    } else {
-        textureKey = `${this.cpuData.folder}_kick`;
-    }
-    break;
-          case 'special': 
-        if (this.playerData.name === 'ALPINE') {
-            textureKey = `${this.playerData.folder}_special_drink`;
-        } else if (this.playerData.name === 'ADARSHA') {
-            textureKey = `${this.playerData.folder}_jumpstart`;
-        } else if (this.playerData.name === 'IRONMAN') {
-            textureKey = `${this.playerData.folder}_repulsor`;  // ← ADD THIS
-        } else {
-            textureKey = `${this.playerData.folder}_special`;
-        }
-        break;
+            // FIXED: Simplified heavy case with combined condition
+            case 'heavy':
+                if (this.cpuData.name === 'ALPINE' || this.cpuData.name === 'IRONMAN') {
+                    textureKey = `${this.cpuData.folder}_kick-${facing}`;
+                } else {
+                    textureKey = `${this.cpuData.folder}_kick`;
+                }
+                break;
+            // FIXED: Use cpuData instead of playerData
+            case 'special':
+                if (this.cpuData.name === 'ALPINE') {
+                    textureKey = `${this.cpuData.folder}_special_drink`;
+                } else if (this.cpuData.name === 'IRONMAN') {
+                    textureKey = `${this.cpuData.folder}_repulsor`;
+                } else {
+                    textureKey = `${this.cpuData.folder}_special`;
+                }
+                break;
             case 'victory': textureKey = `${this.cpuData.folder}_victory`; break;
             case 'idle': textureKey = `${this.cpuData.folder}_idle`; break;
             default: textureKey = `${this.cpuData.folder}_idle`;
