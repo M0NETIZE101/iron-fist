@@ -414,10 +414,10 @@
                 }
             }
             
-            // Orientation change - just resize canvas, no reinitialization
+            // Orientation change - just refresh the scale, don't resize
             function handleOrientationChange() {
                 if (window.game && window.game.scale) {
-                    window.game.scale.resize(window.innerWidth, window.innerHeight);
+                    window.game.scale.refresh();
                 }
                 checkOrientation();
             }
@@ -428,10 +428,10 @@
                 window.addEventListener('resize', handleOrientationChange);
             }
             
-            // Resize handler - just resize canvas
+            // Resize handler - just refresh the scale, don't resize
             function handleResize() {
                 if (window.game && window.game.scale) {
-                    window.game.scale.resize(window.innerWidth, window.innerHeight);
+                    window.game.scale.refresh();
                 }
                 checkOrientation();
             }
