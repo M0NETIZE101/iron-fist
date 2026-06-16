@@ -78,178 +78,181 @@
         }
         .back-button:hover { border-color: #ffb3b2; color: #ffb3b2; transform: translateX(-4px); }
         
-        @media (max-width: 768px) {
-            .controls-info { display: none !important; }
-            
-            .mobile-controls {
-                position: fixed;
-                bottom: 3vh;
-                left: 0;
-                right: 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-end;
-                padding: 12px 3vw;
-                padding-bottom: max(12px, env(safe-area-inset-bottom, 20px));
-                padding-left: max(12px, env(safe-area-inset-left, 3vw));
-                padding-right: max(12px, env(safe-area-inset-right, 3vw));
-                background: transparent;
-                backdrop-filter: none;
-                border: none;
-                z-index: 200;
-                gap: 20px;
-                flex-wrap: nowrap;
-                pointer-events: auto;
-                touch-action: none;
-            }
-            
-            .rotate-overlay {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100vh;
-                height: 100dvh;
-                background: #0a0a0c;
-                z-index: 1000;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                gap: 20px;
-                backdrop-filter: blur(4px);
-                font-family: 'Geist', sans-serif;
-            }
-            
-            .rotate-icon {
-                width: 80px;
-                height: 80px;
-                border: 4px solid #ffb3b2;
-                border-radius: 20px;
-                position: relative;
-                animation: rotateAnim 1.5s ease-in-out infinite;
-            }
-            
-            .rotate-icon::before {
-                content: "📱";
-                position: absolute;
-                font-size: 50px;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-            }
-            
-            .rotate-icon::after {
-                content: "↻";
-                position: absolute;
-                font-size: 30px;
-                bottom: -35px;
-                left: 50%;
-                transform: translateX(-50%);
-                color: #ffb3b2;
-            }
-            
-            .rotate-text {
-                color: #ffb3b2;
-                font-size: 20px;
-                font-weight: bold;
-                letter-spacing: 2px;
-                text-align: center;
-            }
-            
-            .rotate-subtext {
-                color: #5f3e3e;
-                font-size: 14px;
-                margin-top: 8px;
-            }
-            
-            /* Viewport-relative joystick sizing */
-            .joystick-area {
-                width: min(20vw, 130px);
-                height: min(20vw, 130px);
-                background: rgba(255, 255, 255, 0.08);
-                border-radius: 50%;
-                position: relative;
-                touch-action: none;
-                border: 1px solid rgba(255, 179, 178, 0.3);
-                box-shadow: none;
-                transition: transform 0.1s ease;
-            }
-            
-            .joystick-base {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }
-            
-            .joystick-thumb {
-                width: min(8vw, 55px);
-                height: min(8vw, 55px);
-                background: rgba(255, 82, 92, 0.45);
-                border-radius: 50%;
-                position: relative;
-                cursor: pointer;
-                box-shadow: none;
-                transition: transform 0.08s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-                touch-action: none;
-            }
-            
-            /* Viewport-relative action buttons */
-            .action-buttons {
-                display: grid;
-                grid-template-columns: repeat(4, min(8vw, 70px));
-                gap: min(1.5vw, 12px);
-                background: transparent;
-                padding: 12px 16px;
-                border-radius: 80px;
-                backdrop-filter: none;
-            }
-            
-            .action-btn {
-                width: min(8vw, 70px);
-                height: min(8vw, 70px);
-                border-radius: 50%;
-                background: rgba(0, 0, 0, 0.12);
-                border: 1px solid rgba(255, 179, 178, 0.35);
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                font-family: 'JetBrains Mono', monospace;
-                font-weight: bold;
-                font-size: clamp(12px, 4vw, 18px);
-                color: rgba(255, 179, 178, 0.9);
-                cursor: pointer;
-                transition: all 0.05s linear;
-                touch-action: manipulation;
-                box-shadow: none;
-                user-select: none;
-                -webkit-tap-highlight-color: transparent;
-                backdrop-filter: blur(4px);
-            }
-            
-            .action-btn:active { transform: scale(0.92); }
-            .action-btn.special { border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
-            .action-btn.block { border-color: rgba(0, 219, 233, 0.5); color: rgba(0, 219, 233, 0.9); }
-            .action-btn.super { background: rgba(60, 40, 0, 0.15); border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
-            .action-btn.jump { border-color: rgba(0, 255, 136, 0.5); color: rgba(0, 255, 136, 0.9); }
-            .action-btn.dash { border-color: rgba(255, 105, 180, 0.5); color: rgba(255, 105, 180, 0.9); font-size: clamp(10px, 3vw, 14px); }
-            .btn-label { font-size: clamp(7px, 2vw, 9px); letter-spacing: 1px; margin-top: 2px; opacity: 0.7; }
-            
-            .action-btn.touch-active {
-                transform: scale(0.92);
-                background: rgba(255, 82, 92, 0.6);
-                color: #fff;
-                border-color: rgba(255, 255, 255, 0.8);
-            }
-            
-            body {
-                touch-action: pan-x pan-y;
-                overscroll-behavior: none;
-            }
+        /* ===== MOBILE CONTROLS - Top-level rules (no media query) ===== */
+        .mobile-controls {
+            display: none; /* Hidden by default, shown via .active class */
+        }
+        
+        .mobile-controls.active {
+            position: fixed;
+            bottom: 3vh;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding: 12px 3vw;
+            padding-bottom: max(12px, env(safe-area-inset-bottom, 20px));
+            padding-left: max(12px, env(safe-area-inset-left, 3vw));
+            padding-right: max(12px, env(safe-area-inset-right, 3vw));
+            background: transparent;
+            backdrop-filter: none;
+            border: none;
+            z-index: 200;
+            gap: 20px;
+            flex-wrap: nowrap;
+            pointer-events: auto;
+            touch-action: none;
+        }
+        
+        .rotate-overlay {
+            display: none; /* Hidden by default, shown via .active class */
+        }
+        
+        .rotate-overlay.active {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            height: 100dvh;
+            background: #0a0a0c;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(4px);
+            font-family: 'Geist', sans-serif;
+        }
+        
+        .rotate-icon {
+            width: 80px;
+            height: 80px;
+            border: 4px solid #ffb3b2;
+            border-radius: 20px;
+            position: relative;
+            animation: rotateAnim 1.5s ease-in-out infinite;
+        }
+        
+        .rotate-icon::before {
+            content: "📱";
+            position: absolute;
+            font-size: 50px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .rotate-icon::after {
+            content: "↻";
+            position: absolute;
+            font-size: 30px;
+            bottom: -35px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #ffb3b2;
+        }
+        
+        .rotate-text {
+            color: #ffb3b2;
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        .rotate-subtext {
+            color: #5f3e3e;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        
+        .joystick-area {
+            width: min(20vw, 130px);
+            height: min(20vw, 130px);
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            position: relative;
+            touch-action: none;
+            border: 1px solid rgba(255, 179, 178, 0.3);
+            box-shadow: none;
+            transition: transform 0.1s ease;
+        }
+        
+        .joystick-base {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .joystick-thumb {
+            width: min(8vw, 55px);
+            height: min(8vw, 55px);
+            background: rgba(255, 82, 92, 0.45);
+            border-radius: 50%;
+            position: relative;
+            cursor: pointer;
+            box-shadow: none;
+            transition: transform 0.08s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            touch-action: none;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, min(8vw, 70px));
+            gap: min(1.5vw, 12px);
+            background: transparent;
+            padding: 12px 16px;
+            border-radius: 80px;
+            backdrop-filter: none;
+        }
+        
+        .action-btn {
+            width: min(8vw, 70px);
+            height: min(8vw, 70px);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.12);
+            border: 1px solid rgba(255, 179, 178, 0.35);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: bold;
+            font-size: clamp(12px, 4vw, 18px);
+            color: rgba(255, 179, 178, 0.9);
+            cursor: pointer;
+            transition: all 0.05s linear;
+            touch-action: manipulation;
+            box-shadow: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            backdrop-filter: blur(4px);
+        }
+        
+        .action-btn:active { transform: scale(0.92); }
+        .action-btn.special { border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
+        .action-btn.block { border-color: rgba(0, 219, 233, 0.5); color: rgba(0, 219, 233, 0.9); }
+        .action-btn.super { background: rgba(60, 40, 0, 0.15); border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
+        .action-btn.jump { border-color: rgba(0, 255, 136, 0.5); color: rgba(0, 255, 136, 0.9); }
+        .action-btn.dash { border-color: rgba(255, 105, 180, 0.5); color: rgba(255, 105, 180, 0.9); font-size: clamp(10px, 3vw, 14px); }
+        .btn-label { font-size: clamp(7px, 2vw, 9px); letter-spacing: 1px; margin-top: 2px; opacity: 0.7; }
+        
+        .action-btn.touch-active {
+            transform: scale(0.92);
+            background: rgba(255, 82, 92, 0.6);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        body {
+            touch-action: pan-x pan-y;
+            overscroll-behavior: none;
         }
         
         /* Reduced motion - top level */
@@ -259,20 +262,21 @@
             .rotate-icon { animation: none; }
         }
         
-        /* Keyframes outside media query */
+        /* Keyframes */
         @keyframes rotateAnim {
             0%, 100% { transform: rotate(0deg); }
             50% { transform: rotate(90deg); }
         }
         
-        @media (min-width: 769px) {
-            .mobile-controls { display: none !important; }
-            .rotate-overlay { display: none !important; }
+        /* Hide controls info on small screens - this is the only media query remaining */
+        @media (max-width: 768px) {
+            .controls-info { display: none !important; }
         }
     </style>
 </head>
 <body>
-    <div id="rotateOverlay" class="rotate-overlay" style="display: none;">
+    <!-- ===== ROTATE OVERLAY (Mobile only) ===== -->
+    <div id="rotateOverlay" class="rotate-overlay">
         <div class="rotate-icon"></div>
         <div class="rotate-text">PLEASE ROTATE YOUR DEVICE</div>
         <div class="rotate-subtext">Landscape mode is required for the best experience</div>
@@ -292,6 +296,7 @@
     
     <div id="game-container"></div>
     
+    <!-- ===== MOBILE CONTROLS (Mobile only) ===== -->
     <div class="mobile-controls" id="mobileControls">
         <div class="joystick-area" id="joystickArea">
             <div class="joystick-base">
@@ -322,332 +327,290 @@
     <script src="js/scene-game.js"></script>
     
     <script>
-        // ========== MOBILE OPTIMIZATIONS ==========
-        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768;
-        const TARGET_FPS = isMobileDevice ? 30 : 60;
+        // ========== READ CONTROL MODE FROM URL ==========
+        // This MUST run before any other setup
+        const urlParams = new URLSearchParams(window.location.search);
+        const controlMode = urlParams.get('controls') || 'pc'; // Default to PC if missing
         
-        let isBatteryLow = false;
-        let isCharging = true;
+        // Store globally for other scripts to access
+        window.CONTROL_MODE = controlMode;
         
-        // Global mobile mode flag - once touch is detected, keyboard is disabled
-        window.mobileMode = false;
-        window.joystickTouchId = null;
-        window.activeTouches = new Map();
+        console.log(`[Controls] Mode: ${controlMode.toUpperCase()}`);
         
-        if ('getBattery' in navigator) {
-            navigator.getBattery().then(battery => {
-                isBatteryLow = battery.level < 0.2 && !battery.charging;
-                isCharging = battery.charging;
-                battery.addEventListener('levelchange', () => {
-                    isBatteryLow = battery.level < 0.2 && !battery.charging;
-                    if (window.gameSceneRef) {
-                        window.gameSceneRef.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
-                    }
-                });
-                battery.addEventListener('chargingchange', () => {
-                    isCharging = battery.charging;
-                    isBatteryLow = battery.level < 0.2 && !battery.charging;
-                    if (window.gameSceneRef) {
-                        window.gameSceneRef.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
-                    }
-                });
-            });
-        }
-        
-        // ========== REINITIALIZE MOBILE CONTROLS ==========
-        function reinitializeMobileControls() {
-            if (!isMobileDevice) return;
+        // ========== PC MODE: Skip ALL mobile setup ==========
+        if (controlMode === 'pc') {
+            console.log('[Controls] PC mode - removing mobile elements');
             
-            console.log('Reinitializing mobile controls after orientation change');
-            
-            // Reset all mobile state flags on game scene
-            if (window.gameSceneRef) {
-                window.gameSceneRef.mobileLeftPressed = false;
-                window.gameSceneRef.mobileRightPressed = false;
-                window.gameSceneRef.mobileBlockPressed = false;
-                window.gameSceneRef.mobileJumpRequested = false;
-            }
-            
-            // Reset joystick touch tracking
-            window.joystickTouchId = null;
-            window.activeTouches.clear();
-            
-            // Reset joystick visual position
-            const joystickThumb = document.getElementById('joystickThumb');
-            if (joystickThumb) {
-                joystickThumb.style.transform = 'translate(0px, 0px)';
-            }
-            
-            // Remove any stuck active states from buttons
-            const buttons = document.querySelectorAll('.action-btn');
-            buttons.forEach(btn => {
-                btn.classList.remove('touch-active');
-            });
-            
-            // Reposition joystick center (will be recalculated on next touch)
-            // The joystick center will be set fresh on touchstart
-            
-            // Force orientation check
-            if (typeof checkOrientation === 'function') {
-                checkOrientation();
-            }
-            
-            // Ensure Phaser canvas is properly sized
-            if (window.game && window.game.scale) {
-                window.game.scale.resize(window.innerWidth, window.innerHeight);
-            }
-        }
-        
-        // ========== ORIENTATION CHANGE WITH DEBOUNCE ==========
-        let orientationTimeout = null;
-        let reinitTimeout = null;
-        
-        function handleOrientationChange() {
-            if (orientationTimeout) clearTimeout(orientationTimeout);
-            orientationTimeout = setTimeout(() => {
-                if (window.game && window.game.scale && isMobileDevice) {
-                    window.game.scale.resize(window.innerWidth, window.innerHeight);
-                }
-                if (typeof checkOrientation === 'function') checkOrientation();
-            }, 50);
-        }
-        
-        window.addEventListener('orientationchange', handleOrientationChange);
-        
-        // Debounced resize handler for rotation reinitialization
-        let resizeReinitTimeout = null;
-        
-        function handleResize() {
-            if (!isMobileDevice) return;
-            
-            // Clear any pending reinit
-            if (resizeReinitTimeout) clearTimeout(resizeReinitTimeout);
-            
-            // Simple resize for Phaser first (immediate)
-            if (window.game && window.game.scale) {
-                window.game.scale.resize(window.innerWidth, window.innerHeight);
-            }
-            
-            // Debounced full control reinitialization (200ms)
-            resizeReinitTimeout = setTimeout(() => {
-                reinitializeMobileControls();
-            }, 200);
-        }
-        
-        window.addEventListener('resize', handleResize);
-        
-        window.addEventListener('beforeunload', () => {
-            window.removeEventListener('orientationchange', handleOrientationChange);
-            window.removeEventListener('resize', handleResize);
-            if (orientationTimeout) clearTimeout(orientationTimeout);
-            if (reinitTimeout) clearTimeout(reinitTimeout);
-            if (resizeReinitTimeout) clearTimeout(resizeReinitTimeout);
-        });
-        
-        // ========== MOBILE TOUCH CONTROLS ==========
-        (function() {
+            // Remove mobile controls from DOM entirely
             const mobileControls = document.getElementById('mobileControls');
             const rotateOverlay = document.getElementById('rotateOverlay');
+            if (mobileControls) mobileControls.remove();
+            if (rotateOverlay) rotateOverlay.remove();
             
-            if (!isMobileDevice) return;
+            // Set flag to prevent any mobile initialization
+            window.mobileMode = false;
             
-            let isLandscape = window.innerWidth > window.innerHeight;
-            let joystickActive = false;
-            let joystickCenter = { x: 0, y: 0 };
-            const joystickArea = document.getElementById('joystickArea');
-            const joystickThumb = document.getElementById('joystickThumb');
-            const maxDist = 45;
-            const deadzone = 0.15;
-            let gameScene = null;
+            // Skip all remaining mobile setup code
+            // The rest of the script will be skipped by the conditional below
+        }
+        
+        // ========== MOBILE MODE: Initialize mobile controls ==========
+        if (controlMode === 'mobile') {
+            console.log('[Controls] Mobile mode - initializing touch controls');
             
-            window.checkOrientation = function() {
-                const newIsLandscape = window.innerWidth > window.innerHeight;
-                isLandscape = newIsLandscape;
-                if (rotateOverlay) rotateOverlay.style.display = isLandscape ? 'none' : 'flex';
+            // Show mobile controls by adding .active class
+            const mobileControls = document.getElementById('mobileControls');
+            const rotateOverlay = document.getElementById('rotateOverlay');
+            if (mobileControls) mobileControls.classList.add('active');
+            
+            // ========== MOBILE OPTIMIZATIONS ==========
+            const TARGET_FPS = 30;
+            
+            let isBatteryLow = false;
+            let isCharging = true;
+            
+            // Global mobile mode flag
+            window.mobileMode = true;
+            window.joystickTouchId = null;
+            window.activeTouches = new Map();
+            
+            // Battery API - only in mobile mode
+            if ('getBattery' in navigator) {
+                navigator.getBattery().then(battery => {
+                    isBatteryLow = battery.level < 0.2 && !battery.charging;
+                    isCharging = battery.charging;
+                    battery.addEventListener('levelchange', () => {
+                        isBatteryLow = battery.level < 0.2 && !battery.charging;
+                        if (window.gameSceneRef) {
+                            window.gameSceneRef.batterySaveMode = isBatteryLow && !isCharging;
+                        }
+                    });
+                    battery.addEventListener('chargingchange', () => {
+                        isCharging = battery.charging;
+                        isBatteryLow = battery.level < 0.2 && !battery.charging;
+                        if (window.gameSceneRef) {
+                            window.gameSceneRef.batterySaveMode = isBatteryLow && !isCharging;
+                        }
+                    });
+                });
+            }
+            
+            // ========== ORIENTATION ==========
+            function checkOrientation() {
+                if (!rotateOverlay) return;
+                const isLandscape = window.innerWidth > window.innerHeight;
+                rotateOverlay.classList.toggle('active', !isLandscape);
                 if (mobileControls) {
                     mobileControls.style.opacity = isLandscape ? '1' : '0';
                     mobileControls.style.pointerEvents = isLandscape ? 'auto' : 'none';
                 }
-            };
+            }
+            
+            // Orientation change - just resize canvas, no reinitialization
+            function handleOrientationChange() {
+                if (window.game && window.game.scale) {
+                    window.game.scale.resize(window.innerWidth, window.innerHeight);
+                }
+                checkOrientation();
+            }
             
             if (screen.orientation) {
-                screen.orientation.addEventListener('change', checkOrientation);
+                screen.orientation.addEventListener('change', handleOrientationChange);
             } else {
-                window.addEventListener('resize', checkOrientation);
+                window.addEventListener('resize', handleOrientationChange);
             }
+            
+            // Resize handler - just resize canvas
+            function handleResize() {
+                if (window.game && window.game.scale) {
+                    window.game.scale.resize(window.innerWidth, window.innerHeight);
+                }
+                checkOrientation();
+            }
+            
+            window.addEventListener('resize', handleResize);
+            
+            // Initial orientation check
             checkOrientation();
             
-            const checkForGameScene = setInterval(() => {
-                if (window.gameSceneRef && window.gameSceneRef.playerAttacks) {
-                    gameScene = window.gameSceneRef;
-                    clearInterval(checkForGameScene);
-                    console.log('Mobile controls connected to game scene');
-                }
-            }, 100);
-            
-            function updateJoystick(touch) {
-                if (!joystickActive || !gameScene) return;
+            // ========== MOBILE TOUCH CONTROLS ==========
+            (function() {
+                let joystickActive = false;
+                let joystickCenter = { x: 0, y: 0 };
+                const joystickArea = document.getElementById('joystickArea');
+                const joystickThumb = document.getElementById('joystickThumb');
+                const maxDist = 45;
+                const deadzone = 0.15;
+                let gameScene = null;
                 
-                const dx = touch.clientX - joystickCenter.x;
-                const dy = touch.clientY - joystickCenter.y;
-                const distance = Math.min(Math.hypot(dx, dy), maxDist);
-                const angle = Math.atan2(dy, dx);
+                const checkForGameScene = setInterval(() => {
+                    if (window.gameSceneRef && window.gameSceneRef.playerAttacks) {
+                        gameScene = window.gameSceneRef;
+                        clearInterval(checkForGameScene);
+                        console.log('Mobile controls connected to game scene');
+                    }
+                }, 100);
                 
-                joystickThumb.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
-                
-                let normX = (distance / maxDist) * Math.cos(angle);
-                if (Math.abs(normX) < deadzone) {
-                    normX = 0;
-                } else {
-                    normX = (Math.abs(normX) - deadzone) / (1 - deadzone) * Math.sign(normX);
+                function updateJoystick(touch) {
+                    if (!joystickActive || !gameScene) return;
+                    
+                    const dx = touch.clientX - joystickCenter.x;
+                    const dy = touch.clientY - joystickCenter.y;
+                    const distance = Math.min(Math.hypot(dx, dy), maxDist);
+                    const angle = Math.atan2(dy, dx);
+                    
+                    joystickThumb.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+                    
+                    let normX = (distance / maxDist) * Math.cos(angle);
+                    if (Math.abs(normX) < deadzone) {
+                        normX = 0;
+                    } else {
+                        normX = (Math.abs(normX) - deadzone) / (1 - deadzone) * Math.sign(normX);
+                    }
+                    
+                    if (normX > 0.1) {
+                        gameScene.mobileRightPressed = true;
+                        gameScene.mobileLeftPressed = false;
+                    } else if (normX < -0.1) {
+                        gameScene.mobileLeftPressed = true;
+                        gameScene.mobileRightPressed = false;
+                    } else {
+                        gameScene.mobileLeftPressed = false;
+                        gameScene.mobileRightPressed = false;
+                    }
                 }
                 
-                if (normX > 0.1) {
-                    gameScene.mobileRightPressed = true;
-                    gameScene.mobileLeftPressed = false;
-                } else if (normX < -0.1) {
-                    gameScene.mobileLeftPressed = true;
-                    gameScene.mobileRightPressed = false;
-                } else {
-                    gameScene.mobileLeftPressed = false;
-                    gameScene.mobileRightPressed = false;
+                function resetJoystick() {
+                    joystickActive = false;
+                    window.joystickTouchId = null;
+                    joystickThumb.style.transform = 'translate(0px, 0px)';
+                    if (gameScene) {
+                        gameScene.mobileLeftPressed = false;
+                        gameScene.mobileRightPressed = false;
+                    }
                 }
-            }
-            
-            function resetJoystick() {
-                joystickActive = false;
-                window.joystickTouchId = null;
-                joystickThumb.style.transform = 'translate(0px, 0px)';
-                if (gameScene) {
-                    gameScene.mobileLeftPressed = false;
-                    gameScene.mobileRightPressed = false;
-                }
-            }
-            
-            joystickArea.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                // Enable mobile mode permanently on first touch
-                window.mobileMode = true;
                 
-                joystickActive = true;
-                const rect = joystickArea.getBoundingClientRect();
-                joystickCenter = {
-                    x: rect.left + rect.width / 2,
-                    y: rect.top + rect.height / 2
-                };
-                if (e.touches[0]) {
-                    window.joystickTouchId = e.touches[0].identifier;
-                    updateJoystick(e.touches[0]);
+                if (joystickArea) {
+                    joystickArea.addEventListener('touchstart', (e) => {
+                        e.preventDefault();
+                        joystickActive = true;
+                        const rect = joystickArea.getBoundingClientRect();
+                        joystickCenter = {
+                            x: rect.left + rect.width / 2,
+                            y: rect.top + rect.height / 2
+                        };
+                        if (e.touches[0]) {
+                            window.joystickTouchId = e.touches[0].identifier;
+                            updateJoystick(e.touches[0]);
+                        }
+                    }, { passive: false });
+                    
+                    joystickArea.addEventListener('touchmove', (e) => {
+                        e.preventDefault();
+                        if (joystickActive) {
+                            for (let i = 0; i < e.touches.length; i++) {
+                                if (e.touches[i].identifier === window.joystickTouchId) {
+                                    updateJoystick(e.touches[i]);
+                                    break;
+                                }
+                            }
+                        }
+                    }, { passive: false });
+                    
+                    joystickArea.addEventListener('touchend', (e) => {
+                        e.preventDefault();
+                        let stillActive = false;
+                        for (let i = 0; i < e.touches.length; i++) {
+                            if (e.touches[i].identifier === window.joystickTouchId) {
+                                stillActive = true;
+                                break;
+                            }
+                        }
+                        if (!stillActive) {
+                            resetJoystick();
+                        }
+                    });
                 }
-            }, { passive: false });
-            
-            joystickArea.addEventListener('touchmove', (e) => {
-                e.preventDefault();
-                if (joystickActive) {
-                    for (let i = 0; i < e.touches.length; i++) {
-                        if (e.touches[i].identifier === window.joystickTouchId) {
-                            updateJoystick(e.touches[i]);
+                
+                // ========== ACTION BUTTONS ==========
+                function handleTouchStart(e, btn, action) {
+                    e.preventDefault();
+                    const touchId = e.changedTouches[0].identifier;
+                    window.activeTouches.set(touchId, btn);
+                    btn.classList.add('touch-active');
+                    
+                    if (!gameScene || !gameScene.roundActive || gameScene.isSuperFrozen) return;
+                    
+                    switch(action) {
+                        case 'light': if (gameScene.playerAttacks) gameScene.playerAttacks.lightAttack(); break;
+                        case 'medium': if (gameScene.playerAttacks) gameScene.playerAttacks.mediumAttack(); break;
+                        case 'heavy': if (gameScene.playerAttacks) gameScene.playerAttacks.heavyAttack(); break;
+                        case 'special':
+                            if (gameScene.playerAttacks && gameScene.specialCooldown === 0) {
+                                gameScene.playerAttacks.playerSpecialAttack();
+                            }
                             break;
-                        }
+                        case 'block': gameScene.mobileBlockPressed = true; break;
+                        case 'super':
+                            if (gameScene.playerAttacks && gameScene.superMeter >= 100) {
+                                gameScene.playerAttacks.superMove();
+                            }
+                            break;
+                        case 'jump':
+                            if (!gameScene.isJumping && !gameScene.isAttacking && gameScene.roundActive && !gameScene.isSuperFrozen) {
+                                gameScene.mobileJumpRequested = true;
+                            }
+                            break;
+                        case 'dash':
+                            if (gameScene.player && !gameScene.isAttacking && !gameScene.isJumping) {
+                                const direction = gameScene.player.x < gameScene.cpu.x ? 80 : -80;
+                                gameScene.player.x += direction;
+                                gameScene.player.x = Math.min(Math.max(gameScene.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
+                            }
+                            break;
                     }
                 }
-            }, { passive: false });
-            
-            joystickArea.addEventListener('touchend', (e) => {
-                e.preventDefault();
-                let stillActive = false;
-                for (let i = 0; i < e.touches.length; i++) {
-                    if (e.touches[i].identifier === window.joystickTouchId) {
-                        stillActive = true;
-                        break;
+                
+                function handleTouchEnd(e, btn, action) {
+                    e.preventDefault();
+                    const touchId = e.changedTouches[0].identifier;
+                    window.activeTouches.delete(touchId);
+                    btn.classList.remove('touch-active');
+                    if (!gameScene) return;
+                    if (action === 'block' && !hasOtherBlockTouch()) gameScene.mobileBlockPressed = false;
+                }
+                
+                function hasOtherBlockTouch() {
+                    for (let [id, btn] of window.activeTouches) {
+                        if (btn.getAttribute('data-action') === 'block') return true;
                     }
+                    return false;
                 }
-                if (!stillActive) {
-                    resetJoystick();
-                }
-            });
-            
-            // ========== ACTION BUTTONS ==========
-            function handleTouchStart(e, btn, action) {
-                e.preventDefault();
-                // Enable mobile mode permanently on first touch
-                window.mobileMode = true;
                 
-                const touchId = e.changedTouches[0].identifier;
-                window.activeTouches.set(touchId, btn);
-                btn.classList.add('touch-active');
+                const buttons = document.querySelectorAll('.action-btn');
+                buttons.forEach(btn => {
+                    const action = btn.dataset.action;
+                    btn.addEventListener('touchstart', (e) => handleTouchStart(e, btn, action), { passive: false });
+                    btn.addEventListener('touchend', (e) => handleTouchEnd(e, btn, action));
+                    btn.addEventListener('touchcancel', (e) => handleTouchEnd(e, btn, action));
+                });
                 
-                if (!gameScene || !gameScene.roundActive || gameScene.isSuperFrozen) return;
+                document.body.addEventListener('touchmove', (e) => {
+                    if (e.target.closest('.mobile-controls')) e.preventDefault();
+                }, { passive: false });
                 
-                switch(action) {
-                    case 'light': if (gameScene.playerAttacks) gameScene.playerAttacks.lightAttack(); break;
-                    case 'medium': if (gameScene.playerAttacks) gameScene.playerAttacks.mediumAttack(); break;
-                    case 'heavy': if (gameScene.playerAttacks) gameScene.playerAttacks.heavyAttack(); break;
-                    case 'special':
-                        if (gameScene.playerAttacks && gameScene.specialCooldown === 0) {
-                            gameScene.playerAttacks.playerSpecialAttack();
-                        }
-                        break;
-                    case 'block': gameScene.mobileBlockPressed = true; break;
-                    case 'super':
-                        if (gameScene.playerAttacks && gameScene.superMeter >= 100) {
-                            gameScene.playerAttacks.superMove();
-                        }
-                        break;
-                    case 'jump':
-                        if (!gameScene.isJumping && !gameScene.isAttacking && gameScene.roundActive && !gameScene.isSuperFrozen) {
-                            gameScene.mobileJumpRequested = true;
-                        }
-                        break;
-                    case 'dash':
-                        if (gameScene.player && !gameScene.isAttacking && !gameScene.isJumping) {
-                            const direction = gameScene.player.x < gameScene.cpu.x ? 80 : -80;
-                            gameScene.player.x += direction;
-                            gameScene.player.x = Math.min(Math.max(gameScene.player.x, 200), 1080 - 100);
-                        }
-                        break;
-                }
-            }
-            
-            function handleTouchEnd(e, btn, action) {
-                e.preventDefault();
-                const touchId = e.changedTouches[0].identifier;
-                window.activeTouches.delete(touchId);
-                btn.classList.remove('touch-active');
-                if (!gameScene) return;
-                if (action === 'block' && !hasOtherBlockTouch()) gameScene.mobileBlockPressed = false;
-            }
-            
-            function hasOtherBlockTouch() {
-                for (let [id, btn] of window.activeTouches) {
-                    if (btn.getAttribute('data-action') === 'block') return true;
-                }
-                return false;
-            }
-            
-            const buttons = document.querySelectorAll('.action-btn');
-            buttons.forEach(btn => {
-                const action = btn.dataset.action;
-                btn.addEventListener('touchstart', (e) => handleTouchStart(e, btn, action), { passive: false });
-                btn.addEventListener('touchend', (e) => handleTouchEnd(e, btn, action));
-                btn.addEventListener('touchcancel', (e) => handleTouchEnd(e, btn, action));
-            });
-            
-            document.body.addEventListener('touchmove', (e) => {
-                if (e.target.closest('.mobile-controls')) e.preventDefault();
-            }, { passive: false });
-            
-            document.body.addEventListener('contextmenu', (e) => {
-                if (e.target.closest('.action-btn') || e.target.closest('.joystick-area')) e.preventDefault();
-            });
-            
-            let lastTouchEnd = 0;
-            document.addEventListener('touchend', (e) => {
-                const now = Date.now();
-                if (now - lastTouchEnd <= 300) e.preventDefault();
-                lastTouchEnd = now;
-            }, false);
-        })();
+                document.body.addEventListener('contextmenu', (e) => {
+                    if (e.target.closest('.action-btn') || e.target.closest('.joystick-area')) e.preventDefault();
+                });
+                
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', (e) => {
+                    const now = Date.now();
+                    if (now - lastTouchEnd <= 300) e.preventDefault();
+                    lastTouchEnd = now;
+                }, false);
+            })();
+        }
     </script>
     
     <script>
@@ -669,15 +632,21 @@
                     super.create();
                     window.gameSceneRef = this;
                     
-                    this.batterySaveMode = isMobileDevice && isBatteryLow && !isCharging;
-                    
-                    if (this.batterySaveMode) {
-                        if (this.impactFlash) this.impactFlash.setAlpha(0.2);
-                        if (this.cpuAttacks) {
-                            const originalDecide = this.cpuAttacks.decide;
-                            this.cpuAttacks.decide = () => {
-                                if (Math.random() < 0.7) originalDecide.call(this.cpuAttacks);
-                            };
+                    // Battery save mode only in mobile mode
+                    if (window.CONTROL_MODE === 'mobile') {
+                        if ('getBattery' in navigator) {
+                            navigator.getBattery().then(battery => {
+                                this.batterySaveMode = battery.level < 0.2 && !battery.charging;
+                                if (this.batterySaveMode) {
+                                    if (this.impactFlash) this.impactFlash.setAlpha(0.2);
+                                    if (this.cpuAttacks) {
+                                        const originalDecide = this.cpuAttacks.decide;
+                                        this.cpuAttacks.decide = () => {
+                                            if (Math.random() < 0.7) originalDecide.call(this.cpuAttacks);
+                                        };
+                                    }
+                                }
+                            });
                         }
                     }
                     
@@ -687,71 +656,147 @@
                     }
                 }
                 
-                update(time, delta) {
-                    const cappedDelta = this.batterySaveMode ? Math.min(delta, 33) : delta;
+                // Shared physics/boundary update logic - used by both PC and mobile
+                updateGamePhysics() {
+                    if (!this.player || !this.cpu) return;
                     
-                    // FIXED: Skip keyboard processing if mobile mode is active
-                    if (!window.mobileMode) {
-                        // Keyboard movement and attacks are handled in parent class update
-                        super.update(time, cappedDelta);
-                    } else {
-                        // Only run mobile-specific update (skip keyboard)
-                        this.updateMobileMovement();
-                        // Still need to update facing, boundaries, etc.
-                        if (this.player && this.cpu) {
-                            // Update boundaries
-                            this.player.x = Math.min(Math.max(this.player.x, 200), 1080 - 180);
-                            this.cpu.x = Math.min(Math.max(this.cpu.x, 200 + 180), 1080);
-                            
-                            // Prevent overlap
-                            if (Math.abs(this.player.x - this.cpu.x) < 90) {
-                                if (this.player.x < this.cpu.x) {
-                                    this.player.x = this.cpu.x - 90;
-                                } else {
-                                    this.cpu.x = this.player.x + 90;
-                                }
-                            }
-                            
-                            // Facing direction
-                            const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
-                            const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
-                            this.player.setFlipX(playerFacing === 'left');
-                            this.cpu.setFlipX(cpuFacing === 'left');
-                            
-                            // Aura positions
-                            if (this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y + 10);
-                            if (this.cpuAura) this.cpuAura.setPosition(this.cpu.x, this.cpu.y + 10);
-                        }
-                        
-                        // Jump physics (handled by parent's update through updateMobileMovement)
-                        // Call parent update but with keyboard disabled via mobileMode flag
-                        // We need to run parent logic without keyboard input
-                        // For simplicity, call parent update which will check mobileMode flag
-                        // But parent update doesn't have that check - we override in subclass
-                        // Let's call the essential parts manually
-                        if (this.isJumping) {
-                            this.playerYVelocity += GRAVITY * (1/60);
-                            this.player.y += this.playerYVelocity * (1/60);
-                            if (this.player.y >= GROUND_Y) {
-                                this.player.y = GROUND_Y;
-                                this.isJumping = false;
-                                this.playerYVelocity = 0;
-                                if (this.animations) this.animations.setPlayerAnimation('idle', 100);
-                            }
-                        }
-                        
-                        if (this.cpuLaunched) {
-                            this.cpu.y += this.cpuLaunchVelocity * (1/60);
-                            this.cpuLaunchVelocity += GRAVITY * (1/60);
-                            if (this.cpu.y >= GROUND_Y) {
-                                this.cpu.y = GROUND_Y;
-                                this.cpuLaunched = false;
-                                this.cpuLaunchVelocity = 0;
-                            }
+                    // Player boundary clamping
+                    this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
+                    this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + CHARACTER_WIDTH), MAX_X);
+                    
+                    // Prevent overlap
+                    if (Math.abs(this.player.x - this.cpu.x) < 90) {
+                        if (this.player.x < this.cpu.x) {
+                            this.player.x = this.cpu.x - 90;
+                        } else {
+                            this.cpu.x = this.player.x + 90;
                         }
                     }
                     
-                    if (this.player) this.player.x = Math.min(Math.max(this.player.x, 200), 1080 - 100);
+                    // Facing direction
+                    const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                    const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
+                    this.player.setFlipX(playerFacing === 'left');
+                    this.cpu.setFlipX(cpuFacing === 'left');
+                    
+                    // Aura positions
+                    if (this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
+                    if (this.cpuAura) this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
+                    
+                    // Jump physics
+                    if (this.isJumping) {
+                        this.playerYVelocity += GRAVITY * (1/60);
+                        this.player.y += this.playerYVelocity * (1/60);
+                        if (this.player.y >= GROUND_Y) {
+                            this.player.y = GROUND_Y;
+                            this.isJumping = false;
+                            this.playerYVelocity = 0;
+                            if (this.animations) this.animations.setPlayerAnimation('idle', 100);
+                            if (this.playerFloatTween) this.playerFloatTween.resume();
+                        }
+                    }
+                    
+                    // CPU launch physics
+                    if (this.cpuLaunched) {
+                        if (this.cpuFloatTween) this.cpuFloatTween.pause();
+                        this.cpu.y += this.cpuLaunchVelocity * (1/60);
+                        this.cpuLaunchVelocity += GRAVITY * (1/60);
+                        if (this.cpu.y >= GROUND_Y) {
+                            this.cpu.y = GROUND_Y;
+                            this.cpuLaunched = false;
+                            this.cpuLaunchVelocity = 0;
+                            if (this.cpuFloatTween) this.cpuFloatTween.resume();
+                        }
+                    }
+                }
+                
+                update(time, delta) {
+                    const cappedDelta = this.batterySaveMode ? Math.min(delta, 33) : delta;
+                    
+                    // PC mode: use parent update with keyboard
+                    if (window.CONTROL_MODE === 'pc') {
+                        super.update(time, cappedDelta);
+                        return;
+                    }
+                    
+                    // MOBILE mode: skip keyboard, use touch controls
+                    if (!this.roundActive || this.isSuperFrozen) return;
+                    
+                    // Mobile movement from joystick
+                    let move = 0;
+                    if (this.mobileLeftPressed) move = -1;
+                    if (this.mobileRightPressed) move = 1;
+                    if (move !== 0 && !this.isAttacking && !this.isJumping) {
+                        this.player.x += move * 7;
+                    }
+                    
+                    // Mobile jump request
+                    if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+                        this.isJumping = true;
+                        this.playerYVelocity = JUMP_VELOCITY;
+                        if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                        this.mobileJumpRequested = false;
+                        if (this.playerFloatTween) this.playerFloatTween.pause();
+                    }
+                    
+                    // Mobile blocking
+                    const isBlockInputPressed = this.mobileBlockPressed;
+                    this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+                    
+                    if (this.isBlocking) {
+                        if (this.playerAura) {
+                            this.playerAura.setAlpha(0.3);
+                            this.playerAura.setFillStyle(0x00dbe9);
+                        }
+                        this.playerBlockHeight = 'mid';
+                    } else {
+                        if (this.playerAura) {
+                            this.playerAura.setAlpha(0.15);
+                            this.playerAura.setFillStyle(this.playerData?.color || 0xff5252);
+                        }
+                    }
+                    
+                    // Shared physics
+                    this.updateGamePhysics();
+                    
+                    // Keyboard inputs in mobile mode? No - mobile only
+                    // Attack inputs are handled by touch events
+                    
+                    // Debug mode
+                    if (Phaser.Input.Keyboard.JustDown(this.keyO)) {
+                        toggleDebugMode();
+                    }
+                    
+                    if (window.DEBUG_HITBOXES && this.debugGraphics) {
+                        this.debugGraphics.clear();
+                        
+                        const playerHurtboxes = getHurtboxes('player', this.player.x, this.player.y, 'medium');
+                        for (const [part, box] of Object.entries(playerHurtboxes)) {
+                            drawHitbox(this.debugGraphics, box, box.color, true);
+                            this.debugGraphics.fillStyle(0xffffff, 1);
+                            this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+                        }
+                        
+                        const cpuDifficulty = this.cpuSettings?.name || 'medium';
+                        const cpuHurtboxes = getHurtboxes('cpu', this.cpu.x, this.cpu.y, cpuDifficulty);
+                        for (const [part, box] of Object.entries(cpuHurtboxes)) {
+                            drawHitbox(this.debugGraphics, box, box.color, true);
+                            this.debugGraphics.fillStyle(0xffffff, 1);
+                            this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+                        }
+                        
+                        if (this.playerAttacks && this.playerAttacks.attackState) {
+                            const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                            const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y);
+                            if (attackHitbox) {
+                                drawHitbox(this.debugGraphics, attackHitbox, 0xffaa00, true);
+                                this.debugGraphics.fillStyle(0xffffff, 1);
+                                this.debugGraphics.fillText('ATTACK', attackHitbox.x + 5, attackHitbox.y - 5);
+                            }
+                        }
+                    } else if (this.debugGraphics && !window.DEBUG_HITBOXES) {
+                        this.debugGraphics.clear();
+                    }
                 }
             };
         })();
@@ -759,59 +804,57 @@
     
     <script>
         // ========== PHASER CONFIG ==========
-        const config = {
-            type: isMobileDevice ? Phaser.CANVAS : Phaser.AUTO,
-            width: isMobileDevice ? window.innerWidth : 1280,
-            height: isMobileDevice ? window.innerHeight : 720,
-            parent: 'game-container',
-            backgroundColor: '#050505',
-            scene: FightingGame,
-            scale: { 
-                mode: Phaser.Scale.FIT, 
-                autoCenter: Phaser.Scale.CENTER_BOTH,
-                width: isMobileDevice ? '100%' : 1280,
-                height: isMobileDevice ? '100%' : 720,
-                zoom: 1
-            },
-            input: {
-                activePointers: 3,
-                touch: true
-            },
-            fps: {
-                target: TARGET_FPS,
-                forceSetTimeOut: true,
-                min: 15
-            },
-            antialias: !isMobileDevice,
-            pixelArt: isMobileDevice,
-            callbacks: {
-                postBoot: (game) => {
-                    if (isMobileDevice && game.canvas) {
-                        game.canvas.setAttribute('willReadFrequently', 'true');
+        (function() {
+            // window.CONTROL_MODE is guaranteed to be set above
+            // If undefined for any reason, default to false (PC mode)
+            const isMobileMode = window.CONTROL_MODE === 'mobile';
+            
+            const config = {
+                // Both PC and Mobile use the same fixed 1280x720 design resolution
+                type: isMobileMode ? Phaser.CANVAS : Phaser.AUTO,
+                width: 1280,
+                height: 720,
+                parent: 'game-container',
+                backgroundColor: '#050505',
+                scene: FightingGame,
+                scale: {
+                    mode: Phaser.Scale.FIT,
+                    autoCenter: Phaser.Scale.CENTER_BOTH,
+                    width: 1280,
+                    height: 720,
+                    zoom: 1
+                },
+                input: {
+                    activePointers: isMobileMode ? 3 : 1,
+                    touch: isMobileMode
+                },
+                fps: {
+                    target: isMobileMode ? 30 : 60,
+                    forceSetTimeOut: isMobileMode,
+                    min: isMobileMode ? 15 : 30
+                },
+                antialias: !isMobileMode,
+                pixelArt: isMobileMode,
+                callbacks: {
+                    postBoot: (game) => {
+                        if (isMobileMode && game.canvas) {
+                            game.canvas.setAttribute('willReadFrequently', 'true');
+                        }
                     }
                 }
-            }
-        };
-        
-        if (isMobileDevice) {
-            setTimeout(() => {
+            };
+            
+            if (isMobileMode) {
+                // Delayed init for mobile
+                setTimeout(() => {
+                    const game = new Phaser.Game(config);
+                    window.game = game;
+                }, 100);
+            } else {
                 const game = new Phaser.Game(config);
                 window.game = game;
-            }, 100);
-        } else {
-            const game = new Phaser.Game(config);
-            window.game = game;
-        }
-        
-        if (window.ResizeObserver && isMobileDevice) {
-            const container = document.getElementById('game-container');
-            const resizeObserver = new ResizeObserver(() => {
-                if (window.game && window.game.scale) {
-                    window.game.scale.resize(window.innerWidth, window.innerHeight);
-                }
-            });
-            if (container) resizeObserver.observe(container);
-        }
+            }
+        })();
     </script>
 </body>
 </html>
