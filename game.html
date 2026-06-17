@@ -180,7 +180,7 @@
         .joystick-area {
             width: min(20vw, 130px);
             height: min(20vw, 130px);
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 50%;
             position: relative;
             touch-action: none;
@@ -213,7 +213,7 @@
         .action-buttons {
             display: grid;
             grid-template-columns: repeat(4, min(8vw, 70px));
-            gap: min(1.5vw, 12px);
+            gap: min(1.2vw, 10px);
             background: transparent;
             padding: 12px 16px;
             border-radius: 80px;
@@ -221,10 +221,10 @@
         }
         
         .action-btn {
-            width: min(8vw, 70px);
-            height: min(8vw, 70px);
+            width: min(6.5vw, 57px);
+            height: min(6.5vw, 57px);
             border-radius: 50%;
-            background: rgba(0, 0, 0, 0.12);
+            background: rgba(0, 0, 0, 0.06);
             border: 1px solid rgba(255, 179, 178, 0.35);
             display: flex;
             flex-direction: column;
@@ -232,7 +232,7 @@
             justify-content: center;
             font-family: 'JetBrains Mono', monospace;
             font-weight: bold;
-            font-size: clamp(12px, 4vw, 18px);
+            font-size: clamp(10px, 3.3vw, 15px);
             color: rgba(255, 179, 178, 0.9);
             cursor: pointer;
             transition: all 0.05s linear;
@@ -240,16 +240,15 @@
             box-shadow: none;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
-            backdrop-filter: blur(4px);
         }
         
         .action-btn:active { transform: scale(0.92); }
-        .action-btn.special { border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
-        .action-btn.block { border-color: rgba(0, 219, 233, 0.5); color: rgba(0, 219, 233, 0.9); }
-        .action-btn.super { background: rgba(60, 40, 0, 0.15); border-color: rgba(255, 215, 0, 0.5); color: rgba(255, 215, 0, 0.9); }
-        .action-btn.jump { border-color: rgba(0, 255, 136, 0.5); color: rgba(0, 255, 136, 0.9); }
-        .action-btn.dash { border-color: rgba(255, 105, 180, 0.5); color: rgba(255, 105, 180, 0.9); font-size: clamp(10px, 3vw, 14px); }
-        .btn-label { font-size: clamp(7px, 2vw, 9px); letter-spacing: 1px; margin-top: 2px; opacity: 0.7; }
+        .action-btn.special { border-color: rgba(255, 215, 0, 0.25); color: rgba(255, 215, 0, 0.9); }
+        .action-btn.block { border-color: rgba(0, 219, 233, 0.25); color: rgba(0, 219, 233, 0.9); }
+        .action-btn.super { background: rgba(60, 40, 0, 0.08); border-color: rgba(255, 215, 0, 0.25); color: rgba(255, 215, 0, 0.9); }
+        .action-btn.jump { border-color: rgba(0, 255, 136, 0.25); color: rgba(0, 255, 136, 0.9); }
+        .action-btn.dash { border-color: rgba(255, 105, 180, 0.25); color: rgba(255, 105, 180, 0.9); font-size: clamp(8px, 2.5vw, 12px); }
+        .btn-label { font-size: clamp(6px, 1.6vw, 8px); letter-spacing: 1px; margin-top: 2px; opacity: 0.7; }
         
         .action-btn.touch-active {
             transform: scale(0.92);
