@@ -136,9 +136,14 @@
         .control-option {
             transition: all 0.2s ease;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
-        .control-option:hover {
-            transform: translateY(-2px);
+        /* Only apply hover on devices that support hover (non-touch) */
+        @media (hover: hover) {
+            .control-option:hover {
+                transform: translateY(-2px);
+            }
         }
         .control-option.selected {
             border-color: #ffb3b2 !important;
@@ -199,6 +204,18 @@
             .control-grid {
                 grid-template-columns: 1fr 1fr !important;
             }
+            
+            /* Ensure touch targets are at least 44px */
+            .control-option {
+                min-height: 56px;
+                padding: 8px 12px !important;
+            }
+            .control-option .icon {
+                font-size: 28px;
+            }
+            .control-option .title {
+                font-size: 16px;
+            }
         }
         
         @media (max-width: 480px) {
@@ -222,18 +239,98 @@
             }
         }
         
+        /* Landscape phone support */
+        @media (max-width: 900px) and (orientation: landscape) {
+            .grid-cols-1.md\\:grid-cols-5 {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 10px !important;
+            }
+            .difficulty-card {
+                min-height: 200px !important;
+                padding: 8px !important;
+            }
+            .difficulty-card img {
+                width: 48px !important;
+                height: 48px !important;
+            }
+            .difficulty-card .text-\\[10px\\] {
+                font-size: 7px !important;
+            }
+            .difficulty-card .font-label-bold {
+                font-size: 10px !important;
+            }
+            .control-grid {
+                grid-template-columns: 1fr 1fr !important;
+                min-width: unset !important;
+                width: auto !important;
+            }
+            .control-option {
+                padding: 4px 10px !important;
+                min-height: 44px !important;
+            }
+            .control-option .icon {
+                font-size: 20px;
+            }
+            .control-option .title {
+                font-size: 14px;
+            }
+            .control-option .label {
+                font-size: 9px;
+            }
+            .confirm-selection .skew-button {
+                padding: 8px 24px !important;
+                font-size: 20px !important;
+            }
+            .glass-panel.p-stack-md {
+                padding: 8px !important;
+            }
+        }
+        
+        /* Safe area insets for notched phones */
+        @supports (padding: max(0px)) {
+            .mobile-safe-top {
+                padding-top: max(env(safe-area-inset-top), 0px);
+            }
+            .mobile-safe-bottom {
+                padding-bottom: max(env(safe-area-inset-bottom), 0px);
+            }
+        }
+        
         /* Prevent text selection on buttons */
         .skew-button, .difficulty-card, .control-option {
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             cursor: pointer;
         }
+        
+        /* Use 100dvh for true viewport height on mobile */
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Ensure main content area uses full viewport height */
+        .flex.h-\\[calc\\(100vh-80px\\)\\] {
+            height: calc(100vh - 80px);
+            height: calc(100dvh - 80px);
+            min-height: calc(100vh - 80px);
+            min-height: calc(100dvh - 80px);
+        }
+        
+        /* Fix for mobile address bar issues */
+        .main-scroll {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+        }
     </style>
 </head>
-<body class="bg-background text-on-surface font-body-md overflow-x-hidden h-screen selection:bg-primary-container selection:text-on-primary-container">
+<body class="bg-background text-on-surface font-body-md overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
 
 <!-- CRT Effect Layer -->
-<div class="fixed inset-0 z-[100] crt-overlay opacity-30" style="opacity: 0.284988;"></div>
+<div class="fixed inset-0 z-[100] crt-overlay opacity-30" style="opacity: 0.284988; pointer-events: none;"></div>
 
 <!-- Navigation Shell (TopAppBar) -->
 <header class="sticky top-0 z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
@@ -251,7 +348,7 @@
 </div>
 </header>
 
-<div class="flex h-[calc(100vh-80px)]">
+<div class="flex h-[calc(100vh-80px)] h-[calc(100dvh-80px)]">
 <!-- Side Navigation Shell -->
 <aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 bg-surface-container-highest/60 backdrop-blur-2xl h-screen w-64 left-0 border-r border-outline-variant shadow-2xl hidden lg:flex">
 <div class="px-6 mb-8">
@@ -294,8 +391,8 @@
 </aside>
 
 <!-- Main Content Area -->
-<main class="flex-grow flex flex-col items-center justify-start relative px-margin-mobile md:px-margin-desktop pt-6 overflow-y-auto">
-<div class="z-10 w-full max-w-6xl flex flex-col items-center">
+<main class="flex-grow flex flex-col items-center justify-start relative px-margin-mobile md:px-margin-desktop pt-6 overflow-y-auto main-scroll">
+<div class="z-10 w-full max-w-6xl flex flex-col items-center pb-6">
 <h1 class="font-display-lg text-display-lg text-primary uppercase tracking-widest italic mb-stack-lg text-center drop-shadow-[0_0_10px_rgba(255,82,92,0.8)]">
                     SELECT CHALLENGE LEVEL
                 </h1>
@@ -381,7 +478,7 @@ CONTROL SCHEME
 </div>
 </div>
 <!-- Mobile Option -->
-<div class="control-option mobile flex items-center gap-4 p-3 rounded-xl border-2 border-outline-variant hover:border-primary/50" data-control="mobile" onclick="selectControl(this, 'mobile')">
+<div class="control-option mobile flex items-center gap-4 p-3 rounded-xl border-2 border-outline-variant" data-control="mobile" onclick="selectControl(this, 'mobile')">
 <div class="icon">🕹️</div>
 <div class="flex flex-col">
 <span class="title">MOBILE</span>
