@@ -18,16 +18,10 @@ class Animations {
         const facing = getFacingDirection(scene.player.x, scene.cpu.x, 'player');
         
         switch(animName) {
-            case 'hurt': textureKey = `${this.playerData.folder}_hurt`; break;
+            case 'hurt': textureKey = `${this.playerData.folder}_hurt-${facing}`; break;
             case 'light': textureKey = `${this.playerData.folder}_punch-${facing}`; break;
             case 'medium': textureKey = `${this.playerData.folder}_punch-${facing}`; break;
-            case 'heavy': 
-                if (this.playerData.name === 'ALPINE' || this.playerData.name === 'IRONMAN') {
-                    textureKey = `${this.playerData.folder}_kick-${facing}`;
-                } else {
-                    textureKey = `${this.playerData.folder}_kick`;
-                }
-                break;
+            case 'heavy': textureKey = `${this.playerData.folder}_kick-${facing}`; break;
             case 'special': 
                 if (this.playerData.name === 'ALPINE') {
                     textureKey = `${this.playerData.folder}_special_drink`;
@@ -39,7 +33,6 @@ class Animations {
                     textureKey = `${this.playerData.folder}_special`;
                 }
                 break;
-            // FIXED: repulsor_charge moved BEFORE default
             case 'repulsor_charge': textureKey = `${this.playerData.folder}_repulsor`; break;
             // ADARSHA SPECIAL ANIMATIONS
             case 'jumpstart': textureKey = `${this.playerData.folder}_jumpstart`; break;
@@ -89,18 +82,10 @@ class Animations {
         const facing = getFacingDirection(scene.player.x, scene.cpu.x, 'cpu');
         
         switch(animName) {
-            case 'hurt': textureKey = `${this.cpuData.folder}_hurt`; break;
+            case 'hurt': textureKey = `${this.cpuData.folder}_hurt-${facing}`; break;
             case 'light': textureKey = `${this.cpuData.folder}_punch-${facing}`; break;
             case 'medium': textureKey = `${this.cpuData.folder}_punch-${facing}`; break;
-            // FIXED: Simplified heavy case with combined condition
-            case 'heavy':
-                if (this.cpuData.name === 'ALPINE' || this.cpuData.name === 'IRONMAN') {
-                    textureKey = `${this.cpuData.folder}_kick-${facing}`;
-                } else {
-                    textureKey = `${this.cpuData.folder}_kick`;
-                }
-                break;
-            // FIXED: Use cpuData instead of playerData
+            case 'heavy': textureKey = `${this.cpuData.folder}_kick-${facing}`; break;
             case 'special':
                 if (this.cpuData.name === 'ALPINE') {
                     textureKey = `${this.cpuData.folder}_special_drink`;

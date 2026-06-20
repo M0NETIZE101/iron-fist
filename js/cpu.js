@@ -94,6 +94,56 @@ class CPUAttacks {
         const retreatThreshold = this.cpuSettings.retreatThreshold;
         const isLowHealth = healthPercent < retreatThreshold;
         
+        // ===== DOUBLE JUMP DECISION =====
+        // If CPU is airborne and double jump is available
+        if (scene.isJumping && scene.cpuJumpsUsed < 2 && scene.cpuDoubleJumpCooldown <= 0) {
+            const personality = this.cpuPersonality;
+            const shouldDoubleJump = Math.random() < 0.4; // 40% chance to consider it
+            
+            if (shouldDoubleJump) {
+                let shouldUse = false;
+                let boostDirection = 0;
+                
+                // KITE personality (ASHMIN) - use to create distance when player is close
+                if (personality.movementStyle === 'KITE' && distance < 120) {
+                    shouldUse = true;
+                    // Boost away from player
+                    boostDirection = scene.cpu.x < scene.player.x ? -1 : 1;
+                }
+                // FORWARD personality (ADARSHA, PRESIDENT) - use to close distance when player is far
+                else if (personality.movementStyle === 'FORWARD' && distance > 150) {
+                    shouldUse = true;
+                    // Boost toward player
+                    boostDirection = scene.cpu.x < scene.player.x ? 1 : -1;
+                }
+                // ADAPTIVE personality (ALPINE, BATMAN) - use based on situation
+                else if (personality.movementStyle === 'ADAPTIVE') {
+                    if (distance < 100 && scene.cpuHealth < 30) {
+                        // Low health - retreat
+                        shouldUse = true;
+                        boostDirection = scene.cpu.x < scene.player.x ? -1 : 1;
+                    } else if (distance > 160 && scene.cpuHealth > 50) {
+                        // Healthy - advance
+                        shouldUse = true;
+                        boostDirection = scene.cpu.x < scene.player.x ? 1 : -1;
+                    }
+                }
+                
+                if (shouldUse && boostDirection !== 0) {
+                    // Execute CPU double jump
+                    scene.cpuYVelocity = DOUBLE_JUMP_VELOCITY;
+                    scene.cpuJumpsUsed = 2;
+                    scene.cpu.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+                    if (scene.animations) scene.animations.setCPUAnimation('jump_regular', 300);
+                    
+                    // Log for debugging
+                    if (window.DEBUG_HITBOXES) {
+                        console.log('[CPU] Double jump used - direction:', boostDirection > 0 ? 'right' : 'left');
+                    }
+                }
+            }
+        }
+        
         // Movement with delay
         if (this.moveTimer > 0) {
             this.moveTimer--;

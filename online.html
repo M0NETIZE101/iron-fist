@@ -274,7 +274,7 @@
                 </a>
 </nav>
 <div class="p-4 border-t border-outline-variant/30">
-<button class="w-full bg-kinetic-strike text-white py-4 skew-button font-label-bold uppercase shadow-[0_0_20px_rgba(255,0,60,0.4)]" onclick="window.location.href='online.html'">
+<button class="w-full bg-kinetic-strike text-white py-4 skew-button font-label-bold uppercase shadow-[0_0_20px_rgba(255,0,60,0.4)]" onclick="window.location.reload()">
                     FIND MATCH
                 </button>
 </div>
@@ -328,7 +328,7 @@
             <span class="block text-xs text-on-surface-variant/50 mb-2 font-label-sm uppercase">ROOM ACCESS CODE</span>
             <div class="font-label-bold text-[48px] md:text-[84px] text-on-surface bg-surface-container-high/50 p-4 md:p-6 inline-block border-2 border-dashed border-primary/40 tracking-[0.2em] mb-4" id="room-code-display">------</div>
             <div class="flex justify-center gap-4">
-                <button class="flex items-center gap-2 bg-surface-variant px-6 py-2 skew-button font-label-bold hover:bg-primary hover:text-on-primary transition-all" onclick="copyCode()">
+                <button class="flex items-center gap-2 bg-surface-variant px-6 py-2 skew-button font-label-bold hover:bg-primary hover:text-on-primary transition-all" onclick="copyCode(event)">
                     <span class="material-symbols-outlined">content_copy</span> COPY CODE
                 </button>
             </div>
@@ -378,7 +378,7 @@
                 </div>
             </div>
             <div id="connected-status" class="font-label-sm text-label-sm text-tertiary mb-6">✅ Data channel open. Ready for battle!</div>
-            <button class="bg-kinetic-strike text-white px-12 md:px-24 py-4 md:py-6 skew-button font-display-xl italic hover:brightness-125 transition-all shadow-[0_0_40px_rgba(255,0,60,0.6)]">
+            <button id="start-fight-btn" class="bg-kinetic-strike text-white px-12 md:px-24 py-4 md:py-6 skew-button font-display-xl italic hover:brightness-125 transition-all shadow-[0_0_40px_rgba(255,0,60,0.6)]">
                 START FIGHT
             </button>
             <div class="mt-8">
@@ -440,11 +440,12 @@
         let peer = null;
         let connection = null;
         let currentView = 'choose';
-        let isHost = false;
+        let isHost = false; // Will be used in Stage 3 for host-authoritative model
         let roomCode = '';
         let connectionAttemptTimer = null;
         let isConnecting = false;
         let retryCount = 0;
+        let pingStartTime = 0;
         const MAX_RETRIES = 3;
 
         // ===== HELPERS =====
@@ -515,8 +516,10 @@
             isHost = false;
             roomCode = '';
             retryCount = 0;
-            btnConnect.disabled = false;
-            btnConnect.textContent = 'CONNECT TO HOST';
+            if (btnConnect) {
+                btnConnect.disabled = false;
+                btnConnect.textContent = 'CONNECT TO HOST';
+            }
         }
 
         function logPeerEvent(event, data) {
@@ -566,6 +569,16 @@
                 `;
                 appendLog(createMessageLog, `Room created: ${id}`, 'info');
                 appendLog(createMessageLog, 'Waiting for opponent to join...', 'info');
+            });
+
+            // Handle signaling server disconnection
+            peer.on('disconnected', () => {
+                logPeerEvent('disconnected', 'Lost connection to signaling server');
+                createStatus.innerHTML = `
+                    <span class="text-kinetic-strike">⚠️ Connection to signaling server lost. Attempting to reconnect...</span>
+                `;
+                appendLog(createMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
+                // PeerJS will automatically attempt to reconnect
             });
 
             peer.on('connection', (conn) => {
@@ -715,6 +728,13 @@
                 });
             });
 
+            // Handle signaling server disconnection
+            peer.on('disconnected', () => {
+                logPeerEvent('disconnected', 'Lost connection to signaling server');
+                joinStatus.innerHTML = '<span class="text-kinetic-strike">⚠️ Signaling server connection lost. Reconnecting...</span>';
+                appendLog(joinMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
+            });
+
             peer.on('error', (err) => {
                 logPeerEvent('error', err);
                 console.error('Peer error:', err);
@@ -758,6 +778,7 @@
             };
             try {
                 conn.send(helloMsg);
+                pingStartTime = Date.now();
                 appendLog(connectedMessageLog, `Sent hello at ${new Date(helloMsg.timestamp).toLocaleTimeString()}`, 'sent');
             } catch (e) {
                 appendLog(connectedMessageLog, `Failed to send hello: ${e.message}`, 'error');
@@ -785,6 +806,8 @@
                     const timeStr = new Date(data.originalTimestamp).toLocaleTimeString();
                     const roundtrip = Date.now() - data.originalTimestamp;
                     appendLog(connectedMessageLog, `Received echo for hello sent at ${timeStr} (roundtrip: ${roundtrip}ms)`, 'received');
+                    // Store ping for potential later use
+                    window._lastPingMs = roundtrip;
                 } else {
                     appendLog(connectedMessageLog, `Received: ${JSON.stringify(data)}`, 'info');
                 }
@@ -809,7 +832,7 @@
         }
 
         // ===== COPY CODE =====
-        function copyCode() {
+        function copyCode(event) {
             const code = roomCodeDisplay.textContent;
             if (code && code !== '------') {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -822,15 +845,15 @@
                             btn.innerHTML = original;
                             btn.classList.remove('bg-tertiary', 'text-on-tertiary');
                         }, 2000);
-                    }).catch(() => fallbackCopy(code));
+                    }).catch(() => fallbackCopy(event, code));
                 } else {
-                    fallbackCopy(code);
+                    fallbackCopy(event, code);
                 }
             }
         }
         window.copyCode = copyCode;
 
-        function fallbackCopy(text) {
+        function fallbackCopy(event, text) {
             const textarea = document.createElement('textarea');
             textarea.value = text;
             textarea.style.position = 'fixed';
@@ -912,9 +935,22 @@
             }
         });
 
+        // ===== START FIGHT BUTTON (placeholder - Stage 2) =====
+        document.getElementById('start-fight-btn').addEventListener('click', function() {
+            // Stage 2: This will navigate to game.html with online mode params
+            console.log('[Online] START FIGHT clicked - will navigate to game.html in Stage 2');
+            // Placeholder: show a toast or alert for now
+            if (connection && connection.open) {
+                alert('🎮 Starting fight! (Stage 2: This will connect to game.html with P2P)');
+            } else {
+                alert('⚠️ No active connection. Please wait for opponent.');
+            }
+        });
+
         // ===== INIT =====
         showView('choose');
         console.log('[Online] Ready. PeerJS loaded.');
+        console.log('[Online] isHost flag will be used in Stage 3 for host-authoritative model');
     })();
 </script>
 </body>

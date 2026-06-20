@@ -31,6 +31,11 @@ const JUMP_VELOCITY = -450;
 const GRAVITY = 1200;
 const GROUND_Y = 460;
 
+// DOUBLE JUMP CONSTANTS
+const DOUBLE_JUMP_VELOCITY = -420; // slightly less than first jump
+const DOUBLE_JUMP_HORIZONTAL_BOOST = 14; // px per frame during the air-jump
+const DOUBLE_JUMP_COOLDOWN_MS = 2000; // cooldown before double-jump is available again after landing
+
 // Movement bounds
 const MIN_X = 200;
 const MAX_X = 1080;

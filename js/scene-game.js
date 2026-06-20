@@ -39,6 +39,12 @@ class FightingGame extends Phaser.Scene {
         this.isJumping = false;
         this.playerYVelocity = 0;
         
+        // DOUBLE JUMP STATE
+        this.playerJumpsUsed = 0;
+        this.playerDoubleJumpCooldown = 0;
+        this.cpuJumpsUsed = 0;
+        this.cpuDoubleJumpCooldown = 0;
+        
         // CPU launch state (for Adarsha's special)
         this.cpuLaunched = false;
         this.cpuLaunchVelocity = 0;
@@ -93,14 +99,16 @@ class FightingGame extends Phaser.Scene {
         const bgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
         this.load.image('arenaBg', bgImage);
         
-        // Load ADARSHA sprites
+        // ===== LOAD ADARSHA SPRITES =====
         this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
         this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
         this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
-        this.load.image(`adarsha_kick`, `assets/characters/adarsha/kick.png`);
+        this.load.image(`adarsha_kick-left`, `assets/characters/adarsha/kick-left.png`);
+        this.load.image(`adarsha_kick-right`, `assets/characters/adarsha/kick-right.png`);
+        this.load.image(`adarsha_hurt-left`, `assets/characters/adarsha/hurt-left.png`);
+        this.load.image(`adarsha_hurt-right`, `assets/characters/adarsha/hurt-right.png`);
         this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
         this.load.image(`adarsha_victory`, `assets/characters/adarsha/idle.png`);
-        this.load.image(`adarsha_hurt`, `assets/characters/adarsha/idle.png`);
         this.load.image(`adarsha_jumpstart`, `assets/characters/adarsha/jumpstart.png`);
         this.load.image(`adarsha_jump`, `assets/characters/adarsha/jump.png`);
         this.load.image(`adarsha_jumpkick`, `assets/characters/adarsha/jumpkick.png`);
@@ -108,50 +116,67 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`adarsha_firing`, `assets/characters/adarsha/firing.png`);
         this.load.image(`adarsha_fireball`, `assets/characters/adarsha/fireball.png`);
         
-        // Load ASHMIN sprites
+        // ===== LOAD ASHMIN SPRITES =====
         this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
         this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
         this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
-        this.load.image(`ashmin_kick`, `assets/characters/ashmin/kick.png`);
+        this.load.image(`ashmin_kick-left`, `assets/characters/ashmin/kick-left.png`);
+        this.load.image(`ashmin_kick-right`, `assets/characters/ashmin/kick-right.png`);
+        this.load.image(`ashmin_hurt-left`, `assets/characters/ashmin/hurt-left.png`);
+        this.load.image(`ashmin_hurt-right`, `assets/characters/ashmin/hurt-right.png`);
         this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
         this.load.image(`ashmin_victory`, `assets/characters/ashmin/idle.png`);
-        this.load.image(`ashmin_hurt`, `assets/characters/ashmin/idle.png`);
         this.load.image(`ashmin_dragon_1`, `assets/characters/ashmin/dragon_frame1.png`);
         this.load.image(`ashmin_dragon_2`, `assets/characters/ashmin/dragon_frame2.png`);
         this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
         this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
         
-        // Load ALPINE sprites
+        // ===== LOAD ALPINE SPRITES =====
         this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
         this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
         this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
         this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
         this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
+        this.load.image(`alpine_hurt-left`, `assets/characters/alpine/hurt-left.png`);
+        this.load.image(`alpine_hurt-right`, `assets/characters/alpine/hurt-right.png`);
         this.load.image(`alpine_special_drink`, `assets/characters/alpine/special_drink.png`);
         this.load.image(`alpine_special_powerup`, `assets/characters/alpine/special_powerup.png`);
         this.load.image(`alpine_special_attack`, `assets/characters/alpine/special_attack.png`);
         this.load.image(`alpine_victory`, `assets/characters/alpine/idle.png`);
-        this.load.image(`alpine_hurt`, `assets/characters/alpine/idle.png`);
         
-        // Load PRESIDENT sprites
+        // ===== LOAD PRESIDENT SPRITES =====
         this.load.image(`president_idle`, `assets/characters/president/idle.png`);
         this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
         this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
-        this.load.image(`president_kick`, `assets/characters/president/kick.png`);
+        this.load.image(`president_kick-left`, `assets/characters/president/kick-left.png`);
+        this.load.image(`president_kick-right`, `assets/characters/president/kick-right.png`);
+        this.load.image(`president_hurt-left`, `assets/characters/president/hurt-left.png`);
+        this.load.image(`president_hurt-right`, `assets/characters/president/hurt-right.png`);
         this.load.image(`president_special`, `assets/characters/president/kick.png`);
         this.load.image(`president_victory`, `assets/characters/president/idle.png`);
-        this.load.image(`president_hurt`, `assets/characters/president/idle.png`);
         
-        // Load IRONMAN sprites
+        // ===== LOAD IRONMAN SPRITES =====
         this.load.image(`ironman_idle`, `assets/characters/ironman/idle.png`);
         this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
         this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
         this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
         this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
+        this.load.image(`ironman_hurt-left`, `assets/characters/ironman/hurt-left.png`);
+        this.load.image(`ironman_hurt-right`, `assets/characters/ironman/hurt-right.png`);
         this.load.image(`ironman_special`, `assets/characters/ironman/kick-right.png`);
         this.load.image(`ironman_victory`, `assets/characters/ironman/victory.png`);
-        this.load.image(`ironman_hurt`, `assets/characters/ironman/hurt.png`);
         this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`);
+        
+        // ===== LOAD BATMAN SPRITES =====
+        this.load.image(`batman_idle`, `assets/characters/batman/idle.png`);
+        this.load.image(`batman_punch-left`, `assets/characters/batman/punch-left.png`);
+        this.load.image(`batman_punch-right`, `assets/characters/batman/punch-right.png`);
+        this.load.image(`batman_kick-left`, `assets/characters/batman/kick-left.png`);
+        this.load.image(`batman_kick-right`, `assets/characters/batman/kick-right.png`);
+        this.load.image(`batman_hurt-left`, `assets/characters/batman/hurt-left.png`);
+        this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
+        this.load.image(`batman_special`, `assets/characters/batman/special.png`);
+        this.load.image(`batman_victory`, `assets/characters/batman/victory.png`);
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -409,11 +434,35 @@ class FightingGame extends Phaser.Scene {
         if (this.mobileLeftPressed) this.player.x -= 7;
         if (this.mobileRightPressed) this.player.x += 7;
         
-        if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
-            this.isJumping = true;
-            this.playerYVelocity = JUMP_VELOCITY;
-            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
-            this.mobileJumpRequested = false;
+        // Mobile double jump handling - check if jump requested and conditions met
+        if (this.mobileJumpRequested && this.roundActive && !this.isSuperFrozen) {
+            if (!this.isJumping) {
+                // Ground jump
+                this.isJumping = true;
+                this.playerYVelocity = JUMP_VELOCITY;
+                this.playerJumpsUsed = 1;
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                this.mobileJumpRequested = false;
+                if (this.playerFloatTween) this.playerFloatTween.pause();
+            } else if (this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
+                // Double jump - air jump
+                this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
+                this.playerJumpsUsed = 2;
+                
+                // Horizontal boost in direction of movement
+                let boostDirection = 0;
+                if (this.mobileLeftPressed) boostDirection = -1;
+                else if (this.mobileRightPressed) boostDirection = 1;
+                else {
+                    // Fall back to facing direction
+                    const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                    boostDirection = facing === 'right' ? 1 : -1;
+                }
+                this.player.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+                
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                this.mobileJumpRequested = false;
+            }
         }
         
         if (!this.roundActive && this.mobileJumpRequested) {
@@ -439,6 +488,14 @@ class FightingGame extends Phaser.Scene {
     update() {
         if (!this.roundActive || this.isSuperFrozen) return;
         
+        // Tick down double jump cooldowns (matching specialCooldown style)
+        if (this.playerDoubleJumpCooldown > 0) {
+            this.playerDoubleJumpCooldown = Math.max(0, this.playerDoubleJumpCooldown - 100);
+        }
+        if (this.cpuDoubleJumpCooldown > 0) {
+            this.cpuDoubleJumpCooldown = Math.max(0, this.cpuDoubleJumpCooldown - 100);
+        }
+        
         this.updateMobileMovement();
         
         let move = 0;
@@ -448,13 +505,33 @@ class FightingGame extends Phaser.Scene {
             if (move !== 0) this.player.x += move * 7;
         }
         
-        // Keyboard jump - FIXED: Pause float tween during jump
-        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
-            this.isJumping = true;
-            this.playerYVelocity = JUMP_VELOCITY;
-            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
-            // Pause float tween while jumping
-            if (this.playerFloatTween) this.playerFloatTween.pause();
+        // Keyboard jump - with double jump support
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.roundActive && !this.isSuperFrozen) {
+            if (!this.isJumping && !this.isAttacking) {
+                // Ground jump
+                this.isJumping = true;
+                this.playerYVelocity = JUMP_VELOCITY;
+                this.playerJumpsUsed = 1;
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                if (this.playerFloatTween) this.playerFloatTween.pause();
+            } else if (this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
+                // Double jump - air jump
+                this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
+                this.playerJumpsUsed = 2;
+                
+                // Horizontal boost in direction of movement
+                let boostDirection = 0;
+                if (this.keyLeft.isDown) boostDirection = -1;
+                else if (this.keyRight.isDown) boostDirection = 1;
+                else {
+                    // Fall back to facing direction
+                    const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                    boostDirection = facing === 'right' ? 1 : -1;
+                }
+                this.player.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+                
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+            }
         }
         
         // Player jump physics
@@ -466,8 +543,14 @@ class FightingGame extends Phaser.Scene {
                 this.player.y = GROUND_Y;
                 this.isJumping = false;
                 this.playerYVelocity = 0;
+                
+                // Reset jumps and set cooldown if double jump was used
+                if (this.playerJumpsUsed === 2) {
+                    this.playerDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                }
+                this.playerJumpsUsed = 0;
+                
                 if (this.animations) this.animations.setPlayerAnimation('idle', 100);
-                // Resume float tween when landing
                 if (this.playerFloatTween) this.playerFloatTween.resume();
             }
         }

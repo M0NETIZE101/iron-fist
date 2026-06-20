@@ -92,7 +92,7 @@ const FIGHTERS = {
         accent: 0x7cb8f0, 
         folder: 'alpine',
         specialName: 'ENERGY FIST', 
-        specialDamage: 26,  // Increased for three-phase special
+        specialDamage: 26,
         // AI Personality
         personality: {
             type: 'BALANCED',
@@ -125,8 +125,8 @@ const FIGHTERS = {
         speed: 70, 
         defense: 85,
         range: 65,
-        color: 0x1a5276,      // Presidential blue
-        accent: 0x85c1e9,     // Light blue
+        color: 0x1a5276,
+        accent: 0x85c1e9,
         folder: 'president',
         specialName: 'EXECUTIVE ORDER', 
         specialDamage: 22,
@@ -154,43 +154,78 @@ const FIGHTERS = {
     },
 
     'IRONMAN': { 
-    name: 'IRONMAN', 
-    title: 'THE INVINCIBLE IRON MAN',
-    archetype: 'TECH',
-    rank: 'AVENGER RANK',
-    power: 92, 
-    speed: 85, 
-    defense: 90,
-    range: 75,
-    color: 0xc71f1f,      // Iron Man red
-    accent: 0xffd700,     // Gold accent
-    folder: 'ironman',
-    specialName: 'REPULSOR BLAST', 
-    specialDamage: 24,
-    // AI Personality
-    personality: {
-        type: 'TECH',
-        playStyle: 'BALANCED',
-        optimalRange: 90,
-        preferredAttacks: ['medium', 'heavy', 'special'],
-        specialUsage: 'OFFENSIVE',
-        movementStyle: 'FORWARD',
-        defenseStyle: 'TECH_BLOCK',
-        comboPreference: 'MEDIUM_START'
+        name: 'IRONMAN', 
+        title: 'THE INVINCIBLE IRON MAN',
+        archetype: 'TECH',
+        rank: 'AVENGER RANK',
+        power: 92, 
+        speed: 85, 
+        defense: 90,
+        range: 75,
+        color: 0xc71f1f,
+        accent: 0xffd700,
+        folder: 'ironman',
+        specialName: 'REPULSOR BLAST', 
+        specialDamage: 24,
+        // AI Personality
+        personality: {
+            type: 'TECH',
+            playStyle: 'BALANCED',
+            optimalRange: 90,
+            preferredAttacks: ['medium', 'heavy', 'special'],
+            specialUsage: 'OFFENSIVE',
+            movementStyle: 'FORWARD',
+            defenseStyle: 'TECH_BLOCK',
+            comboPreference: 'MEDIUM_START'
+        },
+        // Attack frame data
+        attacks: {
+            light: { startup: 90, active: 50, recovery: 160, damage: 7, range: 72, height: 'mid', pushback: 22 },
+            medium: { startup: 130, active: 60, recovery: 210, damage: 11, range: 78, height: 'mid', pushback: 30 },
+            heavy: { startup: 190, active: 80, recovery: 310, damage: 17, range: 85, height: 'overhead', pushback: 38 },
+            special: { startup: 280, active: 100, recovery: 400, damage: 24, range: 200, height: 'projectile', pushback: 30 }
+        },
+        // Display assets
+        portrait: 'assets/characters/ironman/portrait.png',
+        thumb: 'assets/characters/ironman/portrait.png'
     },
-    // Attack frame data
-    attacks: {
-        light: { startup: 90, active: 50, recovery: 160, damage: 7, range: 72, height: 'mid', pushback: 22 },
-        medium: { startup: 130, active: 60, recovery: 210, damage: 11, range: 78, height: 'mid', pushback: 30 },
-        heavy: { startup: 190, active: 80, recovery: 310, damage: 17, range: 85, height: 'overhead', pushback: 38 },
-        special: { startup: 280, active: 100, recovery: 400, damage: 24, range: 200, height: 'projectile', pushback: 30 }
-    },
-    // Display assets
-    portrait: 'assets/characters/ironman/portrait.png',
-    thumb: 'assets/characters/ironman/portrait.png'
-}
 
-    
+    'BATMAN': { 
+        name: 'BATMAN', 
+        title: 'THE DARK KNIGHT',
+        archetype: 'TACTICAL',
+        rank: 'GOTHAM LEGEND',
+        power: 84, 
+        speed: 92, 
+        defense: 95,
+        range: 60,
+        color: 0x1a1a2e,
+        accent: 0xffd700,
+        folder: 'batman',
+        specialName: 'BATARANG BARRAGE', 
+        specialDamage: 20,
+        // AI Personality
+        personality: {
+            type: 'TACTICAL',
+            playStyle: 'COUNTER',
+            optimalRange: 75,
+            preferredAttacks: ['medium', 'light', 'special'],
+            specialUsage: 'REACTIVE',
+            movementStyle: 'ADAPTIVE',
+            defenseStyle: 'COUNTER_BLOCK',
+            comboPreference: 'MEDIUM_START'
+        },
+        // Attack frame data
+        attacks: {
+            light: { startup: 75, active: 45, recovery: 150, damage: 6, range: 65, height: 'mid', pushback: 18 },
+            medium: { startup: 120, active: 60, recovery: 200, damage: 10, range: 72, height: 'mid', pushback: 28 },
+            heavy: { startup: 180, active: 75, recovery: 280, damage: 16, range: 78, height: 'overhead', pushback: 36 },
+            special: { startup: 200, active: 90, recovery: 350, damage: 20, range: 160, height: 'projectile', pushback: 25 }
+        },
+        // Display assets
+        portrait: 'assets/characters/batman/portrait.png',
+        thumb: 'assets/characters/batman/portrait.png'
+    }
 };
 
 // Helper function to get fighter by name
