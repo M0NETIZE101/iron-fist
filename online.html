@@ -303,7 +303,7 @@
 <div class="glass-panel p-6 md:p-12 shadow-2xl">
     <!-- View: Choose Mode -->
     <div id="view-choose" class="flex flex-col md:flex-row gap-gutter">
-        <button class="flex-1 group relative" onclick="createRoom()">
+        <button class="flex-1 group relative" onclick="window.createRoom()">
             <div class="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors skew-x-[-4deg]"></div>
             <div class="relative p-6 md:p-10 border border-primary/40 text-center skew-x-[-4deg]">
                 <span class="material-symbols-outlined text-[48px] md:text-[64px] text-primary mb-4 block" style="font-variation-settings: 'FILL' 1;">add_circle</span>
@@ -311,7 +311,7 @@
                 <p class="font-label-sm text-label-sm text-on-surface-variant">Host a server and invite your rival.</p>
             </div>
         </button>
-        <button class="flex-1 group relative" onclick="showView('join')">
+        <button class="flex-1 group relative" onclick="window.showView('join')">
             <div class="absolute inset-0 bg-tertiary/10 group-hover:bg-tertiary/20 transition-colors skew-x-[4deg]"></div>
             <div class="relative p-6 md:p-10 border border-tertiary/40 text-center skew-x-[4deg]">
                 <span class="material-symbols-outlined text-[48px] md:text-[64px] text-tertiary mb-4 block" style="font-variation-settings: 'FILL' 1;">bolt</span>
@@ -328,7 +328,7 @@
             <span class="block text-xs text-on-surface-variant/50 mb-2 font-label-sm uppercase">ROOM ACCESS CODE</span>
             <div class="font-label-bold text-[48px] md:text-[84px] text-on-surface bg-surface-container-high/50 p-4 md:p-6 inline-block border-2 border-dashed border-primary/40 tracking-[0.2em] mb-4" id="room-code-display">------</div>
             <div class="flex justify-center gap-4">
-                <button class="flex items-center gap-2 bg-surface-variant px-6 py-2 skew-button font-label-bold hover:bg-primary hover:text-on-primary transition-all" onclick="copyCode(event)">
+                <button class="flex items-center gap-2 bg-surface-variant px-6 py-2 skew-button font-label-bold hover:bg-primary hover:text-on-primary transition-all" onclick="window.copyCode(event)">
                     <span class="material-symbols-outlined">content_copy</span> COPY CODE
                 </button>
             </div>
@@ -338,7 +338,7 @@
             <span class="font-label-sm text-label-sm italic">WAITING FOR OPPONENT...</span>
         </div>
         <div id="create-message-log" class="message-log mt-4 hidden text-left w-full bg-black/30 rounded p-3"></div>
-        <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm" onclick="cancelCreate()">CANCEL REQUEST</button>
+        <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm" onclick="window.cancelCreate()">CANCEL REQUEST</button>
     </div>
 
     <!-- View: Join Room -->
@@ -352,10 +352,10 @@
             </div>
             <div id="join-status" class="font-label-sm text-label-sm min-h-[24px] mb-4"></div>
             <div id="join-message-log" class="message-log hidden mt-4 text-left w-full bg-black/30 rounded p-3"></div>
-            <button id="btn-connect" class="w-full bg-tertiary text-on-tertiary py-5 skew-button font-headline-lg shadow-[0_0_30px_rgba(0,219,233,0.3)] hover:shadow-[0_0_50px_rgba(0,219,233,0.5)] transition-all" onclick="joinRoom()">
+            <button id="btn-connect" class="w-full bg-tertiary text-on-tertiary py-5 skew-button font-headline-lg shadow-[0_0_30px_rgba(0,219,233,0.3)] hover:shadow-[0_0_50px_rgba(0,219,233,0.5)] transition-all" onclick="window.joinRoom()">
                 CONNECT TO HOST
             </button>
-            <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm uppercase" onclick="cancelJoin()">BACK TO MENU</button>
+            <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm uppercase" onclick="window.cancelJoin()">BACK TO MENU</button>
         </div>
     </div>
 
@@ -382,7 +382,7 @@
                 START FIGHT
             </button>
             <div class="mt-8">
-                <button class="text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm" onclick="disconnectAndBack()">DISCONNECT &amp; BACK</button>
+                <button class="text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm" onclick="window.disconnectAndBack()">DISCONNECT &amp; BACK</button>
             </div>
         </div>
     </div>
@@ -445,7 +445,6 @@
         let connectionAttemptTimer = null;
         let isConnecting = false;
         let retryCount = 0;
-        let pingStartTime = 0;
         const MAX_RETRIES = 3;
 
         // ===== HELPERS =====
@@ -536,7 +535,6 @@
             retryCount = 0;
             attemptCreatePeer();
         }
-        window.createRoom = createRoom;
 
         function attemptCreatePeer() {
             const code = generateRoomCode();
@@ -571,14 +569,16 @@
                 appendLog(createMessageLog, 'Waiting for opponent to join...', 'info');
             });
 
-            // Handle signaling server disconnection
+            // Handle signaling server disconnection with actual reconnect attempt
             peer.on('disconnected', () => {
                 logPeerEvent('disconnected', 'Lost connection to signaling server');
                 createStatus.innerHTML = `
-                    <span class="text-kinetic-strike">⚠️ Connection to signaling server lost. Attempting to reconnect...</span>
+                    <span class="text-kinetic-strike">⚠️ Reconnecting...</span>
                 `;
                 appendLog(createMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
-                // PeerJS will automatically attempt to reconnect
+                if (peer && !peer.destroyed) {
+                    peer.reconnect();
+                }
             });
 
             peer.on('connection', (conn) => {
@@ -728,11 +728,14 @@
                 });
             });
 
-            // Handle signaling server disconnection
+            // Handle signaling server disconnection with actual reconnect attempt
             peer.on('disconnected', () => {
                 logPeerEvent('disconnected', 'Lost connection to signaling server');
-                joinStatus.innerHTML = '<span class="text-kinetic-strike">⚠️ Signaling server connection lost. Reconnecting...</span>';
+                joinStatus.innerHTML = '<span class="text-kinetic-strike">⚠️ Reconnecting...</span>';
                 appendLog(joinMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
+                if (peer && !peer.destroyed) {
+                    peer.reconnect();
+                }
             });
 
             peer.on('error', (err) => {
@@ -756,7 +759,6 @@
                 }
             });
         }
-        window.joinRoom = joinRoom;
 
         // ===== CONNECTED STATE =====
         function onConnected(conn) {
@@ -778,7 +780,6 @@
             };
             try {
                 conn.send(helloMsg);
-                pingStartTime = Date.now();
                 appendLog(connectedMessageLog, `Sent hello at ${new Date(helloMsg.timestamp).toLocaleTimeString()}`, 'sent');
             } catch (e) {
                 appendLog(connectedMessageLog, `Failed to send hello: ${e.message}`, 'error');
@@ -851,7 +852,6 @@
                 }
             }
         }
-        window.copyCode = copyCode;
 
         function fallbackCopy(event, text) {
             const textarea = document.createElement('textarea');
@@ -883,7 +883,6 @@
             createStatus.innerHTML = '';
             clearLogs();
         }
-        window.cancelCreate = cancelCreate;
 
         function cancelJoin() {
             destroyPeer();
@@ -899,7 +898,6 @@
                 connectionAttemptTimer = null;
             }
         }
-        window.cancelJoin = cancelJoin;
 
         function disconnectAndBack() {
             destroyPeer();
@@ -907,6 +905,14 @@
             clearLogs();
             window.location.href = 'index.html';
         }
+
+        // ===== EXPOSE FUNCTIONS TO GLOBAL SCOPE =====
+        window.showView = showView;
+        window.createRoom = createRoom;
+        window.joinRoom = joinRoom;
+        window.copyCode = copyCode;
+        window.cancelCreate = cancelCreate;
+        window.cancelJoin = cancelJoin;
         window.disconnectAndBack = disconnectAndBack;
 
         // ===== KEYBOARD SHORTCUTS =====
