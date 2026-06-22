@@ -42,6 +42,10 @@ class FightingGame extends Phaser.Scene {
         // DOUBLE JUMP STATE
         this.playerJumpsUsed = 0;
         this.playerDoubleJumpCooldown = 0;
+        
+        // CPU Jump physics
+        this.cpuIsJumping = false;
+        this.cpuYVelocity = 0;
         this.cpuJumpsUsed = 0;
         this.cpuDoubleJumpCooldown = 0;
         
@@ -552,6 +556,28 @@ class FightingGame extends Phaser.Scene {
                 
                 if (this.animations) this.animations.setPlayerAnimation('idle', 100);
                 if (this.playerFloatTween) this.playerFloatTween.resume();
+            }
+        }
+        
+        // CPU jump physics (separate from cpuLaunched, which is the attack-launch system)
+        if (this.cpuIsJumping) {
+            this.cpuYVelocity += GRAVITY * (1/60);
+            this.cpu.y += this.cpuYVelocity * (1/60);
+            
+            if (this.cpu.y >= GROUND_Y) {
+                this.cpu.y = GROUND_Y;
+                this.cpuIsJumping = false;
+                this.cpuYVelocity = 0;
+                
+                if (this.cpuJumpsUsed === 2) {
+                    this.cpuDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                }
+                this.cpuJumpsUsed = 0;
+                
+                if (this.animations) this.animations.setCPUAnimation('idle', 100);
+                if (this.cpuFloatTween) this.cpuFloatTween.resume();
+            } else {
+                if (this.cpuFloatTween) this.cpuFloatTween.pause();
             }
         }
         

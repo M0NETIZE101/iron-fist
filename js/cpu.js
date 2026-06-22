@@ -94,9 +94,30 @@ class CPUAttacks {
         const retreatThreshold = this.cpuSettings.retreatThreshold;
         const isLowHealth = healthPercent < retreatThreshold;
         
+        // ===== CPU VOLUNTARY JUMP DECISION =====
+        // Occasionally jump to reposition or evade, based on personality
+        if (!scene.cpuIsJumping && !scene.cpuLaunched && Math.random() < 0.015) {
+            const personality = this.cpuPersonality;
+            let shouldJump = false;
+            
+            if (personality.movementStyle === 'KITE' && distance < 100) {
+                shouldJump = true; // ASHMIN jumps to escape close range
+            } else if (personality.movementStyle === 'ADAPTIVE' && scene.cpuHealth < 40) {
+                shouldJump = true; // ALPINE/BATMAN jump defensively when low HP
+            }
+            
+            if (shouldJump) {
+                scene.cpuIsJumping = true;
+                scene.cpuYVelocity = JUMP_VELOCITY;
+                scene.cpuJumpsUsed = 1;
+                if (scene.animations) scene.animations.setCPUAnimation('jump_regular', 300);
+                if (scene.cpuFloatTween) scene.cpuFloatTween.pause();
+            }
+        }
+        
         // ===== DOUBLE JUMP DECISION =====
         // If CPU is airborne and double jump is available
-        if (scene.isJumping && scene.cpuJumpsUsed < 2 && scene.cpuDoubleJumpCooldown <= 0) {
+        if (scene.cpuIsJumping && scene.cpuJumpsUsed < 2 && scene.cpuDoubleJumpCooldown <= 0) {
             const personality = this.cpuPersonality;
             const shouldDoubleJump = Math.random() < 0.4; // 40% chance to consider it
             
