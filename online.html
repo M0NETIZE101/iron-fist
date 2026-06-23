@@ -1,532 +1,1154 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html class="dark" lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>CHIYA GANG WARRIORS - ONLINE BATTLE</title>
-    
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,100..900;1,100..900&family=Geist:wght@100..900&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" />
-    
-    <!-- Load shared fighter data and config -->
-    <script src="js/fighters.js"></script>
-    <script src="js/config.js"></script>
-    
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: #0a0a0a;
-            color: #e5e2e1;
-            font-family: 'Geist', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
+<title>CHIYA GANG WARRIORS | ONLINE BATTLE</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="js/fighters.js"></script>
+<script src="js/config.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Anybody:ital,wght@0,400;0,800;0,900;1,800;1,900&amp;family=Geist:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#353534",
+                        "outline": "#af8786",
+                        "surface": "#131313",
+                        "on-surface": "#e5e2e1",
+                        "on-background": "#e5e2e1",
+                        "on-primary": "#680012",
+                        "inverse-on-surface": "#313030",
+                        "primary-fixed": "#ffdad8",
+                        "on-surface-variant": "#e9bcba",
+                        "on-secondary-fixed-variant": "#544600",
+                        "tertiary-fixed": "#7df4ff",
+                        "on-secondary-fixed": "#221b00",
+                        "error-container": "#93000a",
+                        "tertiary": "#00dbe9",
+                        "surface-variant": "#353534",
+                        "on-tertiary-container": "#002f33",
+                        "secondary": "#fff9ef",
+                        "on-primary-container": "#5b000f",
+                        "on-error": "#690005",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-container": "#201f1f",
+                        "surface-bright": "#393939",
+                        "secondary-fixed-dim": "#e9c400",
+                        "inverse-primary": "#bf002a",
+                        "outline-variant": "#5f3e3e",
+                        "tertiary-container": "#00a0aa",
+                        "on-primary-fixed-variant": "#92001e",
+                        "on-error-container": "#ffdad6",
+                        "inverse-surface": "#e5e2e1",
+                        "error": "#ffb4ab",
+                        "on-tertiary-fixed-variant": "#004f54",
+                        "on-secondary-container": "#725f00",
+                        "background": "#131313",
+                        "secondary-fixed": "#ffe16d",
+                        "secondary-container": "#ffdb3c",
+                        "on-tertiary": "#00363a",
+                        "on-primary-fixed": "#410008",
+                        "surface-container-low": "#1c1b1b",
+                        "on-secondary": "#3a3000",
+                        "surface-tint": "#ffb3b2",
+                        "surface-dim": "#131313",
+                        "surface-container-high": "#2a2a2a",
+                        "tertiary-fixed-dim": "#00dbe9",
+                        "on-tertiary-fixed": "#002022",
+                        "primary-container": "#ff525c",
+                        "primary": "#ffb3b2",
+                        "primary-fixed-dim": "#ffb3b2",
+                        "kinetic-strike": "#ff003c"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "64px",
+                        "unit": "4px",
+                        "stack-md": "16px",
+                        "stack-lg": "32px",
+                        "stack-sm": "8px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["JetBrains Mono"],
+                        "display-xl": ["Anybody"],
+                        "headline-lg": ["Anybody"],
+                        "display-lg": ["Anybody"],
+                        "label-bold": ["JetBrains Mono"],
+                        "body-md": ["Geist"],
+                        "headline-lg-mobile": ["Anybody"],
+                        "body-lg": ["Geist"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "display-xl": ["84px", {"lineHeight": "80px", "letterSpacing": "-0.04em", "fontWeight": "900"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "800"}],
+                        "display-lg": ["64px", {"lineHeight": "64px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                        "label-bold": ["14px", {"lineHeight": "20px", "letterSpacing": "0.1em", "fontWeight": "700"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "800"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}]
+                    }
+                },
+            },
         }
-        
+    </script>
+<style>
         .crt-overlay {
             position: fixed;
-            inset: 0;
-            background: linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.15) 50%),
-                        linear-gradient(90deg, rgba(255,0,0,0.03), rgba(0,255,0,0.01), rgba(0,0,255,0.03));
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
             background-size: 100% 4px, 3px 100%;
             pointer-events: none;
             z-index: 100;
         }
-        
-        .container {
-            position: relative;
-            z-index: 10;
-            width: 100%;
-            max-width: 900px;
-            padding: 20px;
-            margin: 0 auto;
+
+        .skew-button {
+            clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
         }
-        
+
+        .skew-button:hover:not(:disabled) {
+            transform: skewX(-5deg) scale(1.05);
+            box-shadow: 0 0 20px var(--tw-shadow-color);
+        }
+        .skew-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .glass-panel {
-            background: rgba(28, 27, 27, 0.65);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 179, 178, 0.15);
-            border-radius: 16px;
-            padding: 32px;
+            background: rgba(20, 20, 20, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 82, 92, 0.2);
+            position: relative;
+            overflow: hidden;
         }
-        
-        .skew-btn {
-            clip-path: polygon(8% 0%, 100% 0%, 92% 100%, 0% 100%);
-            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ff003c, transparent);
+            animation: scan-line 4s linear infinite;
+        }
+
+        @keyframes scan-line {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .flicker {
+            animation: flicker-anim 0.15s infinite alternate;
+        }
+
+        @keyframes flicker-anim {
+            0% { opacity: 0.9; }
+            100% { opacity: 1; }
+        }
+
+        .radial-glow {
+            background: radial-gradient(circle at 50% 50%, rgba(255, 0, 60, 0.15) 0%, transparent 70%);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .animate-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .pulse-dot {
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        .message-log {
+            max-height: 80px;
+            overflow-y: auto;
+            font-size: 11px;
+            line-height: 1.6;
+            text-align: left;
+            scrollbar-width: thin;
+        }
+        .message-log::-webkit-scrollbar {
+            width: 4px;
+        }
+        .message-log::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+        }
+        .message-log::-webkit-scrollbar-thumb {
+            background: #ffb3b2;
+            border-radius: 2px;
+        }
+
+        .message-log .received { color: #4ade80; }
+        .message-log .sent { color: #ffb3b2; }
+        .message-log .info { color: #00dbe9; }
+        .message-log .error { color: #ff003c; }
+
+        .input-code {
+            background: rgba(0,0,0,0.3);
+            border: 2px solid rgba(255, 179, 178, 0.2);
+            transition: border-color 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .input-code:focus {
+            border-color: #ffb3b2;
+            outline: none;
+        }
+        .input-code::placeholder {
+            color: rgba(233, 188, 186, 0.2);
+            font-size: 14px;
+        }
+
+        /* Fighter Select Card Styles */
+        .fighter-card-select {
+            transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
             cursor: pointer;
+            border: 2px solid rgba(255, 179, 178, 0.15);
+            background: rgba(20, 20, 20, 0.5);
         }
-        .skew-btn:active { transform: scale(0.96); }
-        .skew-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        
-        .fighter-card {
-            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            cursor: pointer;
-            border: 2px solid rgba(175, 135, 134, 0.2);
-            background: rgba(20, 20, 30, 0.5);
-            border-radius: 12px;
-            padding: 16px;
-            text-align: center;
-            backdrop-filter: blur(4px);
-            min-height: 140px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+        .fighter-card-select:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 179, 178, 0.4);
         }
-        .fighter-card:hover { border-color: rgba(255, 179, 178, 0.5); transform: translateY(-4px); }
-        .fighter-card.selected { border-color: #ffb3b2; background: rgba(255, 179, 178, 0.1); box-shadow: 0 0 30px rgba(255, 179, 178, 0.2); }
-        .fighter-card .name { font-family: 'Anybody', sans-serif; font-size: 20px; font-weight: 800; color: #ffb3b2; }
-        .fighter-card .archetype { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: #af8786; margin-top: 4px; }
-        .fighter-card .border-color { width: 40px; height: 3px; margin: 8px auto 0; border-radius: 2px; }
-        
-        .status-text { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #af8786; }
-        .status-text .highlight { color: #00dbe9; }
-        
-        .hidden-panel { display: none; }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .glass-panel { padding: 16px; }
-            .fighter-card { padding: 12px; min-height: 100px; }
-            .fighter-card .name { font-size: 16px; }
+        .fighter-card-select.selected {
+            border-color: #ffb3b2;
+            background: rgba(255, 179, 178, 0.1);
+            box-shadow: 0 0 30px rgba(255, 179, 178, 0.15);
+            transform: translateY(-4px);
         }
-        @media (max-width: 480px) {
-            .grid-cols-3 { grid-template-columns: repeat(2, 1fr); }
+        .fighter-card-select .accent-bar {
+            height: 3px;
+            width: 100%;
+            border-radius: 2px;
         }
-        
-        /* Flicker animation for status */
-        @keyframes flicker {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-        .flicker { animation: flicker 1.5s infinite; }
     </style>
 </head>
-<body>
-    <div class="crt-overlay"></div>
-    
-    <div class="container">
-        <!-- Main Panel -->
-        <div class="glass-panel">
-            <!-- Header -->
-            <div class="flex items-center gap-3 mb-6">
-                <span class="material-symbols-outlined text-primary text-3xl">swords</span>
-                <h1 class="font-display-lg text-display-lg text-primary italic tracking-tighter">ONLINE BATTLE</h1>
+<body class="bg-surface text-on-surface font-body-md overflow-hidden selection:bg-kinetic-strike selection:text-white">
+<div class="crt-overlay"></div>
+<div class="fixed inset-0 radial-glow pointer-events-none"></div>
+
+<!-- TopNavBar -->
+<nav class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
+<div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic flicker cursor-pointer" onclick="window.location.href='index.html'">
+            CHIYA GANG
+        </div>
+<div class="hidden md:flex gap-stack-lg items-center font-label-bold text-label-bold">
+<a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="characterselect.html">ROSTER</a>
+<a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="arena.html">ARENAS</a>
+<a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="#">MECHANICS</a>
+<a class="text-primary border-b-4 border-primary pb-1 hover:skew-x-[-12deg] transition-all" href="#">MULTIPLAYER</a>
+</div>
+<div class="flex items-center gap-stack-md">
+<button class="material-symbols-outlined text-primary hover:scale-110 transition-transform">settings</button>
+<button class="material-symbols-outlined text-primary hover:scale-110 transition-transform">gamepad</button>
+<button class="bg-primary text-on-primary px-stack-lg py-2 skew-button font-label-bold uppercase" onclick="window.location.href='index.html'">EXIT</button>
+</div>
+</nav>
+
+<div class="flex min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 h-screen w-64 bg-surface-container-highest/60 backdrop-blur-2xl border-r border-outline-variant shadow-2xl transition-transform duration-200 ease-in-out hidden lg:flex">
+<div class="px-6 mb-8">
+<h3 class="font-label-sm text-label-sm uppercase text-tertiary mb-1">PLAYER STATUS</h3>
+<p class="text-[10px] text-tertiary/60 tracking-widest uppercase">ONLINE - 14.2ms</p>
+</div>
+<nav class="flex-1 flex flex-col font-label-sm text-label-sm uppercase">
+<a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">dns</span> SERVERS
+                </a>
+<a class="bg-tertiary/20 text-tertiary border-l-4 border-tertiary px-4 py-3 flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">language</span> GLOBAL
+                </a>
+<a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">lan</span> LOCAL
+                </a>
+<a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface flex items-center gap-3" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">groups</span> FRIENDS
+                </a>
+</nav>
+<div class="p-4 border-t border-outline-variant/30">
+<button class="w-full bg-kinetic-strike text-white py-4 skew-button font-label-bold uppercase shadow-[0_0_20px_rgba(255,0,60,0.4)]" onclick="window.location.reload()">
+                    FIND MATCH
+                </button>
+</div>
+<div class="p-4 mb-4 font-label-sm text-label-sm uppercase">
+<a class="text-on-surface-variant px-4 py-3 hover:bg-surface-variant hover:text-on-surface flex items-center gap-3" href="#">
+<span class="material-symbols-outlined">tune</span> SETTINGS
+                </a>
+</div>
+</aside>
+
+<!-- Main Content Area -->
+<main class="flex-1 lg:ml-64 p-margin-mobile md:p-margin-desktop relative min-h-screen">
+<div class="absolute inset-0 z-0 opacity-20 pointer-events-none grayscale">
+<div class="w-full h-full" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWH9tPKzXX8kuwZmtn3OZrslN1p3j_-6E6Rl5deoN5_QPGsYR3URbpSpJLdoGQyDMDrfJJ0iXCaY2ikHg4M5MB9LvYa82cg-ttGccQJfZVOentzvI_45aBoF0aOrYE4H4Rdh4ut1yYjMRFYt6bkacYk71TXMwJJ7xCCf3vjk2-fA5rd8YXPWWfsa_iRy8jBOGooi6omziQppg6d6BKLzM5-59Mb8yx-4sYkUOb2252-k1IdGFdNb31b0VfcbODLx3M_I5OpmFktc4')"></div>
+</div>
+
+<div class="relative z-10 max-w-4xl mx-auto mt-8 lg:mt-12">
+<header class="mb-8 lg:mb-12">
+<h1 class="font-display-xl text-display-xl italic uppercase text-kinetic-strike flex items-center gap-4">
+                        ONLINE BATTLE <span class="block h-1 w-24 bg-kinetic-strike"></span>
+</h1>
+<p class="font-label-bold text-label-bold text-on-surface-variant/70 tracking-[0.2em] mt-2">ESTABLISH DOMINANCE IN THE DIGITAL ARENA</p>
+</header>
+
+<!-- P2P Battle Interface -->
+<div class="glass-panel p-6 md:p-12 shadow-2xl">
+    <!-- View: Choose Mode -->
+    <div id="view-choose" class="flex flex-col md:flex-row gap-gutter">
+        <button class="flex-1 group relative" onclick="window.createRoom()">
+            <div class="absolute inset-0 bg-primary/10 group-hover:bg-primary/20 transition-colors skew-x-[-4deg]"></div>
+            <div class="relative p-6 md:p-10 border border-primary/40 text-center skew-x-[-4deg]">
+                <span class="material-symbols-outlined text-[48px] md:text-[64px] text-primary mb-4 block" style="font-variation-settings: 'FILL' 1;">add_circle</span>
+                <h2 class="font-headline-lg text-headline-lg mb-2">CREATE ROOM</h2>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Host a server and invite your rival.</p>
             </div>
-            
-            <!-- ===== CONNECTION PANEL ===== -->
-            <div id="connection-panel">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- HOST SIDE -->
-                    <div class="bg-surface-container-low/40 p-5 rounded-xl border border-outline-variant/30">
-                        <h2 class="font-label-bold text-label-bold text-tertiary uppercase tracking-widest mb-3">HOST GAME</h2>
-                        <p class="text-body-md text-on-surface-variant text-sm mb-4">Create a room and wait for a challenger.</p>
-                        <button id="hostBtn" class="w-full skew-btn bg-tertiary text-on-tertiary py-3 font-label-bold text-label-bold hover:brightness-110 transition-all">
-                            CREATE ROOM
-                        </button>
-                        <div id="host-status" class="text-label-sm text-on-surface-variant mt-3 text-center"></div>
-                    </div>
-                    
-                    <!-- JOIN SIDE -->
-                    <div class="bg-surface-container-low/40 p-5 rounded-xl border border-outline-variant/30">
-                        <h2 class="font-label-bold text-label-bold text-tertiary uppercase tracking-widest mb-3">JOIN GAME</h2>
-                        <p class="text-body-md text-on-surface-variant text-sm mb-4">Enter the room ID to join.</p>
-                        <div class="flex gap-3">
-                            <input id="roomIdInput" type="text" placeholder="Room ID" class="flex-1 bg-surface-container px-4 py-3 rounded-lg border border-outline-variant text-on-surface font-label-bold text-label-bold uppercase tracking-widest focus:border-tertiary focus:outline-none">
-                            <button id="joinBtn" class="skew-btn bg-primary text-on-primary px-6 py-3 font-label-bold text-label-bold hover:brightness-110 transition-all">
-                                JOIN
-                            </button>
-                        </div>
-                        <div id="join-status" class="text-label-sm text-on-surface-variant mt-3 text-center"></div>
-                    </div>
-                </div>
+        </button>
+        <button class="flex-1 group relative" onclick="window.showView('join')">
+            <div class="absolute inset-0 bg-tertiary/10 group-hover:bg-tertiary/20 transition-colors skew-x-[4deg]"></div>
+            <div class="relative p-6 md:p-10 border border-tertiary/40 text-center skew-x-[4deg]">
+                <span class="material-symbols-outlined text-[48px] md:text-[64px] text-tertiary mb-4 block" style="font-variation-settings: 'FILL' 1;">bolt</span>
+                <h2 class="font-headline-lg text-headline-lg mb-2">JOIN ROOM</h2>
+                <p class="font-label-sm text-label-sm text-on-surface-variant">Enter code to enter the combat zone.</p>
             </div>
-            
-            <!-- ===== CONNECTED STATUS ===== -->
-            <div id="connected-panel" class="hidden-panel mt-4 p-4 bg-tertiary/10 border border-tertiary/30 rounded-xl text-center">
-                <p class="font-label-bold text-label-bold text-tertiary">✅ CONNECTED!</p>
-                <p id="connected-status" class="text-body-md text-on-surface-variant mt-2">Waiting for opponent...</p>
-            </div>
-            
-            <!-- ===== CHARACTER SELECT PANEL ===== -->
-            <div id="character-select-panel" class="hidden-panel mt-4">
-                <div class="text-center mb-6">
-                    <h2 class="font-display-lg text-display-lg text-primary italic">SELECT YOUR FIGHTER</h2>
-                    <p id="opponent-status" class="text-label-sm text-on-surface-variant mt-2 flicker">Waiting for opponent to choose...</p>
-                </div>
-                
-                <!-- Fighter Grid -->
-                <div id="fighter-grid" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-3 gap-4 mb-6"></div>
-                
-                <!-- Confirm Button -->
-                <div class="flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div id="selection-status" class="text-label-sm text-on-surface-variant">
-                        <span id="my-selection-text">No fighter selected</span>
-                    </div>
-                    <button id="confirmFighterBtn" class="skew-btn bg-primary text-on-primary px-8 py-3 font-label-bold text-label-bold hover:brightness-110 transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
-                        CONFIRM FIGHTER
-                    </button>
-                </div>
-                
-                <!-- Error message -->
-                <div id="selection-error" class="text-label-sm text-[#ff003c] mt-3 text-center hidden"></div>
+        </button>
+    </div>
+
+    <!-- View: Create Room -->
+    <div id="view-create" class="hidden text-center animate-in">
+        <h3 class="font-label-bold text-label-bold text-primary mb-8 tracking-widest uppercase">SERVER INITIALIZED</h3>
+        <div class="mb-8">
+            <span class="block text-xs text-on-surface-variant/50 mb-2 font-label-sm uppercase">ROOM ACCESS CODE</span>
+            <div class="font-label-bold text-[48px] md:text-[84px] text-on-surface bg-surface-container-high/50 p-4 md:p-6 inline-block border-2 border-dashed border-primary/40 tracking-[0.2em] mb-4" id="room-code-display">------</div>
+            <div class="flex justify-center gap-4">
+                <button class="flex items-center gap-2 bg-surface-variant px-6 py-2 skew-button font-label-bold hover:bg-primary hover:text-on-primary transition-all" onclick="window.copyCode(event)">
+                    <span class="material-symbols-outlined">content_copy</span> COPY CODE
+                </button>
             </div>
         </div>
-        
-        <!-- Footer -->
-        <div class="text-center mt-4">
-            <p class="text-label-sm text-on-surface-variant opacity-60">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED.</p>
+        <div id="create-status" class="flex items-center justify-center gap-4 text-on-surface-variant">
+            <div class="w-3 h-3 bg-primary rounded-full pulse-dot shadow-[0_0_8px_#ffb3b2]"></div>
+            <span class="font-label-sm text-label-sm italic">WAITING FOR OPPONENT...</span>
+        </div>
+        <div id="create-message-log" class="message-log mt-4 hidden text-left w-full bg-black/30 rounded p-3"></div>
+        <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm" onclick="window.cancelCreate()">CANCEL REQUEST</button>
+    </div>
+
+    <!-- View: Join Room -->
+    <div id="view-join" class="hidden animate-in">
+        <div class="max-w-md mx-auto text-center">
+            <h3 class="font-label-bold text-label-bold text-tertiary mb-8 tracking-widest uppercase">CONNECTION PROTOCOL</h3>
+            <div class="relative mb-8">
+                <input id="room-code-input" class="input-code w-full bg-surface-container-high border-2 border-outline-variant text-center font-label-bold text-2xl md:text-4xl py-4 md:py-6 focus:ring-0 focus:border-tertiary transition-colors placeholder:text-on-surface-variant/20 tracking-widest uppercase" placeholder="ENTER CODE" type="text" maxlength="5" autocomplete="off" autocorrect="off" spellcheck="false">
+                <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-tertiary"></div>
+                <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-tertiary"></div>
+            </div>
+            <div id="join-status" class="font-label-sm text-label-sm min-h-[24px] mb-4"></div>
+            <div id="join-message-log" class="message-log hidden mt-4 text-left w-full bg-black/30 rounded p-3"></div>
+            <button id="btn-connect" class="w-full bg-tertiary text-on-tertiary py-5 skew-button font-headline-lg shadow-[0_0_30px_rgba(0,219,233,0.3)] hover:shadow-[0_0_50px_rgba(0,219,233,0.5)] transition-all" onclick="window.joinRoom()">
+                CONNECT TO HOST
+            </button>
+            <button class="mt-8 text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm uppercase" onclick="window.cancelJoin()">BACK TO MENU</button>
         </div>
     </div>
 
-    <script>
-        // ========== LOGGING ==========
-        function logPeerEvent(message, type = 'info') {
-            const colors = {
-                info: '#00dbe9',
-                success: '#4ade80',
-                error: '#ff003c',
-                warning: '#ffd700'
-            };
-            console.log(`%c[PeerJS] ${message}`, `color: ${colors[type] || '#ffffff'}`);
-        }
-        
-        // ========== PEERJS SETUP ==========
+    <!-- View: Connected (Transitional) -->
+    <div id="view-connected" class="hidden text-center animate-in">
+        <div class="inline-block p-8 md:p-12 border-4 border-kinetic-strike bg-kinetic-strike/5 skew-x-[-6deg]">
+            <span class="material-symbols-outlined text-[64px] md:text-[100px] text-kinetic-strike mb-6 flicker block" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+            <h2 class="font-display-lg text-display-lg italic text-on-surface mb-2">CONNECTION ESTABLISHED</h2>
+            <p class="font-label-bold text-label-bold text-kinetic-strike tracking-[0.4em] mb-8 md:mb-12">PLAYER 2 HAS ENTERED THE LOBBY</p>
+            <div id="connected-message-log" class="message-log max-h-[120px] mb-8 text-left w-full bg-black/30 rounded p-3"></div>
+            <div class="flex justify-center gap-8 md:gap-12 mb-8">
+                <div class="text-right">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block uppercase">YOU</span>
+                    <span class="font-headline-lg text-headline-lg text-primary" id="player-id-display">PLAYER_1</span>
+                </div>
+                <div class="h-12 w-px bg-outline-variant"></div>
+                <div class="text-left">
+                    <span class="font-label-sm text-label-sm text-on-surface-variant block uppercase">OPPONENT</span>
+                    <span class="font-headline-lg text-headline-lg text-tertiary" id="opponent-id-display">OPPONENT</span>
+                </div>
+            </div>
+            <div id="connected-status" class="font-label-sm text-label-sm text-tertiary mb-6">✅ Data channel open. Ready for battle!</div>
+            <div id="connected-loading" class="font-label-sm text-label-sm text-on-surface-variant/50 mb-6">Loading character selection...</div>
+        </div>
+    </div>
+
+    <!-- View: Character Select -->
+    <div id="character-select-panel" class="hidden flex flex-col gap-6 animate-in">
+        <h2 class="font-headline-lg text-headline-lg text-primary uppercase text-center">SELECT YOUR FIGHTER</h2>
+        <div id="fighter-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <!-- Fighter cards will be rendered by JavaScript -->
+        </div>
+        <div class="flex flex-col items-center gap-4">
+            <div id="opponent-status" class="font-label-sm text-label-sm text-on-surface-variant/70">Waiting for opponent to choose...</div>
+            <div class="flex gap-4">
+                <button id="confirm-fighter-btn" class="bg-primary text-on-primary px-8 py-3 skew-button font-label-bold text-label-bold uppercase hover:shadow-[0_0_30px_rgba(255,179,178,0.4)] transition-all disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+                    CONFIRM FIGHTER
+                </button>
+                <button class="text-on-surface-variant/50 hover:text-on-surface transition-colors font-label-sm uppercase" onclick="window.disconnectAndBack()">DISCONNECT</button>
+            </div>
+            <div id="selection-status" class="font-label-sm text-label-sm text-tertiary min-h-[24px]"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Status Footer -->
+<div class="mt-8 flex flex-wrap items-center justify-between gap-4 opacity-50 font-label-sm text-label-sm uppercase">
+<div class="flex flex-wrap gap-4">
+<span>P2P ENCRYPTION: ACTIVE</span>
+<span class="text-primary">NAT TYPE: OPEN</span>
+</div>
+<div class="flex flex-wrap gap-4">
+<span class="material-symbols-outlined text-sm">wifi</span>
+<span>SERVER: ASIA-SOUTH-1</span>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- Global Footer -->
+<footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
+<div class="font-headline-lg text-headline-lg text-primary tracking-tighter italic">CHIYA GANG WARRIORS</div>
+<div class="flex gap-8 font-label-sm text-label-sm tracking-widest text-on-surface-variant">
+<a class="hover:text-tertiary transition-colors" href="#">LEGAL</a>
+<a class="hover:text-tertiary transition-colors" href="#">PRIVACY</a>
+<a class="hover:text-tertiary transition-colors" href="#">SUPPORT</a>
+<a class="hover:text-tertiary transition-colors" href="#">API</a>
+</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/40">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED. HIGH SCORE: 999,999</div>
+</footer>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ===== DOM REFS =====
+        const viewChoose = document.getElementById('view-choose');
+        const viewCreate = document.getElementById('view-create');
+        const viewJoin = document.getElementById('view-join');
+        const viewConnected = document.getElementById('view-connected');
+        const viewCharacterSelect = document.getElementById('character-select-panel');
+        const roomCodeDisplay = document.getElementById('room-code-display');
+        const roomCodeInput = document.getElementById('room-code-input');
+        const createStatus = document.getElementById('create-status');
+        const joinStatus = document.getElementById('join-status');
+        const connectedStatus = document.getElementById('connected-status');
+        const connectedLoading = document.getElementById('connected-loading');
+        const createMessageLog = document.getElementById('create-message-log');
+        const joinMessageLog = document.getElementById('join-message-log');
+        const connectedMessageLog = document.getElementById('connected-message-log');
+        const playerIdDisplay = document.getElementById('player-id-display');
+        const opponentIdDisplay = document.getElementById('opponent-id-display');
+        const btnConnect = document.getElementById('btn-connect');
+        const fighterGrid = document.getElementById('fighter-grid');
+        const confirmFighterBtn = document.getElementById('confirm-fighter-btn');
+        const opponentStatus = document.getElementById('opponent-status');
+        const selectionStatus = document.getElementById('selection-status');
+
+        // ===== STATE =====
         let peer = null;
-        let conn = null;
+        let connection = null;
+        let currentView = 'choose';
         let isHost = false;
-        let roomId = '';
+        let roomCode = '';
+        let connectionAttemptTimer = null;
+        let isConnecting = false;
+        let retryCount = 0;
+        const MAX_RETRIES = 3;
+
+        // Character selection state
         let myFighter = null;
         let opponentFighter = null;
-        let myChoiceConfirmed = false;
-        let opponentChoiceConfirmed = false;
-        let selectedFighterCard = null;
-        
-        const fighters = Object.values(FIGHTERS);
-        
-        // ========== DOM REFS ==========
-        const hostBtn = document.getElementById('hostBtn');
-        const joinBtn = document.getElementById('joinBtn');
-        const roomIdInput = document.getElementById('roomIdInput');
-        const hostStatus = document.getElementById('host-status');
-        const joinStatus = document.getElementById('join-status');
-        const connectedPanel = document.getElementById('connected-panel');
-        const connectedStatus = document.getElementById('connected-status');
-        const charSelectPanel = document.getElementById('character-select-panel');
-        const fighterGrid = document.getElementById('fighter-grid');
-        const confirmFighterBtn = document.getElementById('confirmFighterBtn');
-        const mySelectionText = document.getElementById('my-selection-text');
-        const opponentStatus = document.getElementById('opponent-status');
-        const selectionError = document.getElementById('selection-error');
-        
-        // ========== HELPERS ==========
+        let myFighterConfirmed = false;
+        let opponentFighterConfirmed = false;
+
+        // ===== HELPERS =====
+        function generateRoomCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let result = '';
+            for (let i = 0; i < 5; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
+        }
+
         function getRandomArena() {
             const arenas = Object.keys(arenaBackgrounds);
             return arenas[Math.floor(Math.random() * arenas.length)];
         }
-        
-        function showError(message) {
-            selectionError.textContent = message;
-            selectionError.classList.remove('hidden');
-            setTimeout(() => selectionError.classList.add('hidden'), 3000);
+
+        function showView(viewName) {
+            viewChoose.classList.add('hidden');
+            viewCreate.classList.add('hidden');
+            viewJoin.classList.add('hidden');
+            viewConnected.classList.add('hidden');
+            viewCharacterSelect.classList.add('hidden');
+
+            if (viewName === 'choose') viewChoose.classList.remove('hidden');
+            else if (viewName === 'create') viewCreate.classList.remove('hidden');
+            else if (viewName === 'join') viewJoin.classList.remove('hidden');
+            else if (viewName === 'connected') viewConnected.classList.remove('hidden');
+            else if (viewName === 'characterselect') viewCharacterSelect.classList.remove('hidden');
+
+            currentView = viewName;
         }
-        
-        function updateConfirmButton() {
-            if (myFighter && !myChoiceConfirmed) {
-                confirmFighterBtn.disabled = false;
-            } else {
-                confirmFighterBtn.disabled = true;
+
+        function appendLog(element, message, type = 'info') {
+            element.classList.remove('hidden');
+            const entry = document.createElement('div');
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            entry.className = type;
+            element.appendChild(entry);
+            element.scrollTop = element.scrollHeight;
+        }
+
+        function clearLogs() {
+            createMessageLog.innerHTML = '';
+            createMessageLog.classList.add('hidden');
+            joinMessageLog.innerHTML = '';
+            joinMessageLog.classList.add('hidden');
+            connectedMessageLog.innerHTML = '';
+            connectedMessageLog.classList.remove('hidden');
+        }
+
+        function destroyPeer() {
+            if (connection) {
+                try {
+                    connection.close();
+                } catch (e) {
+                    console.warn('Error closing connection:', e);
+                }
+                connection = null;
+            }
+            if (peer) {
+                try {
+                    peer.destroy();
+                } catch (e) {
+                    console.warn('Error destroying peer:', e);
+                }
+                peer = null;
+            }
+            if (connectionAttemptTimer) {
+                clearTimeout(connectionAttemptTimer);
+                connectionAttemptTimer = null;
+            }
+            isConnecting = false;
+            isHost = false;
+            roomCode = '';
+            retryCount = 0;
+            myFighter = null;
+            opponentFighter = null;
+            myFighterConfirmed = false;
+            opponentFighterConfirmed = false;
+            if (btnConnect) {
+                btnConnect.disabled = false;
+                btnConnect.textContent = 'CONNECT TO HOST';
             }
         }
-        
-        function checkBothReady() {
-            if (myChoiceConfirmed && opponentChoiceConfirmed) {
-                logPeerEvent('Both players ready! Starting game...', 'success');
-                startGame();
-            }
+
+        function logPeerEvent(event, data) {
+            console.log(`[PeerJS] ${event}`, data || '');
         }
-        
-        function startGame() {
-            if (!isHost) return; // Only host initiates the start
-            
-            const arena = getRandomArena();
-            const difficulty = 'medium';
-            const controls = 'pc';
-            
-            // Send start message to joiner
-            conn.send({
-                type: 'start_game',
-                hostFighter: myFighter,
-                clientFighter: opponentFighter,
-                arena: arena,
-                difficulty: difficulty,
-                controls: controls
-            });
-            
-            // Host navigates itself
-            const url = `game.html?fighter=${encodeURIComponent(myFighter)}&arena=${encodeURIComponent(arena)}&difficulty=${difficulty}&controls=${controls}&mode=online&role=host&opponent=${encodeURIComponent(opponentFighter)}`;
-            logPeerEvent(`Host navigating to: ${url}`, 'info');
-            window.location.href = url;
+
+        function logConnectionEvent(event, data) {
+            console.log(`[Connection] ${event}`, data || '');
         }
-        
-        // ========== BUILD FIGHTER GRID ==========
-        function buildFighterGrid() {
+
+        // ===== CHARACTER SELECT =====
+        function renderFighterGrid() {
+            const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN'];
             fighterGrid.innerHTML = '';
             
-            // Use first 6 fighters or all if less
-            const displayFighters = fighters.slice(0, 6);
-            
-            displayFighters.forEach(fighter => {
-                const card = document.createElement('div');
-                card.className = 'fighter-card';
-                card.dataset.fighter = fighter.name;
-                card.style.borderColor = 'rgba(175, 135, 134, 0.2)';
+            fighterNames.forEach(name => {
+                const fighter = FIGHTERS[name];
+                if (!fighter) return;
                 
-                // Color accent
-                const colorHex = '#' + (fighter.color || 0xffb3b2).toString(16).padStart(6, '0');
+                const card = document.createElement('div');
+                card.className = 'fighter-card-select p-4 rounded-lg text-center';
+                card.dataset.fighter = name;
+                card.style.borderColor = `rgba(${parseInt(fighter.color >> 16 & 255)}, ${parseInt(fighter.color >> 8 & 255)}, ${parseInt(fighter.color & 255)}, 0.3)`;
                 
                 card.innerHTML = `
-                    <div class="name">${fighter.name}</div>
-                    <div class="archetype">${fighter.archetype || 'FIGHTER'}</div>
-                    <div class="border-color" style="background: ${colorHex};"></div>
+                    <div class="accent-bar" style="background: #${fighter.color.toString(16).padStart(6, '0')}"></div>
+                    <div class="font-label-bold text-label-bold text-primary mt-2">${fighter.name}</div>
+                    <div class="font-label-sm text-label-sm text-on-surface-variant/60">${fighter.archetype}</div>
                 `;
                 
                 card.addEventListener('click', () => {
-                    if (myChoiceConfirmed) {
-                        showError('You already confirmed your fighter!');
-                        return;
-                    }
-                    
-                    // Deselect all
-                    document.querySelectorAll('.fighter-card').forEach(c => c.classList.remove('selected'));
+                    if (myFighterConfirmed) return;
+                    document.querySelectorAll('.fighter-card-select').forEach(c => c.classList.remove('selected'));
                     card.classList.add('selected');
-                    selectedFighterCard = card;
-                    myFighter = fighter.name;
-                    mySelectionText.textContent = `Selected: ${myFighter}`;
-                    updateConfirmButton();
+                    myFighter = name;
+                    confirmFighterBtn.disabled = false;
                 });
                 
                 fighterGrid.appendChild(card);
             });
         }
-        
-        // ========== CONFIRM FIGHTER ==========
-        confirmFighterBtn.addEventListener('click', () => {
-            if (!myFighter) {
-                showError('Please select a fighter first!');
+
+        function checkBothReady() {
+            if (myFighter && opponentFighter && myFighterConfirmed && opponentFighterConfirmed) {
+                selectionStatus.textContent = '✅ Both players ready! Starting game...';
+                
+                if (isHost) {
+                    // Host: send start_game message to client
+                    const arena = getRandomArena();
+                    const controls = window.CONTROL_MODE || 'pc';
+                    const difficulty = 'medium';
+                    
+                    try {
+                        connection.send({
+                            type: 'start_game',
+                            hostFighter: myFighter,
+                            clientFighter: opponentFighter,
+                            arena: arena,
+                            difficulty: difficulty,
+                            controls: controls
+                        });
+                        logConnectionEvent('sent', `start_game: ${arena}`);
+                    } catch (e) {
+                        console.error('Failed to send start_game:', e);
+                        selectionStatus.textContent = '❌ Failed to start game. Please try again.';
+                        return;
+                    }
+                    
+                    // Host navigates itself
+                    const url = `game.html?fighter=${myFighter}&arena=${arena}&difficulty=${difficulty}&controls=${controls}&mode=online&role=host&opponent=${opponentFighter}`;
+                    logConnectionEvent('navigate', url);
+                    window.location.href = url;
+                }
+            }
+        }
+
+        // ===== CREATE ROOM =====
+        function createRoom() {
+            destroyPeer();
+            retryCount = 0;
+            attemptCreatePeer();
+        }
+
+        function attemptCreatePeer() {
+            const code = generateRoomCode();
+            roomCode = code;
+            roomCodeDisplay.textContent = code;
+            createStatus.innerHTML = `
+                <div class="w-3 h-3 bg-primary rounded-full pulse-dot shadow-[0_0_8px_#ffb3b2]"></div>
+                <span class="font-label-sm text-label-sm italic">WAITING FOR OPPONENT...</span>
+            `;
+            clearLogs();
+            showView('create');
+
+            logPeerEvent('Creating peer with ID:', code);
+
+            peer = new Peer(code, {
+                debug: 2,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+
+            peer.on('open', (id) => {
+                logPeerEvent('open', `Peer ID: ${id}`);
+                createStatus.innerHTML = `
+                    <div class="w-3 h-3 bg-primary rounded-full pulse-dot shadow-[0_0_8px_#ffb3b2]"></div>
+                    <span class="font-label-sm text-label-sm italic">WAITING FOR OPPONENT...</span>
+                `;
+                appendLog(createMessageLog, `Room created: ${id}`, 'info');
+                appendLog(createMessageLog, 'Waiting for opponent to join...', 'info');
+            });
+
+            peer.on('disconnected', () => {
+                logPeerEvent('disconnected', 'Lost connection to signaling server');
+                createStatus.innerHTML = `
+                    <span class="text-kinetic-strike">⚠️ Reconnecting...</span>
+                `;
+                appendLog(createMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
+                if (peer && !peer.destroyed) {
+                    peer.reconnect();
+                }
+            });
+
+            peer.on('connection', (conn) => {
+                logConnectionEvent('incoming', `From: ${conn.peer}`);
+                connection = conn;
+                isHost = true;
+                
+                // Reset selection state
+                myFighter = null;
+                opponentFighter = null;
+                myFighterConfirmed = false;
+                opponentFighterConfirmed = false;
+
+                conn.on('open', () => {
+                    logConnectionEvent('open', `Connected to ${conn.peer}`);
+                    onConnected(conn);
+                });
+
+                conn.on('data', (data) => {
+                    logConnectionEvent('data', data);
+                    handleData(conn, data);
+                });
+
+                conn.on('close', () => {
+                    logConnectionEvent('close', `Connection closed`);
+                    onDisconnected();
+                });
+
+                conn.on('error', (err) => {
+                    logConnectionEvent('error', err);
+                    console.error('Connection error:', err);
+                });
+            });
+
+            peer.on('error', (err) => {
+                logPeerEvent('error', err);
+                console.error('Peer error:', err);
+
+                if (err.type === 'unavailable-id' && retryCount < MAX_RETRIES) {
+                    retryCount++;
+                    console.log(`Retry ${retryCount}/${MAX_RETRIES} for new room code`);
+                    appendLog(createMessageLog, `Code taken, retrying (${retryCount}/${MAX_RETRIES})...`, 'info');
+                    if (peer) {
+                        try { peer.destroy(); } catch(e) {}
+                        peer = null;
+                    }
+                    setTimeout(attemptCreatePeer, 300);
+                    return;
+                }
+
+                createStatus.innerHTML = `
+                    <span class="text-kinetic-strike">❌ Error: ${err.message || err.type || 'Unknown error'}</span>
+                `;
+                appendLog(createMessageLog, `Error: ${err.message || err.type}`, 'error');
+
+                setTimeout(() => {
+                    destroyPeer();
+                    showView('choose');
+                }, 2000);
+            });
+        }
+
+        // ===== JOIN ROOM =====
+        function joinRoom() {
+            const code = roomCodeInput.value.trim().toUpperCase();
+            if (code.length !== 5) {
+                joinStatus.innerHTML = '<span class="text-kinetic-strike">⚠️ Please enter a 5-character code</span>';
                 return;
             }
+
+            destroyPeer();
+            isConnecting = true;
+            btnConnect.disabled = true;
+            btnConnect.textContent = 'CONNECTING...';
+            joinStatus.innerHTML = '<span class="text-tertiary">⏳ Connecting...</span>';
+            clearLogs();
+
+            const clientId = 'client-' + Math.random().toString(36).substring(2, 8);
+            logPeerEvent('Creating client peer:', clientId);
+
+            peer = new Peer(clientId, {
+                debug: 2,
+                config: {
+                    iceServers: [
+                        { urls: 'stun:stun.l.google.com:19302' },
+                        { urls: 'stun:stun1.l.google.com:19302' }
+                    ]
+                }
+            });
+
+            peer.on('open', (id) => {
+                logPeerEvent('open', `Client ID: ${id}`);
+                appendLog(joinMessageLog, `Client ready: ${id}`, 'info');
+                appendLog(joinMessageLog, `Connecting to room: ${code}...`, 'info');
+
+                const conn = peer.connect(code, { reliable: true });
+                connection = conn;
+                isHost = false;
+                
+                // Reset selection state
+                myFighter = null;
+                opponentFighter = null;
+                myFighterConfirmed = false;
+                opponentFighterConfirmed = false;
+
+                connectionAttemptTimer = setTimeout(() => {
+                    if (connection && connection.open === false) {
+                        logConnectionEvent('timeout', 'Connection attempt timed out');
+                        joinStatus.innerHTML = '<span class="text-kinetic-strike">❌ Could not find that room. Check the code and try again.</span>';
+                        appendLog(joinMessageLog, 'Connection timed out after 10 seconds', 'error');
+                        isConnecting = false;
+                        btnConnect.disabled = false;
+                        btnConnect.textContent = 'CONNECT TO HOST';
+                        setTimeout(() => {
+                            destroyPeer();
+                            showView('join');
+                            roomCodeInput.value = '';
+                            joinStatus.innerHTML = '';
+                        }, 2000);
+                    }
+                }, 10000);
+
+                conn.on('open', () => {
+                    logConnectionEvent('open', `Connected to ${conn.peer}`);
+                    clearTimeout(connectionAttemptTimer);
+                    connectionAttemptTimer = null;
+                    isConnecting = false;
+                    btnConnect.disabled = false;
+                    btnConnect.textContent = 'CONNECT TO HOST';
+                    onConnected(conn);
+                });
+
+                conn.on('data', (data) => {
+                    logConnectionEvent('data', data);
+                    handleData(conn, data);
+                });
+
+                conn.on('close', () => {
+                    logConnectionEvent('close', 'Connection closed');
+                    onDisconnected();
+                });
+
+                conn.on('error', (err) => {
+                    logConnectionEvent('error', err);
+                    console.error('Connection error:', err);
+                    clearTimeout(connectionAttemptTimer);
+                    connectionAttemptTimer = null;
+                    isConnecting = false;
+                    btnConnect.disabled = false;
+                    btnConnect.textContent = 'CONNECT TO HOST';
+                    joinStatus.innerHTML = `<span class="text-kinetic-strike">❌ Connection error: ${err.message || 'Unknown error'}</span>`;
+                    appendLog(joinMessageLog, `Error: ${err.message || err.type}`, 'error');
+                    setTimeout(() => {
+                        destroyPeer();
+                        showView('join');
+                        roomCodeInput.value = '';
+                        joinStatus.innerHTML = '';
+                    }, 2000);
+                });
+            });
+
+            peer.on('disconnected', () => {
+                logPeerEvent('disconnected', 'Lost connection to signaling server');
+                joinStatus.innerHTML = '<span class="text-kinetic-strike">⚠️ Reconnecting...</span>';
+                appendLog(joinMessageLog, 'Signaling server disconnected, attempting reconnect...', 'error');
+                if (peer && !peer.destroyed) {
+                    peer.reconnect();
+                }
+            });
+
+            peer.on('error', (err) => {
+                logPeerEvent('error', err);
+                console.error('Peer error:', err);
+                clearTimeout(connectionAttemptTimer);
+                connectionAttemptTimer = null;
+                isConnecting = false;
+                btnConnect.disabled = false;
+                btnConnect.textContent = 'CONNECT TO HOST';
+
+                if (!connection || !connection.open) {
+                    joinStatus.innerHTML = `<span class="text-kinetic-strike">❌ ${err.message || err.type || 'Connection failed'}</span>`;
+                    appendLog(joinMessageLog, `Error: ${err.message || err.type}`, 'error');
+                    setTimeout(() => {
+                        destroyPeer();
+                        showView('join');
+                        roomCodeInput.value = '';
+                        joinStatus.innerHTML = '';
+                    }, 2000);
+                }
+            });
+        }
+
+        // ===== CONNECTED STATE =====
+        function onConnected(conn) {
+            connection = conn;
             
-            if (myChoiceConfirmed) return;
+            // Show character select panel
+            showView('characterselect');
+            renderFighterGrid();
             
-            myChoiceConfirmed = true;
+            // Reset selection state
+            myFighter = null;
+            opponentFighter = null;
+            myFighterConfirmed = false;
+            opponentFighterConfirmed = false;
+            opponentStatus.textContent = 'Waiting for opponent to choose...';
+            selectionStatus.textContent = '';
             confirmFighterBtn.disabled = true;
-            confirmFighterBtn.textContent = 'WAITING FOR OPPONENT...';
-            mySelectionText.textContent = `✅ Confirmed: ${myFighter}`;
+            
+            // Update player info
+            if (peer && peer.id) {
+                playerIdDisplay.textContent = peer.id;
+            }
+            opponentIdDisplay.textContent = conn.peer || 'OPPONENT';
+            
+            // Send hello message (keep existing behavior)
+            const helloMsg = {
+                type: 'hello',
+                timestamp: Date.now(),
+                from: peer ? peer.id : 'unknown'
+            };
+            try {
+                conn.send(helloMsg);
+                logConnectionEvent('sent', 'hello');
+            } catch (e) {
+                console.error('Failed to send hello:', e);
+            }
+        }
+
+        function handleData(conn, data) {
+            try {
+                // Keep existing hello/echo handling
+                if (data.type === 'hello') {
+                    const timeStr = new Date(data.timestamp).toLocaleTimeString();
+                    appendLog(connectedMessageLog, `Received hello from opponent at ${timeStr}`, 'received');
+                    const echoMsg = {
+                        type: 'echo',
+                        originalTimestamp: data.timestamp,
+                        receivedAt: Date.now(),
+                        from: peer ? peer.id : 'unknown'
+                    };
+                    try {
+                        conn.send(echoMsg);
+                        logConnectionEvent('sent', 'echo');
+                    } catch (e) {
+                        console.error('Failed to send echo:', e);
+                    }
+                } else if (data.type === 'echo') {
+                    const timeStr = new Date(data.originalTimestamp).toLocaleTimeString();
+                    const roundtrip = Date.now() - data.originalTimestamp;
+                    appendLog(connectedMessageLog, `Received echo for hello sent at ${timeStr} (roundtrip: ${roundtrip}ms)`, 'received');
+                    window._lastPingMs = roundtrip;
+                } 
+                // NEW: Handle fighter selection
+                else if (data.type === 'fighter_selected') {
+                    opponentFighter = data.fighter;
+                    opponentFighterConfirmed = true;
+                    opponentStatus.textContent = `Opponent chose: ${data.fighter}`;
+                    logConnectionEvent('received', `fighter_selected: ${data.fighter}`);
+                    checkBothReady();
+                }
+                // NEW: Handle start_game (for client side)
+                else if (data.type === 'start_game') {
+                    logConnectionEvent('received', `start_game: ${data.arena}`);
+                    const url = `game.html?fighter=${data.clientFighter}&arena=${data.arena}&difficulty=${data.difficulty}&controls=${data.controls}&mode=online&role=client&opponent=${data.hostFighter}`;
+                    logConnectionEvent('navigate', url);
+                    window.location.href = url;
+                } 
+                else {
+                    appendLog(connectedMessageLog, `Received: ${JSON.stringify(data)}`, 'info');
+                }
+            } catch (e) {
+                console.warn('Error handling data:', e);
+                appendLog(connectedMessageLog, `Error handling data: ${e.message}`, 'error');
+            }
+        }
+
+        function onDisconnected() {
+            if (currentView === 'connected' || currentView === 'characterselect') {
+                selectionStatus.textContent = '❌ Disconnected from opponent';
+                setTimeout(() => {
+                    destroyPeer();
+                    showView('choose');
+                }, 1500);
+            } else {
+                destroyPeer();
+                showView('choose');
+            }
+        }
+
+        // ===== COPY CODE =====
+        function copyCode(event) {
+            const code = roomCodeDisplay.textContent;
+            if (code && code !== '------') {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        const btn = event.currentTarget;
+                        const original = btn.innerHTML;
+                        btn.innerHTML = '<span class="material-symbols-outlined">check</span> COPIED!';
+                        btn.classList.add('bg-tertiary', 'text-on-tertiary');
+                        setTimeout(() => {
+                            btn.innerHTML = original;
+                            btn.classList.remove('bg-tertiary', 'text-on-tertiary');
+                        }, 2000);
+                    }).catch(() => fallbackCopy(event, code));
+                } else {
+                    fallbackCopy(event, code);
+                }
+            }
+        }
+
+        function fallbackCopy(event, text) {
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                const btn = event.currentTarget;
+                const original = btn.innerHTML;
+                btn.innerHTML = '<span class="material-symbols-outlined">check</span> COPIED!';
+                btn.classList.add('bg-tertiary', 'text-on-tertiary');
+                setTimeout(() => {
+                    btn.innerHTML = original;
+                    btn.classList.remove('bg-tertiary', 'text-on-tertiary');
+                }, 2000);
+            } catch (e) {
+                alert('Could not copy. Please select and copy the code manually: ' + text);
+            }
+            document.body.removeChild(textarea);
+        }
+
+        // ===== CANCEL FUNCTIONS =====
+        function cancelCreate() {
+            destroyPeer();
+            showView('choose');
+            createStatus.innerHTML = '';
+            clearLogs();
+        }
+
+        function cancelJoin() {
+            destroyPeer();
+            showView('choose');
+            roomCodeInput.value = '';
+            joinStatus.innerHTML = '';
+            clearLogs();
+            isConnecting = false;
+            btnConnect.disabled = false;
+            btnConnect.textContent = 'CONNECT TO HOST';
+            if (connectionAttemptTimer) {
+                clearTimeout(connectionAttemptTimer);
+                connectionAttemptTimer = null;
+            }
+        }
+
+        function disconnectAndBack() {
+            destroyPeer();
+            showView('choose');
+            clearLogs();
+            window.location.href = 'index.html';
+        }
+
+        // ===== CONFIRM FIGHTER =====
+        function confirmFighter() {
+            if (!myFighter || myFighterConfirmed) return;
+            
+            myFighterConfirmed = true;
+            confirmFighterBtn.disabled = true;
+            confirmFighterBtn.textContent = 'CONFIRMED ✓';
+            selectionStatus.textContent = 'Waiting for opponent...';
             
             // Send selection to opponent
-            if (conn && conn.open) {
-                conn.send({
+            try {
+                connection.send({
                     type: 'fighter_selected',
                     fighter: myFighter
                 });
-                logPeerEvent(`Sent fighter selection: ${myFighter}`, 'info');
-            } else {
-                showError('Connection lost. Please reconnect.');
-                myChoiceConfirmed = false;
+                logConnectionEvent('sent', `fighter_selected: ${myFighter}`);
+            } catch (e) {
+                console.error('Failed to send fighter selection:', e);
+                selectionStatus.textContent = '❌ Failed to send selection. Please try again.';
+                myFighterConfirmed = false;
+                confirmFighterBtn.disabled = false;
                 confirmFighterBtn.textContent = 'CONFIRM FIGHTER';
                 return;
             }
-        });
-        
-        // ========== HOST ==========
-        hostBtn.addEventListener('click', () => {
-            if (peer) {
-                peer.destroy();
-            }
             
-            hostBtn.disabled = true;
-            hostBtn.textContent = 'CREATING...';
-            hostStatus.textContent = 'Initializing...';
-            
-            peer = new Peer({
-                debug: 2,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' }
-                    ]
-                }
+            // Disable all fighter cards
+            document.querySelectorAll('.fighter-card-select').forEach(c => {
+                c.style.cursor = 'default';
+                c.style.opacity = '0.6';
             });
             
-            peer.on('open', (id) => {
-                isHost = true;
-                roomId = id;
-                hostStatus.innerHTML = `<span style="color: #4ade80;">✅ Room Created</span><br><span class="text-tertiary font-label-bold text-label-bold">Room ID: ${id}</span>`;
-                hostBtn.textContent = 'ROOM CREATED';
-                hostBtn.disabled = true;
-                
-                logPeerEvent(`Host created room: ${id}`, 'success');
-                
-                // Enable join with this ID (auto-fill for convenience)
-                roomIdInput.value = id;
-                
-                // Wait for connection
-                peer.on('connection', (incomingConn) => {
-                    conn = incomingConn;
-                    setupConnection('host');
-                });
-            });
-            
-            peer.on('error', (err) => {
-                logPeerEvent(`Host error: ${err.message}`, 'error');
-                hostStatus.textContent = `❌ Error: ${err.message}`;
-                hostBtn.disabled = false;
-                hostBtn.textContent = 'CREATE ROOM';
-            });
-        });
-        
-        // ========== JOIN ==========
-        joinBtn.addEventListener('click', () => {
-            const id = roomIdInput.value.trim();
-            if (!id) {
-                joinStatus.textContent = 'Please enter a Room ID';
-                return;
-            }
-            
-            if (peer) {
-                peer.destroy();
-            }
-            
-            joinBtn.disabled = true;
-            joinBtn.textContent = 'JOINING...';
-            joinStatus.textContent = 'Connecting...';
-            
-            peer = new Peer({
-                debug: 2,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' }
-                    ]
-                }
-            });
-            
-            peer.on('open', () => {
-                isHost = false;
-                conn = peer.connect(id);
-                setupConnection('joiner');
-            });
-            
-            peer.on('error', (err) => {
-                logPeerEvent(`Join error: ${err.message}`, 'error');
-                joinStatus.textContent = `❌ Error: ${err.message}`;
-                joinBtn.disabled = false;
-                joinBtn.textContent = 'JOIN';
-            });
-        });
-        
-        // ========== SETUP CONNECTION ==========
-        function setupConnection(role) {
-            if (!conn) return;
-            
-            conn.on('open', () => {
-                logPeerEvent(`Connection opened as ${role}`, 'success');
-                
-                if (role === 'host') {
-                    hostStatus.innerHTML = `<span style="color: #4ade80;">✅ Player connected!</span>`;
-                } else {
-                    joinStatus.innerHTML = `<span style="color: #4ade80;">✅ Connected to host!</span>`;
-                }
-                
-                // Show connected panel
-                document.getElementById('connection-panel').classList.add('hidden-panel');
-                connectedPanel.classList.remove('hidden-panel');
-                connectedStatus.textContent = role === 'host' ? 'Challenger has joined!' : 'Connected to host!';
-                
-                // Show character select panel
-                charSelectPanel.classList.remove('hidden-panel');
-                buildFighterGrid();
-                
-                // Send hello message (keep existing behavior)
-                conn.send({ type: 'hello', message: `Hello from ${role}!` });
-                
-                // Update status
-                logPeerEvent(`Sent hello from ${role}`, 'info');
-            });
-            
-            conn.on('data', (data) => {
-                logPeerEvent(`Received data: ${JSON.stringify(data)}`, 'info');
-                
-                // ===== HANDLE HELLO / ECHO (existing) =====
-                if (data.type === 'hello') {
-                    logPeerEvent(`Hello received: ${data.message}`, 'success');
-                    // Echo back
-                    conn.send({ type: 'echo', message: `Echo: ${data.message}` });
-                    connectedStatus.textContent = `Connected! ${data.message}`;
-                }
-                
-                if (data.type === 'echo') {
-                    logPeerEvent(`Echo received: ${data.message}`, 'success');
-                }
-                
-                // ===== HANDLE FIGHTER SELECTION =====
-                if (data.type === 'fighter_selected') {
-                    opponentFighter = data.fighter;
-                    opponentChoiceConfirmed = true;
-                    opponentStatus.textContent = `Opponent chose: ${data.fighter}`;
-                    opponentStatus.classList.remove('flicker');
-                    logPeerEvent(`Opponent selected: ${data.fighter}`, 'success');
-                    checkBothReady();
-                }
-                
-                // ===== HANDLE START GAME (joiner side) =====
-                if (data.type === 'start_game') {
-                    logPeerEvent(`Start game received! Host: ${data.hostFighter}, Client: ${data.clientFighter}`, 'success');
-                    
-                    // Joiner navigates to game
-                    const url = `game.html?fighter=${encodeURIComponent(data.clientFighter)}&arena=${encodeURIComponent(data.arena)}&difficulty=${data.difficulty}&controls=${data.controls}&mode=online&role=client&opponent=${encodeURIComponent(data.hostFighter)}`;
-                    logPeerEvent(`Joiner navigating to: ${url}`, 'info');
-                    window.location.href = url;
-                }
-            });
-            
-            conn.on('close', () => {
-                logPeerEvent('Connection closed', 'warning');
-                connectedStatus.textContent = '❌ Connection lost';
-                hostBtn.disabled = false;
-                hostBtn.textContent = 'CREATE ROOM';
-                joinBtn.disabled = false;
-                joinBtn.textContent = 'JOIN';
-            });
-            
-            conn.on('error', (err) => {
-                logPeerEvent(`Connection error: ${err.message}`, 'error');
-                connectedStatus.textContent = `❌ Error: ${err.message}`;
-            });
+            // Check if opponent already chose
+            checkBothReady();
         }
-        
-        // ========== KEYBOARD SHORTCUTS ==========
+
+        // ===== EXPOSE FUNCTIONS TO GLOBAL SCOPE =====
+        window.showView = showView;
+        window.createRoom = createRoom;
+        window.joinRoom = joinRoom;
+        window.copyCode = copyCode;
+        window.cancelCreate = cancelCreate;
+        window.cancelJoin = cancelJoin;
+        window.disconnectAndBack = disconnectAndBack;
+        window.confirmFighter = confirmFighter;
+
+        // ===== KEYBOARD SHORTCUTS =====
+        roomCodeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                joinRoom();
+            }
+            if (e.key.length === 1 && /[a-zA-Z0-9]/.test(e.key)) {
+                const start = roomCodeInput.selectionStart;
+                const end = roomCodeInput.selectionEnd;
+                const value = roomCodeInput.value;
+                roomCodeInput.value = value.substring(0, start) + e.key.toUpperCase() + value.substring(end);
+                roomCodeInput.setSelectionRange(start + 1, start + 1);
+                e.preventDefault();
+            }
+        });
+
+        roomCodeInput.addEventListener('input', () => {
+            roomCodeInput.value = roomCodeInput.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+        });
+
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && roomIdInput.value.trim()) {
-                joinBtn.click();
+            if (e.key === 'Escape') {
+                if (currentView === 'create') cancelCreate();
+                else if (currentView === 'join') cancelJoin();
             }
         });
-        
-        // ========== INIT ==========
-        buildFighterGrid();
-        logPeerEvent('Online battle page loaded', 'info');
-        
-        // Check if fighters loaded
-        if (typeof FIGHTERS === 'undefined') {
-            logPeerEvent('ERROR: fighters.js not loaded!', 'error');
-        }
-        if (typeof arenaBackgrounds === 'undefined') {
-            logPeerEvent('ERROR: config.js not loaded!', 'error');
-        }
-    </script>
+
+        // ===== CONFIRM FIGHTER BUTTON =====
+        confirmFighterBtn.addEventListener('click', confirmFighter);
+
+        // ===== INIT =====
+        showView('choose');
+        console.log('[Online] Ready. PeerJS loaded.');
+        console.log('[Online] isHost flag will be used in Stage 3 for host-authoritative model');
+        console.log('[Online] Character select panel ready with 6 fighters.');
+    })();
+</script>
 </body>
 </html>
