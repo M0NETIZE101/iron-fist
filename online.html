@@ -253,11 +253,49 @@
             width: 100%;
             border-radius: 2px;
         }
+        
+        /* Countdown overlay */
+        #countdown-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            font-family: 'Anybody', sans-serif;
+        }
+        #countdown-overlay.active {
+            display: flex;
+        }
+        #countdown-overlay .number {
+            font-size: 120px;
+            color: #ffb3b2;
+            font-weight: 900;
+            text-shadow: 0 0 60px rgba(255,179,178,0.3);
+        }
+        #countdown-overlay .label {
+            font-size: 24px;
+            color: rgba(233,188,186,0.5);
+            letter-spacing: 4px;
+            margin-top: 20px;
+            font-family: 'JetBrains Mono', monospace;
+        }
     </style>
 </head>
 <body class="bg-surface text-on-surface font-body-md overflow-hidden selection:bg-kinetic-strike selection:text-white">
 <div class="crt-overlay"></div>
 <div class="fixed inset-0 radial-glow pointer-events-none"></div>
+
+<!-- Countdown Overlay -->
+<div id="countdown-overlay">
+    <div class="number">3</div>
+    <div class="label">GET READY</div>
+</div>
 
 <!-- TopNavBar -->
 <nav class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
@@ -457,6 +495,12 @@
     (function() {
         'use strict';
 
+        // ===== READ CONTROL MODE FROM URL =====
+        // Check if controls param was passed from difficulty.html
+        const urlParams = new URLSearchParams(window.location.search);
+        const controlMode = urlParams.get('controls') || 'pc';
+        window.CONTROL_MODE = controlMode; // Set globally for other scripts to use
+
         // ===== DOM REFS =====
         const viewChoose = document.getElementById('view-choose');
         const viewCreate = document.getElementById('view-create');
@@ -479,6 +523,7 @@
         const confirmFighterBtn = document.getElementById('confirm-fighter-btn');
         const opponentStatus = document.getElementById('opponent-status');
         const selectionStatus = document.getElementById('selection-status');
+        const countdownOverlay = document.getElementById('countdown-overlay');
 
         // ===== STATE =====
         let peer = null;
@@ -523,7 +568,10 @@
             else if (viewName === 'create') viewCreate.classList.remove('hidden');
             else if (viewName === 'join') viewJoin.classList.remove('hidden');
             else if (viewName === 'connected') viewConnected.classList.remove('hidden');
-            else if (viewName === 'characterselect') viewCharacterSelect.classList.remove('hidden');
+            else if (viewName === 'characterselect') {
+                viewCharacterSelect.classList.remove('hidden');
+                renderFighterGrid();
+            }
 
             currentView = viewName;
         }
@@ -590,6 +638,31 @@
             console.log(`[Connection] ${event}`, data || '');
         }
 
+        // ===== COUNTDOWN =====
+        function startGameCountdown(url) {
+            const overlay = document.getElementById('countdown-overlay');
+            const numberEl = overlay.querySelector('.number');
+            const labelEl = overlay.querySelector('.label');
+            
+            overlay.classList.add('active');
+            numberEl.textContent = '3';
+            labelEl.textContent = 'GET READY';
+            
+            let count = 3;
+            const interval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    numberEl.textContent = count;
+                    if (count === 2) labelEl.textContent = 'FOCUS';
+                    if (count === 1) labelEl.textContent = 'FIGHT!';
+                } else {
+                    clearInterval(interval);
+                    overlay.classList.remove('active');
+                    window.location.href = url;
+                }
+            }, 1000);
+        }
+
         // ===== CHARACTER SELECT =====
         function renderFighterGrid() {
             const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN'];
@@ -632,6 +705,12 @@
                     const controls = window.CONTROL_MODE || 'pc';
                     const difficulty = 'medium';
                     
+                    // Store session data for reconnection
+                    sessionStorage.setItem('online_peer_id', peer.id);
+                    sessionStorage.setItem('online_room_code', roomCode);
+                    sessionStorage.setItem('online_is_host', 'true');
+                    sessionStorage.setItem('online_opponent_peer_id', connection.peer);
+                    
                     try {
                         connection.send({
                             type: 'start_game',
@@ -648,10 +727,10 @@
                         return;
                     }
                     
-                    // Host navigates itself
+                    // Host navigates with a delay to ensure message is sent
                     const url = `game.html?fighter=${myFighter}&arena=${arena}&difficulty=${difficulty}&controls=${controls}&mode=online&role=host&opponent=${opponentFighter}`;
                     logConnectionEvent('navigate', url);
-                    window.location.href = url;
+                    startGameCountdown(url);
                 }
             }
         }
@@ -903,7 +982,6 @@
             
             // Show character select panel
             showView('characterselect');
-            renderFighterGrid();
             
             // Reset selection state
             myFighter = null;
@@ -913,6 +991,7 @@
             opponentStatus.textContent = 'Waiting for opponent to choose...';
             selectionStatus.textContent = '';
             confirmFighterBtn.disabled = true;
+            confirmFighterBtn.textContent = 'CONFIRM FIGHTER';
             
             // Update player info
             if (peer && peer.id) {
@@ -969,9 +1048,16 @@
                 // NEW: Handle start_game (for client side)
                 else if (data.type === 'start_game') {
                     logConnectionEvent('received', `start_game: ${data.arena}`);
+                    
+                    // Store session data for reconnection
+                    sessionStorage.setItem('online_peer_id', peer.id);
+                    sessionStorage.setItem('online_room_code', roomCode);
+                    sessionStorage.setItem('online_is_host', 'false');
+                    sessionStorage.setItem('online_opponent_peer_id', conn.peer);
+                    
                     const url = `game.html?fighter=${data.clientFighter}&arena=${data.arena}&difficulty=${data.difficulty}&controls=${data.controls}&mode=online&role=client&opponent=${data.hostFighter}`;
                     logConnectionEvent('navigate', url);
-                    window.location.href = url;
+                    startGameCountdown(url);
                 } 
                 else {
                     appendLog(connectedMessageLog, `Received: ${JSON.stringify(data)}`, 'info');
@@ -1146,6 +1232,7 @@
         // ===== INIT =====
         showView('choose');
         console.log('[Online] Ready. PeerJS loaded.');
+        console.log('[Online] Control mode:', window.CONTROL_MODE);
         console.log('[Online] isHost flag will be used in Stage 3 for host-authoritative model');
         console.log('[Online] Character select panel ready with 6 fighters.');
     })();
