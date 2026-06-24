@@ -269,8 +269,8 @@
             z-index: 9999;
             font-family: 'Anybody', sans-serif;
         }
-        #countdown-overlay.active {
-            display: flex;
+        #countdown-overlay.visible {
+            display: flex !important;
         }
         #countdown-overlay .number {
             font-size: 120px;
@@ -288,14 +288,15 @@
     </style>
 </head>
 <body class="bg-surface text-on-surface font-body-md overflow-hidden selection:bg-kinetic-strike selection:text-white">
-<div class="crt-overlay"></div>
-<div class="fixed inset-0 radial-glow pointer-events-none"></div>
 
 <!-- Countdown Overlay -->
 <div id="countdown-overlay">
     <div class="number">3</div>
     <div class="label">GET READY</div>
 </div>
+
+<div class="crt-overlay"></div>
+<div class="fixed inset-0 radial-glow pointer-events-none"></div>
 
 <!-- TopNavBar -->
 <nav class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
@@ -496,10 +497,9 @@
         'use strict';
 
         // ===== READ CONTROL MODE FROM URL =====
-        // Check if controls param was passed from difficulty.html
         const urlParams = new URLSearchParams(window.location.search);
         const controlMode = urlParams.get('controls') || 'pc';
-        window.CONTROL_MODE = controlMode; // Set globally for other scripts to use
+        window.CONTROL_MODE = controlMode;
 
         // ===== DOM REFS =====
         const viewChoose = document.getElementById('view-choose');
@@ -536,7 +536,6 @@
         let retryCount = 0;
         const MAX_RETRIES = 3;
 
-        // Character selection state
         let myFighter = null;
         let opponentFighter = null;
         let myFighterConfirmed = false;
@@ -641,10 +640,16 @@
         // ===== COUNTDOWN =====
         function startGameCountdown(url) {
             const overlay = document.getElementById('countdown-overlay');
+            if (!overlay) {
+                console.error('[Online] Countdown overlay not found!');
+                window.location.href = url;
+                return;
+            }
+            
             const numberEl = overlay.querySelector('.number');
             const labelEl = overlay.querySelector('.label');
             
-            overlay.classList.add('active');
+            overlay.classList.add('visible');
             numberEl.textContent = '3';
             labelEl.textContent = 'GET READY';
             
@@ -657,7 +662,7 @@
                     if (count === 1) labelEl.textContent = 'FIGHT!';
                 } else {
                     clearInterval(interval);
-                    overlay.classList.remove('active');
+                    overlay.classList.remove('visible');
                     window.location.href = url;
                 }
             }, 1000);
@@ -700,12 +705,10 @@
                 selectionStatus.textContent = '✅ Both players ready! Starting game...';
                 
                 if (isHost) {
-                    // Host: send start_game message to client
                     const arena = getRandomArena();
                     const controls = window.CONTROL_MODE || 'pc';
                     const difficulty = 'medium';
                     
-                    // Store session data for reconnection
                     sessionStorage.setItem('online_peer_id', peer.id);
                     sessionStorage.setItem('online_room_code', roomCode);
                     sessionStorage.setItem('online_is_host', 'true');
@@ -727,7 +730,6 @@
                         return;
                     }
                     
-                    // Host navigates with a delay to ensure message is sent
                     const url = `game.html?fighter=${myFighter}&arena=${arena}&difficulty=${difficulty}&controls=${controls}&mode=online&role=host&opponent=${opponentFighter}`;
                     logConnectionEvent('navigate', url);
                     startGameCountdown(url);
@@ -791,7 +793,6 @@
                 connection = conn;
                 isHost = true;
                 
-                // Reset selection state
                 myFighter = null;
                 opponentFighter = null;
                 myFighterConfirmed = false;
@@ -883,7 +884,6 @@
                 connection = conn;
                 isHost = false;
                 
-                // Reset selection state
                 myFighter = null;
                 opponentFighter = null;
                 myFighterConfirmed = false;
@@ -979,11 +979,8 @@
         // ===== CONNECTED STATE =====
         function onConnected(conn) {
             connection = conn;
-            
-            // Show character select panel
             showView('characterselect');
             
-            // Reset selection state
             myFighter = null;
             opponentFighter = null;
             myFighterConfirmed = false;
@@ -993,13 +990,11 @@
             confirmFighterBtn.disabled = true;
             confirmFighterBtn.textContent = 'CONFIRM FIGHTER';
             
-            // Update player info
             if (peer && peer.id) {
                 playerIdDisplay.textContent = peer.id;
             }
             opponentIdDisplay.textContent = conn.peer || 'OPPONENT';
             
-            // Send hello message (keep existing behavior)
             const helloMsg = {
                 type: 'hello',
                 timestamp: Date.now(),
@@ -1015,7 +1010,6 @@
 
         function handleData(conn, data) {
             try {
-                // Keep existing hello/echo handling
                 if (data.type === 'hello') {
                     const timeStr = new Date(data.timestamp).toLocaleTimeString();
                     appendLog(connectedMessageLog, `Received hello from opponent at ${timeStr}`, 'received');
@@ -1036,20 +1030,15 @@
                     const roundtrip = Date.now() - data.originalTimestamp;
                     appendLog(connectedMessageLog, `Received echo for hello sent at ${timeStr} (roundtrip: ${roundtrip}ms)`, 'received');
                     window._lastPingMs = roundtrip;
-                } 
-                // NEW: Handle fighter selection
-                else if (data.type === 'fighter_selected') {
+                } else if (data.type === 'fighter_selected') {
                     opponentFighter = data.fighter;
                     opponentFighterConfirmed = true;
                     opponentStatus.textContent = `Opponent chose: ${data.fighter}`;
                     logConnectionEvent('received', `fighter_selected: ${data.fighter}`);
                     checkBothReady();
-                }
-                // NEW: Handle start_game (for client side)
-                else if (data.type === 'start_game') {
+                } else if (data.type === 'start_game') {
                     logConnectionEvent('received', `start_game: ${data.arena}`);
                     
-                    // Store session data for reconnection
                     sessionStorage.setItem('online_peer_id', peer.id);
                     sessionStorage.setItem('online_room_code', roomCode);
                     sessionStorage.setItem('online_is_host', 'false');
@@ -1058,8 +1047,7 @@
                     const url = `game.html?fighter=${data.clientFighter}&arena=${data.arena}&difficulty=${data.difficulty}&controls=${data.controls}&mode=online&role=client&opponent=${data.hostFighter}`;
                     logConnectionEvent('navigate', url);
                     startGameCountdown(url);
-                } 
-                else {
+                } else {
                     appendLog(connectedMessageLog, `Received: ${JSON.stringify(data)}`, 'info');
                 }
             } catch (e) {
@@ -1164,7 +1152,6 @@
             confirmFighterBtn.textContent = 'CONFIRMED ✓';
             selectionStatus.textContent = 'Waiting for opponent...';
             
-            // Send selection to opponent
             try {
                 connection.send({
                     type: 'fighter_selected',
@@ -1180,17 +1167,15 @@
                 return;
             }
             
-            // Disable all fighter cards
             document.querySelectorAll('.fighter-card-select').forEach(c => {
                 c.style.cursor = 'default';
                 c.style.opacity = '0.6';
             });
             
-            // Check if opponent already chose
             checkBothReady();
         }
 
-        // ===== EXPOSE FUNCTIONS TO GLOBAL SCOPE =====
+        // ===== EXPOSE FUNCTIONS =====
         window.showView = showView;
         window.createRoom = createRoom;
         window.joinRoom = joinRoom;
@@ -1233,8 +1218,7 @@
         showView('choose');
         console.log('[Online] Ready. PeerJS loaded.');
         console.log('[Online] Control mode:', window.CONTROL_MODE);
-        console.log('[Online] isHost flag will be used in Stage 3 for host-authoritative model');
-        console.log('[Online] Character select panel ready with 6 fighters.');
+        console.log('[Online] Countdown overlay ready.');
     })();
 </script>
 </body>
