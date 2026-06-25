@@ -489,9 +489,770 @@ class FightingGame extends Phaser.Scene {
         }
     }
     
-    // ... rest of scene-game.js (update, updateMobileMovement, etc.) ...
-    // The rest of the file remains the same as the previous version
-    // with the online mode methods (onNetworkReady, onNetworkDisconnected,
-    // getLocalInputState, updateLocalPlayerInput, updateOnlineMode,
-    // applyRemoteGameState, applyRemoteEvent, updateGamePhysics)
+    startSuperFreeze(durationMs = 200) {
+        this.isSuperFrozen = true;
+        this.time.timeScale = 0.05;
+        this.time.delayedCall(durationMs, () => {
+            this.time.timeScale = 1;
+            this.isSuperFrozen = false;
+        });
+    }
+    
+    updateMobileMovement() {
+        if (!this.player || !this.roundActive || this.isSuperFrozen) return;
+        
+        if (this.mobileLeftPressed) this.player.x -= 7;
+        if (this.mobileRightPressed) this.player.x += 7;
+        
+        // Mobile double jump handling - check if jump requested and conditions met
+        if (this.mobileJumpRequested && this.roundActive && !this.isSuperFrozen) {
+            if (!this.isJumping) {
+                // Ground jump
+                this.isJumping = true;
+                this.playerYVelocity = JUMP_VELOCITY;
+                this.playerJumpsUsed = 1;
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                this.mobileJumpRequested = false;
+                if (this.playerFloatTween) this.playerFloatTween.pause();
+            } else if (this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
+                // Double jump - air jump
+                this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
+                this.playerJumpsUsed = 2;
+                
+                // Horizontal boost in direction of movement
+                let boostDirection = 0;
+                if (this.mobileLeftPressed) boostDirection = -1;
+                else if (this.mobileRightPressed) boostDirection = 1;
+                else {
+                    // Fall back to facing direction
+                    const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                    boostDirection = facing === 'right' ? 1 : -1;
+                }
+                this.player.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+                
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                this.mobileJumpRequested = false;
+            }
+        }
+        
+        if (!this.roundActive && this.mobileJumpRequested) {
+            this.mobileJumpRequested = false;
+        }
+        
+        if (this.mobileBlockPressed && !this.isAttacking && !this.isJumping) {
+            this.isBlocking = true;
+            if (this.playerAura) {
+                this.playerAura.setAlpha(0.3);
+                this.playerAura.setFillStyle(0x00dbe9);
+            }
+            this.playerBlockHeight = 'mid';
+        } else if (!this.mobileBlockPressed && !this.keyG?.isDown) {
+            this.isBlocking = false;
+            if (this.playerAura) {
+                this.playerAura.setAlpha(0.15);
+                this.playerAura.setFillStyle(this.playerData?.color || 0xff5252);
+            }
+        }
+    }
+    
+    // ===== ONLINE NETWORK CALLBACKS =====
+    onNetworkReady() {
+        console.log('[Game] Network ready!');
+        if (this.waitingText) {
+            this.waitingText.destroy();
+            this.waitingText = null;
+        }
+        
+        // Don't start round until countdown finishes
+        this.roundActive = false;
+        
+        let count = 3;
+        const countdown = this.add.text(640, 360, `${count}`, {
+            fontFamily: 'Anybody', fontSize: '120px', color: '#ffb3b2',
+            fontStyle: 'bold italic', stroke: '#000000', strokeThickness: 6
+        }).setOrigin(0.5).setDepth(300);
+        
+        const timer = this.time.addEvent({
+            delay: 1000,
+            repeat: 2,
+            callback: () => {
+                count--;
+                if (count > 0) {
+                    countdown.setText(`${count}`);
+                } else {
+                    countdown.setText('FIGHT!');
+                    this.roundActive = true;
+                }
+            }
+        });
+        this.time.delayedCall(3500, () => countdown.destroy());
+    }
+    
+    onNetworkDisconnected() {
+        console.log('[Game] Network disconnected');
+        this.roundActive = false;
+        if (this.waitingText) {
+            this.waitingText.destroy();
+            this.waitingText = null;
+        }
+        
+        const dcText = this.add.text(640, 360, 'OPPONENT DISCONNECTED', {
+            fontFamily: 'Anybody', fontSize: '32px', color: '#ff003c',
+            fontStyle: 'bold italic', stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5).setDepth(300);
+        
+        this.time.delayedCall(3000, () => {
+            if (this.network) {
+                this.network.disconnect();
+            }
+            window.location.href = 'online.html';
+        });
+    }
+    
+    // ===== ONLINE MODE METHODS =====
+    getLocalInputState() {
+        // JustDown keys are true for exactly one frame, which is correct for 
+        // single-press actions (attacks, super). The diff check in sendInput()
+        // ensures the state change is sent and then cleared on the next frame.
+        if (window.CONTROL_MODE === 'mobile') {
+            return {
+                left: this.mobileLeftPressed || false,
+                right: this.mobileRightPressed || false,
+                jump: this.mobileJumpRequested || false,
+                light: false,
+                medium: false,
+                heavy: false,
+                special: false,
+                block: this.mobileBlockPressed || false,
+                super: false
+            };
+        }
+        return {
+            left: this.keyLeft?.isDown || false,
+            right: this.keyRight?.isDown || false,
+            jump: Phaser.Input.Keyboard.JustDown(this.keySpace),
+            light: Phaser.Input.Keyboard.JustDown(this.keyA),
+            medium: Phaser.Input.Keyboard.JustDown(this.keyS),
+            heavy: Phaser.Input.Keyboard.JustDown(this.keyD),
+            special: Phaser.Input.Keyboard.JustDown(this.keyF),
+            block: this.keyG?.isDown || false,
+            super: Phaser.Input.Keyboard.JustDown(this.keyH)
+        };
+    }
+    
+    updateLocalPlayerInput() {
+        // Movement
+        let move = 0;
+        if (!this.mobileLeftPressed && !this.mobileRightPressed) {
+            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping) move = -1;
+            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping) move = 1;
+            if (move !== 0) this.player.x += move * 7;
+        }
+        
+        if (this.mobileLeftPressed) this.player.x -= 7;
+        if (this.mobileRightPressed) this.player.x += 7;
+        
+        // Mobile jump
+        if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+            this.isJumping = true;
+            this.playerYVelocity = JUMP_VELOCITY;
+            this.playerJumpsUsed = 1;
+            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+            this.mobileJumpRequested = false;
+            if (this.playerFloatTween) this.playerFloatTween.pause();
+        }
+        
+        // Keyboard jump
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+            this.isJumping = true;
+            this.playerYVelocity = JUMP_VELOCITY;
+            this.playerJumpsUsed = 1;
+            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+            if (this.playerFloatTween) this.playerFloatTween.pause();
+        }
+        
+        // Keyboard double jump
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+            this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
+            this.playerJumpsUsed = 2;
+            let boostDirection = 0;
+            if (this.keyLeft.isDown) boostDirection = -1;
+            else if (this.keyRight.isDown) boostDirection = 1;
+            else {
+                const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                boostDirection = facing === 'right' ? 1 : -1;
+            }
+            this.player.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+            if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+        }
+        
+        // Attacks
+        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.lightAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.mediumAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.heavyAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.playerSpecialAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.superMove();
+        }
+        
+        // Blocking
+        const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
+        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+        
+        if (this.isBlocking) {
+            if (this.playerAura) {
+                this.playerAura.setAlpha(0.3);
+                this.playerAura.setFillStyle(0x00dbe9);
+            }
+            this.playerBlockHeight = 'mid';
+        } else {
+            if (this.playerAura) {
+                this.playerAura.setAlpha(0.15);
+                this.playerAura.setFillStyle(this.playerData?.color || 0xff5252);
+            }
+        }
+    }
+    
+    updateOnlineMode() {
+        if (!this.network || !this.network.isConnected) return;
+        
+        // Tick cooldowns
+        if (this.playerDoubleJumpCooldown > 0) {
+            this.playerDoubleJumpCooldown = Math.max(0, this.playerDoubleJumpCooldown - 100);
+        }
+        if (this.cpuDoubleJumpCooldown > 0) {
+            this.cpuDoubleJumpCooldown = Math.max(0, this.cpuDoubleJumpCooldown - 100);
+        }
+        
+        if (this.network.isHost) {
+            // ===== HOST: Run game simulation for both players =====            
+            // Player 1 (host) — read local keyboard/mobile input
+            this.updateLocalPlayerInput();
+            
+            // Player 2 (joiner) — read remote input state
+            const remote = this.network.remoteInputState;
+            if (remote.left) this.cpu.x = Math.max(this.cpu.x - 7, MIN_X + 50);
+            if (remote.right) this.cpu.x = Math.min(this.cpu.x + 7, MAX_X - 50);
+            if (remote.jump && !this.cpuIsJumping) {
+                this.cpuIsJumping = true;
+                this.cpuYVelocity = JUMP_VELOCITY;
+                this.cpuJumpsUsed = 1;
+                if (this.animations) this.animations.setCPUAnimation('jump_regular', 300);
+                if (this.cpuFloatTween) this.cpuFloatTween.pause();
+            }
+            
+            // Remote attacks (using CPU attack methods)
+            if (remote.light && !this.cpuAttacking && !this.cpuHitStun) {
+                this.cpuAttacks.lightAttack();
+            }
+            if (remote.medium && !this.cpuAttacking && !this.cpuHitStun) {
+                this.cpuAttacks.mediumAttack();
+            }
+            if (remote.heavy && !this.cpuAttacking && !this.cpuHitStun) {
+                this.cpuAttacks.heavyAttack();
+            }
+            if (remote.special && !this.cpuAttacking && !this.cpuHitStun && this.cpuSpecialCooldown === 0) {
+                this.cpuAttacks.specialAttack();
+            }
+            if (remote.block && !this.cpuAttacking) {
+                this.cpuBlocking = true;
+                this.cpuBlockHeight = 'mid';
+            } else {
+                this.cpuBlocking = false;
+            }
+            if (remote.super && this.cpuSuperMeter >= 100 && !this.cpuAttacking) {
+                this.cpuAttacks.superMove();
+            }
+            
+            // Run physics (includes CPU jump physics, boundaries, overlap prevention)
+            this.updateGamePhysics();
+            
+            // Send game state to joiner every frame
+            this.network.sendGameState({
+                playerX: this.player.x,
+                playerY: this.player.y,
+                cpuX: this.cpu.x,
+                cpuY: this.cpu.y,
+                playerHealth: this.playerHealth,
+                cpuHealth: this.cpuHealth,
+                playerAnim: this.currentAnim,
+                isBlocking: this.isBlocking,
+                cpuBlocking: this.cpuBlocking,
+                superMeter: this.superMeter,
+                cpuSuperMeter: this.cpuSuperMeter,
+                comboCount: this.comboCount,
+                playerYVelocity: this.playerYVelocity,
+                cpuYVelocity: this.cpuYVelocity,
+                isJumping: this.isJumping,
+                cpuIsJumping: this.cpuIsJumping,
+                cpuJumpsUsed: this.cpuJumpsUsed,
+                playerJumpsUsed: this.playerJumpsUsed
+            });
+            
+        } else {
+            // ===== CLIENT: Send local input, receive state =====
+            const inputState = this.getLocalInputState();
+            this.network.sendInput(inputState);
+            
+            // Clear one-shot input flags after sending
+            this.mobileJumpRequested = false;
+        }
+    }
+    
+    applyRemoteGameState(state) {
+        // On the client's screen, swap perspective:
+        // - Host's playerX/Y becomes the opponent (cpu)
+        // - Host's cpuX/Y becomes the client's own fighter (player)
+        this.cpu.x = state.playerX;
+        this.cpu.y = state.playerY;
+        this.player.x = state.cpuX;
+        this.player.y = state.cpuY;
+        
+        // Health bars
+        this.playerHealth = state.cpuHealth; // client's own health
+        this.cpuHealth = state.playerHealth; // opponent's health
+        
+        // Super meters
+        this.superMeter = state.cpuSuperMeter;
+        this.cpuSuperMeter = state.superMeter;
+        
+        // Block states
+        this.cpuBlocking = state.isBlocking;
+        this.isBlocking = state.cpuBlocking;
+        
+        // Combo
+        this.comboCount = state.comboCount || 0;
+        
+        // Jump states (for visual sync)
+        if (state.isJumping !== undefined) {
+            this.isJumping = state.isJumping;
+            this.playerYVelocity = state.playerYVelocity || 0;
+        }
+        if (state.cpuIsJumping !== undefined) {
+            this.cpuIsJumping = state.cpuIsJumping;
+            this.cpuYVelocity = state.cpuYVelocity || 0;
+        }
+        
+        // Update UI
+        if (this.ui) this.ui.updateHealthBars();
+        
+        // Update combo text if active
+        if (this.comboText && this.comboCount > 0) {
+            this.comboText.setText(`${this.comboCount} HIT COMBO!`);
+            this.comboText.setAlpha(1);
+        }
+    }
+    
+    applyRemoteEvent(event) {
+        console.log('[Game] Remote event:', event);
+        if (event.type === 'round_end') {
+            // Show result on client
+            const winner = event.winner;
+            const resultText = winner === 'host' ? 'OPPONENT VICTORY!' : 'YOU WIN!';
+            const resultColor = winner === 'host' ? '#ff003c' : '#4ade80';
+            
+            const announcement = this.add.text(BASE_WIDTH / 2, BASE_HEIGHT / 2, resultText, {
+                fontFamily: 'Anybody', fontSize: '52px', color: resultColor,
+                fontStyle: 'bold italic', letterSpacing: '4px',
+                stroke: '#000000', strokeThickness: 4
+            }).setOrigin(0.5);
+            announcement.setAlpha(0);
+            announcement.setScale(0.8);
+            announcement.setDepth(200);
+            
+            this.tweens.add({ targets: announcement, alpha: 1, scale: 1, duration: 600, ease: 'Back.Out' });
+            this.roundActive = false;
+            
+            this.time.delayedCall(4000, () => {
+                if (this.network) {
+                    this.network.disconnect();
+                }
+                window.location.href = 'online.html';
+            });
+        }
+    }
+    
+    // ===== OVERRIDE endGame for online mode =====
+    endGame(winner) {
+        if (this.gameMode === 'online') {
+            this.roundActive = false;
+            this.time.timeScale = 1;
+            this.hasSuperArmor = false;
+            
+            // Determine winner string for network
+            let winnerStr = winner === 'player' ? 'host' : 'client';
+            
+            // Send game event to opponent
+            if (this.network && this.network.isConnected) {
+                this.network.sendGameEvent({
+                    type: 'round_end',
+                    winner: winnerStr
+                });
+            }
+            
+            // Show local result
+            const resultText = winner === 'player' ? 'YOU WIN!' : 'OPPONENT VICTORY!';
+            const resultColor = winner === 'player' ? '#4ade80' : '#ff003c';
+            
+            const announcement = this.add.text(BASE_WIDTH / 2, BASE_HEIGHT / 2, resultText, {
+                fontFamily: 'Anybody', fontSize: '52px', color: resultColor,
+                fontStyle: 'bold italic', letterSpacing: '4px',
+                stroke: '#000000', strokeThickness: 4
+            }).setOrigin(0.5);
+            announcement.setAlpha(0);
+            announcement.setScale(0.8);
+            announcement.setDepth(200);
+            
+            this.tweens.add({ targets: announcement, alpha: 1, scale: 1, duration: 600, ease: 'Back.Out' });
+            
+            this.time.delayedCall(4000, () => {
+                if (this.network) {
+                    this.network.disconnect();
+                }
+                window.location.href = 'online.html';
+            });
+            
+            if (this.playerAttacks) this.playerAttacks.clearCreatedObjects();
+            return;
+        }
+        
+        // If not online, use original endGame logic
+        super.endGame(winner);
+    }
+    
+    // Shared physics/boundary update logic - used by both PC and mobile
+    updateGamePhysics() {
+        if (!this.player || !this.cpu) return;
+        
+        // Player boundary clamping
+        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
+        this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + CHARACTER_WIDTH), MAX_X);
+        
+        // Prevent overlap
+        if (Math.abs(this.player.x - this.cpu.x) < 90) {
+            if (this.player.x < this.cpu.x) {
+                this.player.x = this.cpu.x - 90;
+            } else {
+                this.cpu.x = this.player.x + 90;
+            }
+        }
+        
+        // Facing direction
+        const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+        const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
+        this.player.setFlipX(playerFacing === 'left');
+        this.cpu.setFlipX(cpuFacing === 'left');
+        
+        // Aura positions
+        if (this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
+        if (this.cpuAura) this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
+        
+        // Player jump physics
+        if (this.isJumping) {
+            this.playerYVelocity += GRAVITY * (1/60);
+            this.player.y += this.playerYVelocity * (1/60);
+            if (this.player.y >= GROUND_Y) {
+                this.player.y = GROUND_Y;
+                this.isJumping = false;
+                this.playerYVelocity = 0;
+                if (this.playerJumpsUsed === 2) {
+                    this.playerDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                }
+                this.playerJumpsUsed = 0;
+                if (this.animations) this.animations.setPlayerAnimation('idle', 100);
+                if (this.playerFloatTween) this.playerFloatTween.resume();
+            }
+        }
+        
+        // CPU jump physics - ONLY run if NOT in online host mode
+        // (In online mode, CPU jumps are handled by remote input in updateOnlineMode)
+        if (this.gameMode !== 'online' || !this.network?.isHost) {
+            if (this.cpuIsJumping) {
+                this.cpuYVelocity += GRAVITY * (1/60);
+                this.cpu.y += this.cpuYVelocity * (1/60);
+                if (this.cpu.y >= GROUND_Y) {
+                    this.cpu.y = GROUND_Y;
+                    this.cpuIsJumping = false;
+                    this.cpuYVelocity = 0;
+                    if (this.cpuJumpsUsed === 2) {
+                        this.cpuDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                    }
+                    this.cpuJumpsUsed = 0;
+                    if (this.animations) this.animations.setCPUAnimation('idle', 100);
+                    if (this.cpuFloatTween) this.cpuFloatTween.resume();
+                } else {
+                    if (this.cpuFloatTween) this.cpuFloatTween.pause();
+                }
+            }
+        }
+        
+        // CPU launch physics (attack-launch system)
+        if (this.cpuLaunched) {
+            if (this.cpuFloatTween) this.cpuFloatTween.pause();
+            this.cpu.y += this.cpuLaunchVelocity * (1/60);
+            this.cpuLaunchVelocity += GRAVITY * (1/60);
+            if (this.cpu.y >= GROUND_Y) {
+                this.cpu.y = GROUND_Y;
+                this.cpuLaunched = false;
+                this.cpuLaunchVelocity = 0;
+                if (this.cpuFloatTween) this.cpuFloatTween.resume();
+            }
+        }
+    }
+    
+    update(time, delta) {
+        const cappedDelta = this.batterySaveMode ? Math.min(delta, 33) : delta;
+        
+        // ===== ONLINE MODE BRANCH =====
+        if (this.gameMode === 'online') {
+            if (!this.roundActive || this.isSuperFrozen) return;
+            this.updateOnlineMode();
+            return; // Skip rest of offline update
+        }
+        
+        // ===== OFFLINE MODE: Original update logic =====
+        if (!this.roundActive || this.isSuperFrozen) return;
+        
+        // Tick down double jump cooldowns (matching specialCooldown style)
+        if (this.playerDoubleJumpCooldown > 0) {
+            this.playerDoubleJumpCooldown = Math.max(0, this.playerDoubleJumpCooldown - 100);
+        }
+        if (this.cpuDoubleJumpCooldown > 0) {
+            this.cpuDoubleJumpCooldown = Math.max(0, this.cpuDoubleJumpCooldown - 100);
+        }
+        
+        this.updateMobileMovement();
+        
+        let move = 0;
+        if (!this.mobileLeftPressed && !this.mobileRightPressed) {
+            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping) move = -1;
+            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping) move = 1;
+            if (move !== 0) this.player.x += move * 7;
+        }
+        
+        // Keyboard jump - with double jump support
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.roundActive && !this.isSuperFrozen) {
+            if (!this.isJumping && !this.isAttacking) {
+                // Ground jump
+                this.isJumping = true;
+                this.playerYVelocity = JUMP_VELOCITY;
+                this.playerJumpsUsed = 1;
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+                if (this.playerFloatTween) this.playerFloatTween.pause();
+            } else if (this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
+                // Double jump - air jump
+                this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
+                this.playerJumpsUsed = 2;
+                
+                // Horizontal boost in direction of movement
+                let boostDirection = 0;
+                if (this.keyLeft.isDown) boostDirection = -1;
+                else if (this.keyRight.isDown) boostDirection = 1;
+                else {
+                    // Fall back to facing direction
+                    const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                    boostDirection = facing === 'right' ? 1 : -1;
+                }
+                this.player.x += boostDirection * DOUBLE_JUMP_HORIZONTAL_BOOST;
+                
+                if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
+            }
+        }
+        
+        // Player jump physics
+        if (this.isJumping) {
+            this.playerYVelocity += GRAVITY * (1/60);
+            this.player.y += this.playerYVelocity * (1/60);
+            
+            if (this.player.y >= GROUND_Y) {
+                this.player.y = GROUND_Y;
+                this.isJumping = false;
+                this.playerYVelocity = 0;
+                
+                // Reset jumps and set cooldown if double jump was used
+                if (this.playerJumpsUsed === 2) {
+                    this.playerDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                }
+                this.playerJumpsUsed = 0;
+                
+                if (this.animations) this.animations.setPlayerAnimation('idle', 100);
+                if (this.playerFloatTween) this.playerFloatTween.resume();
+            }
+        }
+        
+        // CPU jump physics
+        if (this.cpuIsJumping) {
+            this.cpuYVelocity += GRAVITY * (1/60);
+            this.cpu.y += this.cpuYVelocity * (1/60);
+            
+            if (this.cpu.y >= GROUND_Y) {
+                this.cpu.y = GROUND_Y;
+                this.cpuIsJumping = false;
+                this.cpuYVelocity = 0;
+                if (this.cpuJumpsUsed === 2) {
+                    this.cpuDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
+                }
+                this.cpuJumpsUsed = 0;
+                if (this.animations) this.animations.setCPUAnimation('idle', 100);
+                if (this.cpuFloatTween) this.cpuFloatTween.resume();
+            } else {
+                if (this.cpuFloatTween) this.cpuFloatTween.pause();
+            }
+        }
+        
+        // CPU launch physics - FIXED: Pause CPU float tween during launch
+        if (this.cpuLaunched) {
+            if (this.cpuFloatTween) this.cpuFloatTween.pause();
+            
+            this.cpu.y += this.cpuLaunchVelocity * (1/60);
+            this.cpuLaunchVelocity += GRAVITY * (1/60);
+            
+            if (this.cpu.y >= GROUND_Y) {
+                this.cpu.y = GROUND_Y;
+                this.cpuLaunched = false;
+                this.cpuLaunchVelocity = 0;
+                if (this.cpuFloatTween) this.cpuFloatTween.resume();
+            }
+        }
+        
+        // Boundaries
+        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
+        this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + CHARACTER_WIDTH), MAX_X);
+        
+        // Prevent overlap
+        if (Math.abs(this.player.x - this.cpu.x) < 90) {
+            if (this.player.x < this.cpu.x) {
+                this.player.x = this.cpu.x - 90;
+            } else {
+                this.cpu.x = this.player.x + 90;
+            }
+        }
+        
+        // Facing direction
+        const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+        const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
+        
+        this.player.setFlipX(playerFacing === 'left');
+        this.cpu.setFlipX(cpuFacing === 'left');
+        
+        // Attack inputs
+        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.lightAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.mediumAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.heavyAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.playerSpecialAttack();
+        }
+        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
+            this.playerAttacks.superMove();
+        }
+        
+        // Blocking logic - combine keyboard and mobile
+        const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
+        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+        
+        if (this.isBlocking) {
+            this.playerAura.setAlpha(0.3);
+            this.playerAura.setFillStyle(0x00dbe9);
+            this.playerBlockHeight = 'mid';
+        } else {
+            this.playerAura.setAlpha(0.15);
+            this.playerAura.setFillStyle(this.playerData.color);
+        }
+        
+        // Aura positions
+        this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
+        this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
+        
+        // Debug mode
+        if (Phaser.Input.Keyboard.JustDown(this.keyO)) {
+            toggleDebugMode();
+        }
+        
+        if (window.DEBUG_HITBOXES && this.debugGraphics) {
+            this.debugGraphics.clear();
+            
+            const playerHurtboxes = getHurtboxes('player', this.player.x, this.player.y, 'medium');
+            for (const [part, box] of Object.entries(playerHurtboxes)) {
+                drawHitbox(this.debugGraphics, box, box.color, true);
+                this.debugGraphics.fillStyle(0xffffff, 1);
+                this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+            }
+            
+            const cpuDifficulty = this.cpuSettings?.name || 'medium';
+            const cpuHurtboxes = getHurtboxes('cpu', this.cpu.x, this.cpu.y, cpuDifficulty);
+            for (const [part, box] of Object.entries(cpuHurtboxes)) {
+                drawHitbox(this.debugGraphics, box, box.color, true);
+                this.debugGraphics.fillStyle(0xffffff, 1);
+                this.debugGraphics.fillText(part, box.x + 5, box.y + 15);
+            }
+            
+            if (this.playerAttacks && this.playerAttacks.attackState) {
+                const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
+                const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y);
+                if (attackHitbox) {
+                    drawHitbox(this.debugGraphics, attackHitbox, 0xffaa00, true);
+                    this.debugGraphics.fillStyle(0xffffff, 1);
+                    this.debugGraphics.fillText('ATTACK', attackHitbox.x + 5, attackHitbox.y - 5);
+                }
+            }
+        } else if (this.debugGraphics && !window.DEBUG_HITBOXES) {
+            this.debugGraphics.clear();
+        }
+    }
+    
+    applyHitEffect(target, damage, isHeavy, bodyPart = 'body') {
+        this.cameras.main.shake(isHeavy ? 120 : 80, 0.008);
+        
+        if (target === this.cpu) {
+            if (this.animations) this.animations.setCPUAnimation('hurt', 150);
+        } else {
+            if (this.animations) this.animations.setPlayerAnimation('hurt', 150);
+        }
+        
+        target.setAlpha(0.5);
+        this.time.delayedCall(100, () => target.setAlpha(1));
+        
+        const partText = window.DEBUG_HITBOXES ? ` [${bodyPart.toUpperCase()}]` : '';
+        const dmgText = this.add.text(target.x, target.y - 50, `${damage}${partText}`, {
+            fontFamily: 'JetBrains Mono', fontSize: isHeavy ? '32px' : '24px',
+            color: isHeavy ? '#ff003c' : '#ffb3b2', fontStyle: 'bold',
+            stroke: '#000000', strokeThickness: 2
+        }).setOrigin(0.5);
+        dmgText.setDepth(50);
+        this.tweens.add({ targets: dmgText, y: dmgText.y - 60, alpha: 0, scale: 1.3, duration: 500, onComplete: () => dmgText.destroy() });
+        
+        if (target === this.cpu) {
+            target.x += isHeavy ? 40 : 25;
+        } else {
+            target.x -= isHeavy ? 40 : 25;
+        }
+        
+        if (isHeavy) {
+            this.tweens.add({ targets: this.impactFlash, alpha: 0.4, duration: 100, yoyo: true });
+        }
+    }
+    
+    endGameByTimeout() {
+        if (this.playerHealth > this.cpuHealth) {
+            this.endGame('player');
+        } else if (this.cpuHealth > this.playerHealth) {
+            this.endGame('cpu');
+        } else {
+            this.endGame('draw');
+        }
+    }
 }
