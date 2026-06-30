@@ -670,35 +670,35 @@
 
         // ===== CHARACTER SELECT =====
         function renderFighterGrid() {
-            const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN'];
-            fighterGrid.innerHTML = '';
-            
-            fighterNames.forEach(name => {
-                const fighter = FIGHTERS[name];
-                if (!fighter) return;
-                
-                const card = document.createElement('div');
-                card.className = 'fighter-card-select p-4 rounded-lg text-center';
-                card.dataset.fighter = name;
-                card.style.borderColor = `rgba(${parseInt(fighter.color >> 16 & 255)}, ${parseInt(fighter.color >> 8 & 255)}, ${parseInt(fighter.color & 255)}, 0.3)`;
-                
-                card.innerHTML = `
-                    <div class="accent-bar" style="background: #${fighter.color.toString(16).padStart(6, '0')}"></div>
-                    <div class="font-label-bold text-label-bold text-primary mt-2">${fighter.name}</div>
-                    <div class="font-label-sm text-label-sm text-on-surface-variant/60">${fighter.archetype}</div>
-                `;
-                
-                card.addEventListener('click', () => {
-                    if (myFighterConfirmed) return;
-                    document.querySelectorAll('.fighter-card-select').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                    myFighter = name;
-                    confirmFighterBtn.disabled = false;
-                });
-                
-                fighterGrid.appendChild(card);
-            });
-        }
+    const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN', 'WOLVERINE'];
+    fighterGrid.innerHTML = '';
+    
+    fighterNames.forEach(name => {
+        const fighter = FIGHTERS[name];
+        if (!fighter) return;
+        
+        const card = document.createElement('div');
+        card.className = 'fighter-card-select p-4 rounded-lg text-center';
+        card.dataset.fighter = name;
+        card.style.borderColor = `rgba(${parseInt(fighter.color >> 16 & 255)}, ${parseInt(fighter.color >> 8 & 255)}, ${parseInt(fighter.color & 255)}, 0.3)`;
+        
+        card.innerHTML = `
+            <div class="accent-bar" style="background: #${fighter.color.toString(16).padStart(6, '0')}"></div>
+            <div class="font-label-bold text-label-bold text-primary mt-2">${fighter.name}</div>
+            <div class="font-label-sm text-label-sm text-on-surface-variant/60">${fighter.archetype}</div>
+        `;
+        
+        card.addEventListener('click', () => {
+            if (myFighterConfirmed) return;
+            document.querySelectorAll('.fighter-card-select').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            myFighter = name;
+            confirmFighterBtn.disabled = false;
+        });
+        
+        fighterGrid.appendChild(card);
+    });
+}
 
         function checkBothReady() {
             if (myFighter && opponentFighter && myFighterConfirmed && opponentFighterConfirmed) {
