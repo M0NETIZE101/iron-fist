@@ -207,6 +207,17 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
         this.load.image(`batman_special`, `assets/characters/batman/special.png`);
         this.load.image(`batman_victory`, `assets/characters/batman/victory.png`);
+
+        // ===== LOAD WOLVERINE SPRITES =====
+this.load.image(`wolverine_idle`, `assets/characters/wolverine/idle.png`);
+this.load.image(`wolverine_punch-left`, `assets/characters/wolverine/punch-left.png`);
+this.load.image(`wolverine_punch-right`, `assets/characters/wolverine/punch-right.png`);
+this.load.image(`wolverine_kick-left`, `assets/characters/wolverine/kick-left.png`);
+this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
+this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
+this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
+this.load.image(`wolverine_special`, `assets/characters/wolverine/special.png`);
+this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
         
         // Error handling
         this.load.on('loaderror', (file) => {

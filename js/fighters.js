@@ -225,6 +225,43 @@ const FIGHTERS = {
         // Display assets
         portrait: 'assets/characters/batman/portrait.png',
         thumb: 'assets/characters/batman/portrait.png'
+    },
+
+    'WOLVERINE': { 
+        name: 'WOLVERINE', 
+        title: 'THE BEST THERE IS',
+        archetype: 'BERSERKER',
+        rank: 'X-MEN LEGEND',
+        power: 93, 
+        speed: 88, 
+        defense: 92,
+        range: 55,
+        color: 0xff8c00,      // Adamantium orange/gold
+        accent: 0x0047ab,     // X-Men blue
+        folder: 'wolverine',
+        specialName: 'BERSERKER BARRAGE', 
+        specialDamage: 25,
+        // AI Personality
+        personality: {
+            type: 'BERSERKER',
+            playStyle: 'AGGRESSIVE',
+            optimalRange: 70,
+            preferredAttacks: ['heavy', 'medium', 'light'],
+            specialUsage: 'OFFENSIVE',
+            movementStyle: 'FORWARD',
+            defenseStyle: 'AGGRESSIVE_BLOCK',
+            comboPreference: 'HEAVY_START'
+        },
+        // Attack frame data
+        attacks: {
+            light: { startup: 70, active: 40, recovery: 140, damage: 7, range: 68, height: 'mid', pushback: 20 },
+            medium: { startup: 110, active: 55, recovery: 190, damage: 11, range: 74, height: 'overhead', pushback: 30 },
+            heavy: { startup: 170, active: 70, recovery: 260, damage: 17, range: 80, height: 'low', pushback: 38 },
+            special: { startup: 220, active: 90, recovery: 380, damage: 25, range: 85, height: 'mid', pushback: 45 }
+        },
+        // Display assets
+        portrait: 'assets/characters/wolverine/portrait.png',
+        thumb: 'assets/characters/wolverine/portrait.png'
     }
 };
 
