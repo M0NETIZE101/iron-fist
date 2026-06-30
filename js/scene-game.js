@@ -207,17 +207,17 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
         this.load.image(`batman_special`, `assets/characters/batman/special.png`);
         this.load.image(`batman_victory`, `assets/characters/batman/victory.png`);
-
-        // ===== LOAD WOLVERINE SPRITES =====
-this.load.image(`wolverine_idle`, `assets/characters/wolverine/idle.png`);
-this.load.image(`wolverine_punch-left`, `assets/characters/wolverine/punch-left.png`);
-this.load.image(`wolverine_punch-right`, `assets/characters/wolverine/punch-right.png`);
-this.load.image(`wolverine_kick-left`, `assets/characters/wolverine/kick-left.png`);
-this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
-this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
-this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
-this.load.image(`wolverine_special`, `assets/characters/wolverine/special.png`);
-this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
+        
+        // Load WOLVERINE sprites
+        this.load.image(`wolverine_idle`, `assets/characters/wolverine/idle.png`);
+        this.load.image(`wolverine_punch-left`, `assets/characters/wolverine/punch-left.png`);
+        this.load.image(`wolverine_punch-right`, `assets/characters/wolverine/punch-right.png`);
+        this.load.image(`wolverine_kick-left`, `assets/characters/wolverine/kick-left.png`);
+        this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
+        this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
+        this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
+        this.load.image(`wolverine_special`, `assets/characters/wolverine/special.png`);
+        this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -891,17 +891,16 @@ this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
         }
     }
     
-    // ===== OVERRIDE endGame for online mode =====
+    // ===== END GAME =====
     endGame(winner) {
+        // If online mode, handle differently
         if (this.gameMode === 'online') {
             this.roundActive = false;
             this.time.timeScale = 1;
             this.hasSuperArmor = false;
             
-            // Determine winner string for network
             let winnerStr = winner === 'player' ? 'host' : 'client';
             
-            // Send game event to opponent
             if (this.network && this.network.isConnected) {
                 this.network.sendGameEvent({
                     type: 'round_end',
@@ -909,7 +908,6 @@ this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
                 });
             }
             
-            // Show local result
             const resultText = winner === 'player' ? 'YOU WIN!' : 'OPPONENT VICTORY!';
             const resultColor = winner === 'player' ? '#4ade80' : '#ff003c';
             
@@ -935,8 +933,48 @@ this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
             return;
         }
         
-        // If not online, use original endGame logic
-        super.endGame(winner);
+        // ===== OFFLINE MODE: Original endGame logic =====
+        this.roundActive = false;
+        this.time.timeScale = 1;
+        this.hasSuperArmor = false;
+        
+        let resultText;
+        let resultColor;
+        
+        if (winner === 'player') {
+            const isPerfect = this.playerHealth === 100;
+            resultText = isPerfect ? `PERFECT! ${this.playerData.name} VICTORY!` : `${this.playerData.name} VICTORY!`;
+            resultColor = '#ffb3b2';
+            if (this.animations) this.animations.setPlayerAnimation('victory', 300);
+        } else if (winner === 'cpu') {
+            resultText = `${this.cpuData.name} VICTORY!`;
+            resultColor = '#00dbe9';
+            if (this.animations) this.animations.setCPUAnimation('victory', 300);
+        } else {
+            resultText = 'DRAW GAME!';
+            resultColor = '#ffffff';
+        }
+        
+        const announcement = this.add.text(BASE_WIDTH / 2, BASE_HEIGHT / 2, resultText, {
+            fontFamily: 'Anybody', fontSize: '52px', color: resultColor,
+            fontStyle: 'bold italic', letterSpacing: '4px',
+            stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5);
+        announcement.setAlpha(0);
+        announcement.setScale(0.8);
+        announcement.setDepth(200);
+        
+        this.tweens.add({ targets: announcement, alpha: 1, scale: 1, duration: 600, ease: 'Back.Out' });
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        const playerFighter = urlParams.get('fighter') || 'ADARSHA';
+        const arenaParam = urlParams.get('arena') || 'NEO-TOKYO';
+        
+        this.time.delayedCall(4000, () => {
+            window.location.href = `difficulty.html?fighter=${encodeURIComponent(playerFighter)}&arena=${encodeURIComponent(arenaParam)}`;
+        });
+        
+        if (this.playerAttacks) this.playerAttacks.clearCreatedObjects();
     }
     
     // Shared physics/boundary update logic - used by both PC and mobile
@@ -1016,6 +1054,16 @@ this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
                 this.cpuLaunchVelocity = 0;
                 if (this.cpuFloatTween) this.cpuFloatTween.resume();
             }
+        }
+    }
+    
+    endGameByTimeout() {
+        if (this.playerHealth > this.cpuHealth) {
+            this.endGame('player');
+        } else if (this.cpuHealth > this.playerHealth) {
+            this.endGame('cpu');
+        } else {
+            this.endGame('draw');
         }
     }
     
@@ -1254,16 +1302,6 @@ this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
         
         if (isHeavy) {
             this.tweens.add({ targets: this.impactFlash, alpha: 0.4, duration: 100, yoyo: true });
-        }
-    }
-    
-    endGameByTimeout() {
-        if (this.playerHealth > this.cpuHealth) {
-            this.endGame('player');
-        } else if (this.cpuHealth > this.playerHealth) {
-            this.endGame('cpu');
-        } else {
-            this.endGame('draw');
         }
     }
 }
