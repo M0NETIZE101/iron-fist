@@ -130,94 +130,130 @@ class FightingGame extends Phaser.Scene {
         this.load.image('arenaBg', bgImage);
         
         // ===== LOAD ADARSHA SPRITES =====
-        this.load.image(`adarsha_idle`, `assets/characters/adarsha/idle.png`);
+        // Core sprites
+        this.load.image(`adarsha_idle-left`, `assets/characters/adarsha/idle-left.png`);
+        this.load.image(`adarsha_idle-right`, `assets/characters/adarsha/idle-right.png`);
         this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
         this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
         this.load.image(`adarsha_kick-left`, `assets/characters/adarsha/kick-left.png`);
         this.load.image(`adarsha_kick-right`, `assets/characters/adarsha/kick-right.png`);
         this.load.image(`adarsha_hurt-left`, `assets/characters/adarsha/hurt-left.png`);
         this.load.image(`adarsha_hurt-right`, `assets/characters/adarsha/hurt-right.png`);
-        this.load.image(`adarsha_special`, `assets/characters/adarsha/kick.png`);
-        this.load.image(`adarsha_victory`, `assets/characters/adarsha/idle.png`);
-        this.load.image(`adarsha_jumpstart`, `assets/characters/adarsha/jumpstart.png`);
-        this.load.image(`adarsha_jump`, `assets/characters/adarsha/jump.png`);
-        this.load.image(`adarsha_jumpkick`, `assets/characters/adarsha/jumpkick.png`);
-        this.load.image(`adarsha_firestart`, `assets/characters/adarsha/firestart.png`);
-        this.load.image(`adarsha_firing`, `assets/characters/adarsha/firing.png`);
+        this.load.image(`adarsha_special-left`, `assets/characters/adarsha/special-left.png`);
+        this.load.image(`adarsha_special-right`, `assets/characters/adarsha/special-right.png`);
+        this.load.image(`adarsha_victory-left`, `assets/characters/adarsha/victory-left.png`);
+        this.load.image(`adarsha_victory-right`, `assets/characters/adarsha/victory-right.png`);
+        // ADARSHA special phase sprites
+        this.load.image(`adarsha_jumpstart-left`, `assets/characters/adarsha/jumpstart-left.png`);
+        this.load.image(`adarsha_jumpstart-right`, `assets/characters/adarsha/jumpstart-right.png`);
+        this.load.image(`adarsha_jump-left`, `assets/characters/adarsha/jump-left.png`);
+        this.load.image(`adarsha_jump-right`, `assets/characters/adarsha/jump-right.png`);
+        this.load.image(`adarsha_jumpkick-left`, `assets/characters/adarsha/jumpkick-left.png`);
+        this.load.image(`adarsha_jumpkick-right`, `assets/characters/adarsha/jumpkick-right.png`);
+        this.load.image(`adarsha_firestart-left`, `assets/characters/adarsha/firestart-left.png`);
+        this.load.image(`adarsha_firestart-right`, `assets/characters/adarsha/firestart-right.png`);
+        this.load.image(`adarsha_firing-left`, `assets/characters/adarsha/firing-left.png`);
+        this.load.image(`adarsha_firing-right`, `assets/characters/adarsha/firing-right.png`);
         this.load.image(`adarsha_fireball`, `assets/characters/adarsha/fireball.png`);
         
-        // Load ASHMIN sprites
-        this.load.image(`ashmin_idle`, `assets/characters/ashmin/idle.png`);
+        // ===== LOAD ASHMIN SPRITES =====
+        this.load.image(`ashmin_idle-left`, `assets/characters/ashmin/idle-left.png`);
+        this.load.image(`ashmin_idle-right`, `assets/characters/ashmin/idle-right.png`);
         this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
         this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
         this.load.image(`ashmin_kick-left`, `assets/characters/ashmin/kick-left.png`);
         this.load.image(`ashmin_kick-right`, `assets/characters/ashmin/kick-right.png`);
         this.load.image(`ashmin_hurt-left`, `assets/characters/ashmin/hurt-left.png`);
         this.load.image(`ashmin_hurt-right`, `assets/characters/ashmin/hurt-right.png`);
-        this.load.image(`ashmin_special`, `assets/characters/ashmin/kick.png`);
-        this.load.image(`ashmin_victory`, `assets/characters/ashmin/idle.png`);
-        this.load.image(`ashmin_dragon_1`, `assets/characters/ashmin/dragon_frame1.png`);
-        this.load.image(`ashmin_dragon_2`, `assets/characters/ashmin/dragon_frame2.png`);
-        this.load.image(`ashmin_dragon_3`, `assets/characters/ashmin/dragon_frame3.png`);
+        this.load.image(`ashmin_special-left`, `assets/characters/ashmin/special-left.png`);
+        this.load.image(`ashmin_special-right`, `assets/characters/ashmin/special-right.png`);
+        this.load.image(`ashmin_victory-left`, `assets/characters/ashmin/victory-left.png`);
+        this.load.image(`ashmin_victory-right`, `assets/characters/ashmin/victory-right.png`);
+        // ASHMIN dragon sprites (left/right variants for each frame)
+        this.load.image(`ashmin_dragon_1-left`, `assets/characters/ashmin/dragon_frame1-left.png`);
+        this.load.image(`ashmin_dragon_1-right`, `assets/characters/ashmin/dragon_frame1-right.png`);
+        this.load.image(`ashmin_dragon_2-left`, `assets/characters/ashmin/dragon_frame2-left.png`);
+        this.load.image(`ashmin_dragon_2-right`, `assets/characters/ashmin/dragon_frame2-right.png`);
+        this.load.image(`ashmin_dragon_3-left`, `assets/characters/ashmin/dragon_frame3-left.png`);
+        this.load.image(`ashmin_dragon_3-right`, `assets/characters/ashmin/dragon_frame3-right.png`);
         this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
         
-        // Load ALPINE sprites
-        this.load.image(`alpine_idle`, `assets/characters/alpine/idle.png`);
+        // ===== LOAD ALPINE SPRITES =====
+        this.load.image(`alpine_idle-left`, `assets/characters/alpine/idle-left.png`);
+        this.load.image(`alpine_idle-right`, `assets/characters/alpine/idle-right.png`);
         this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
         this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
         this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
         this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
         this.load.image(`alpine_hurt-left`, `assets/characters/alpine/hurt-left.png`);
         this.load.image(`alpine_hurt-right`, `assets/characters/alpine/hurt-right.png`);
-        this.load.image(`alpine_special_drink`, `assets/characters/alpine/special_drink.png`);
-        this.load.image(`alpine_special_powerup`, `assets/characters/alpine/special_powerup.png`);
-        this.load.image(`alpine_special_attack`, `assets/characters/alpine/special_attack.png`);
-        this.load.image(`alpine_victory`, `assets/characters/alpine/idle.png`);
+        this.load.image(`alpine_victory-left`, `assets/characters/alpine/victory-left.png`);
+        this.load.image(`alpine_victory-right`, `assets/characters/alpine/victory-right.png`);
+        // ALPINE special phase sprites
+        this.load.image(`alpine_special_drink-left`, `assets/characters/alpine/special_drink-left.png`);
+        this.load.image(`alpine_special_drink-right`, `assets/characters/alpine/special_drink-right.png`);
+        this.load.image(`alpine_special_powerup-left`, `assets/characters/alpine/special_powerup-left.png`);
+        this.load.image(`alpine_special_powerup-right`, `assets/characters/alpine/special_powerup-right.png`);
+        this.load.image(`alpine_special_attack-left`, `assets/characters/alpine/special_attack-left.png`);
+        this.load.image(`alpine_special_attack-right`, `assets/characters/alpine/special_attack-right.png`);
         
-        // Load PRESIDENT sprites
-        this.load.image(`president_idle`, `assets/characters/president/idle.png`);
+        // ===== LOAD PRESIDENT SPRITES =====
+        this.load.image(`president_idle-left`, `assets/characters/president/idle-left.png`);
+        this.load.image(`president_idle-right`, `assets/characters/president/idle-right.png`);
         this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
         this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
         this.load.image(`president_kick-left`, `assets/characters/president/kick-left.png`);
         this.load.image(`president_kick-right`, `assets/characters/president/kick-right.png`);
         this.load.image(`president_hurt-left`, `assets/characters/president/hurt-left.png`);
         this.load.image(`president_hurt-right`, `assets/characters/president/hurt-right.png`);
-        this.load.image(`president_special`, `assets/characters/president/kick.png`);
-        this.load.image(`president_victory`, `assets/characters/president/idle.png`);
+        this.load.image(`president_special-left`, `assets/characters/president/special-left.png`);
+        this.load.image(`president_special-right`, `assets/characters/president/special-right.png`);
+        this.load.image(`president_victory-left`, `assets/characters/president/victory-left.png`);
+        this.load.image(`president_victory-right`, `assets/characters/president/victory-right.png`);
         
-        // Load IRONMAN sprites
-        this.load.image(`ironman_idle`, `assets/characters/ironman/idle.png`);
+        // ===== LOAD IRONMAN SPRITES =====
+        this.load.image(`ironman_idle-left`, `assets/characters/ironman/idle-left.png`);
+        this.load.image(`ironman_idle-right`, `assets/characters/ironman/idle-right.png`);
         this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
         this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
         this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
         this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
         this.load.image(`ironman_hurt-left`, `assets/characters/ironman/hurt-left.png`);
         this.load.image(`ironman_hurt-right`, `assets/characters/ironman/hurt-right.png`);
-        this.load.image(`ironman_special`, `assets/characters/ironman/kick-right.png`);
-        this.load.image(`ironman_victory`, `assets/characters/ironman/victory.png`);
-        this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`);
+        this.load.image(`ironman_special-left`, `assets/characters/ironman/special-left.png`);
+        this.load.image(`ironman_special-right`, `assets/characters/ironman/special-right.png`);
+        this.load.image(`ironman_repulsor-left`, `assets/characters/ironman/repulsor-left.png`);
+        this.load.image(`ironman_repulsor-right`, `assets/characters/ironman/repulsor-right.png`);
+        this.load.image(`ironman_victory-left`, `assets/characters/ironman/victory-left.png`);
+        this.load.image(`ironman_victory-right`, `assets/characters/ironman/victory-right.png`);
         
-        // Load BATMAN sprites
-        this.load.image(`batman_idle`, `assets/characters/batman/idle.png`);
+        // ===== LOAD BATMAN SPRITES =====
+        this.load.image(`batman_idle-left`, `assets/characters/batman/idle-left.png`);
+        this.load.image(`batman_idle-right`, `assets/characters/batman/idle-right.png`);
         this.load.image(`batman_punch-left`, `assets/characters/batman/punch-left.png`);
         this.load.image(`batman_punch-right`, `assets/characters/batman/punch-right.png`);
         this.load.image(`batman_kick-left`, `assets/characters/batman/kick-left.png`);
         this.load.image(`batman_kick-right`, `assets/characters/batman/kick-right.png`);
         this.load.image(`batman_hurt-left`, `assets/characters/batman/hurt-left.png`);
         this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
-        this.load.image(`batman_special`, `assets/characters/batman/special.png`);
-        this.load.image(`batman_victory`, `assets/characters/batman/victory.png`);
+        this.load.image(`batman_special-left`, `assets/characters/batman/special-left.png`);
+        this.load.image(`batman_special-right`, `assets/characters/batman/special-right.png`);
+        this.load.image(`batman_victory-left`, `assets/characters/batman/victory-left.png`);
+        this.load.image(`batman_victory-right`, `assets/characters/batman/victory-right.png`);
         
-        // Load WOLVERINE sprites
-        this.load.image(`wolverine_idle`, `assets/characters/wolverine/idle.png`);
+        // ===== LOAD WOLVERINE SPRITES =====
+        this.load.image(`wolverine_idle-left`, `assets/characters/wolverine/idle-left.png`);
+        this.load.image(`wolverine_idle-right`, `assets/characters/wolverine/idle-right.png`);
         this.load.image(`wolverine_punch-left`, `assets/characters/wolverine/punch-left.png`);
         this.load.image(`wolverine_punch-right`, `assets/characters/wolverine/punch-right.png`);
         this.load.image(`wolverine_kick-left`, `assets/characters/wolverine/kick-left.png`);
         this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
         this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
         this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
-        this.load.image(`wolverine_special`, `assets/characters/wolverine/special.png`);
-        this.load.image(`wolverine_victory`, `assets/characters/wolverine/victory.png`);
+        this.load.image(`wolverine_special-left`, `assets/characters/wolverine/special-left.png`);
+        this.load.image(`wolverine_special-right`, `assets/characters/wolverine/special-right.png`);
+        this.load.image(`wolverine_victory-left`, `assets/characters/wolverine/victory-left.png`);
+        this.load.image(`wolverine_victory-right`, `assets/characters/wolverine/victory-right.png`);
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -256,8 +292,8 @@ class FightingGame extends Phaser.Scene {
         debugLog('CPU (opponent):', this.cpuData.name);
         
         // Verify textures exist
-        const playerIdleKey = `${this.playerData.folder}_idle`;
-        const cpuIdleKey = `${this.cpuData.folder}_idle`;
+        const playerIdleKey = `${this.playerData.folder}_idle-left`;
+        const cpuIdleKey = `${this.cpuData.folder}_idle-left`;
         
         debugLog('Player idle texture exists?', this.textures.exists(playerIdleKey));
         debugLog('CPU idle texture exists?', this.textures.exists(cpuIdleKey));
@@ -994,11 +1030,11 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Facing direction
+        // Facing direction - setFlipX is now handled by resolveTextureKey in animations
+        // No need to set flip here anymore
         const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
         const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
-        this.player.setFlipX(playerFacing === 'left');
-        this.cpu.setFlipX(cpuFacing === 'left');
+        // setFlipX is now handled by resolveTextureKey in animations.js
         
         // Aura positions
         if (this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
@@ -1195,12 +1231,10 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Facing direction
+        // Facing direction - setFlipX is now handled by resolveTextureKey in animations
         const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
         const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
-        
-        this.player.setFlipX(playerFacing === 'left');
-        this.cpu.setFlipX(cpuFacing === 'left');
+        // No setFlipX calls here - handled in animations.js
         
         // Attack inputs
         if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
