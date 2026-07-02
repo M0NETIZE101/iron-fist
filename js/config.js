@@ -178,5 +178,9 @@ const arenaBackgrounds = {
     'ORBITAL STATION': 'assets/background/orbital-station.jpg',
     'MAGMA CORE': 'assets/background/magma-core.jpg',
     'WASTELAND JUNKYARD': 'assets/background/junkyard.jpg',
-    'VOID CHAMBER': 'assets/background/void-chamber.jpg'
+    'VOID CHAMBER': 'assets/background/void-chamber.jpg',
+    // NEW ARENAS
+    'X-MANSION': 'assets/background/x-mansion.jpg',
+    'JJK_HIGHSCHOOL': 'assets/background/jjk_highschool.jpg',
+    'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg'
 };

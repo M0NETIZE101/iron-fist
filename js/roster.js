@@ -3,89 +3,21 @@
  * Complete fighter data & interactive roster grid
  */
 
-// FIGHTER DATABASE - Using actual playable characters
-const fighters = [
-  { 
-    name: "ADARSHA", 
-    archetype: "RUSH-DOWN", 
-    rank: "ELITE RANK", 
-    power: 88, 
-    speed: 94, 
-    range: 42,
-    defense: 78,
-    portrait: "assets/characters/adarsha/portrait.png",
-    thumb: "assets/characters/adarsha/portrait.png",
-    description: "A cybernetic monk who fuses ancient martial arts with experimental combat AI.",
+// FIGHTER DATABASE - Dynamically loaded from fighters.js
+// Read fighters dynamically from fighters.js (must be loaded before this script)
+const fighters = Object.values(FIGHTERS).map(f => ({
+    name: f.name,
+    archetype: f.archetype,
+    rank: f.rank,
+    power: f.power,
+    speed: f.speed,
+    range: f.range,
+    defense: f.defense,
+    portrait: f.portrait,
+    thumb: f.thumb,
+    description: f.title + ' — ' + f.archetype + ' archetype fighter.',
     unlocked: true
-  },
-  { 
-    name: "ASHMIN", 
-    archetype: "ZONER", 
-    rank: "LEGEND", 
-    power: 90, 
-    speed: 91, 
-    range: 78,
-    defense: 75,
-    portrait: "assets/characters/ashmin/portrait.jpg",
-    thumb: "assets/characters/ashmin/portrait.jpg",
-    description: "A synthetic being designed to be the perfect weapon—emotionless, efficient, and deadly.",
-    unlocked: true
-  },
-  { 
-    name: "ALPINE", 
-    archetype: "BALANCED", 
-    rank: "MOUNTAIN MASTER", 
-    power: 85, 
-    speed: 82, 
-    range: 88,
-    defense: 88,
-    portrait: "assets/characters/alpine/portrait.png",
-    thumb: "assets/characters/alpine/portrait.png",
-    description: "Born in the frozen peaks, Alpine uses her climbing skills as devastating combat techniques.",
-    unlocked: true
-  },
-  { 
-    name: "PRESIDENT", 
-    archetype: "POWER", 
-    rank: "PRESIDENTIAL RANK", 
-    power: 95, 
-    speed: 70, 
-    range: 65,
-    defense: 85,
-    portrait: "assets/characters/president/portrait.png",
-    thumb: "assets/characters/president/portrait.png",
-    description: "A former military general who brings strategic genius and overwhelming force to the arena.",
-    unlocked: true
-  },
-  // UPCOMING FIGHTERS (placeholder for future updates)
-  
-  { 
-    name: "???", 
-    archetype: "COMING SOON", 
-    rank: "LOCKED", 
-    power: 0, 
-    speed: 0, 
-    range: 0,
-    defense: 0,
-    portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=COMING+SOON",
-    thumb: "https://placehold.co/200x200/252525/ffb3b2?text=??",
-    description: "New fighter arriving in future update!",
-    unlocked: false
-  },
-  { 
-    name: "???", 
-    archetype: "COMING SOON", 
-    rank: "LOCKED", 
-    power: 0, 
-    speed: 0, 
-    range: 0,
-    defense: 0,
-    portrait: "https://placehold.co/600x800/2a2a2a/ffb3b2?text=COMING+SOON",
-    thumb: "https://placehold.co/200x200/252525/ffb3b2?text=??",
-    description: "New fighter arriving in future update!",
-    unlocked: false
-  }
-];
+}));
 
 // Global variable to track selected fighter
 let currentFighter = fighters[0];

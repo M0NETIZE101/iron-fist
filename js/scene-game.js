@@ -130,17 +130,13 @@ class FightingGame extends Phaser.Scene {
         this.load.image('arenaBg', bgImage);
         
         // ===== LOAD ADARSHA SPRITES =====
-        // Core sprites
         this.load.image(`adarsha_idle-left`, `assets/characters/adarsha/idle-left.png`);
         this.load.image(`adarsha_idle-right`, `assets/characters/adarsha/idle-right.png`);
         this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
         this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
         this.load.image(`adarsha_kick-left`, `assets/characters/adarsha/kick-left.png`);
         this.load.image(`adarsha_kick-right`, `assets/characters/adarsha/kick-right.png`);
-        this.load.image(`adarsha_hurt-left`, `assets/characters/adarsha/hurt-left.png`);
-        this.load.image(`adarsha_hurt-right`, `assets/characters/adarsha/hurt-right.png`);
-        this.load.image(`adarsha_special-left`, `assets/characters/adarsha/special-left.png`);
-        this.load.image(`adarsha_special-right`, `assets/characters/adarsha/special-right.png`);
+        // REMOVED: adarsha_special - not needed (uses jumpstart, jump, jumpkick, firestart, firing, fireball)
         this.load.image(`adarsha_victory-left`, `assets/characters/adarsha/victory-left.png`);
         this.load.image(`adarsha_victory-right`, `assets/characters/adarsha/victory-right.png`);
         // ADARSHA special phase sprites
@@ -163,10 +159,8 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
         this.load.image(`ashmin_kick-left`, `assets/characters/ashmin/kick-left.png`);
         this.load.image(`ashmin_kick-right`, `assets/characters/ashmin/kick-right.png`);
-        this.load.image(`ashmin_hurt-left`, `assets/characters/ashmin/hurt-left.png`);
-        this.load.image(`ashmin_hurt-right`, `assets/characters/ashmin/hurt-right.png`);
-        this.load.image(`ashmin_special-left`, `assets/characters/ashmin/special-left.png`);
-        this.load.image(`ashmin_special-right`, `assets/characters/ashmin/special-right.png`);
+        // REMOVED: ashmin_hurt - not needed
+        // REMOVED: ashmin_special - not needed
         this.load.image(`ashmin_victory-left`, `assets/characters/ashmin/victory-left.png`);
         this.load.image(`ashmin_victory-right`, `assets/characters/ashmin/victory-right.png`);
         // ASHMIN dragon sprites (left/right variants for each frame)
@@ -222,8 +216,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`ironman_hurt-right`, `assets/characters/ironman/hurt-right.png`);
         this.load.image(`ironman_special-left`, `assets/characters/ironman/special-left.png`);
         this.load.image(`ironman_special-right`, `assets/characters/ironman/special-right.png`);
-        this.load.image(`ironman_repulsor-left`, `assets/characters/ironman/repulsor-left.png`);
-        this.load.image(`ironman_repulsor-right`, `assets/characters/ironman/repulsor-right.png`);
+        this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`);
         this.load.image(`ironman_victory-left`, `assets/characters/ironman/victory-left.png`);
         this.load.image(`ironman_victory-right`, `assets/characters/ironman/victory-right.png`);
         
@@ -238,6 +231,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
         this.load.image(`batman_special-left`, `assets/characters/batman/special-left.png`);
         this.load.image(`batman_special-right`, `assets/characters/batman/special-right.png`);
+        this.load.image(`batman_batarang`, `assets/characters/batman/batarang.png`);
         this.load.image(`batman_victory-left`, `assets/characters/batman/victory-left.png`);
         this.load.image(`batman_victory-right`, `assets/characters/batman/victory-right.png`);
         
@@ -250,8 +244,7 @@ class FightingGame extends Phaser.Scene {
         this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
         this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
         this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
-        this.load.image(`wolverine_special-left`, `assets/characters/wolverine/special-left.png`);
-        this.load.image(`wolverine_special-right`, `assets/characters/wolverine/special-right.png`);
+        // REMOVED: wolverine_special - not needed (uses berserkerBarrage logic)
         this.load.image(`wolverine_victory-left`, `assets/characters/wolverine/victory-left.png`);
         this.load.image(`wolverine_victory-right`, `assets/characters/wolverine/victory-right.png`);
         

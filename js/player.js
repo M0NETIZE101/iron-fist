@@ -370,13 +370,12 @@ adarshaSpecial() {
     }
     
     // ========== ALPINE'S THREE-PHASE SPECIAL ==========
-   // ========== ALPINE'S THREE-PHASE SPECIAL ==========
 alpineSpecial() {
     const scene = this.scene;
     if (!scene.roundActive || scene.isAttacking || scene.isSuperFrozen || scene.isJumping) return;
     if (scene.specialCooldown > 0) return;
     
-    console.log('Alpine special started!'); // Debug log
+    console.log('Alpine special started!');
     
     scene.specialCooldown = 240;
     scene.hasSuperArmor = true;
@@ -476,6 +475,7 @@ alpineSpecial() {
         });
     });
 }
+
 // ========== IRON MAN'S REPULSOR BLAST SPECIAL ==========
 ironmanSpecial() {
     const scene = this.scene;
@@ -488,8 +488,8 @@ ironmanSpecial() {
     scene.hasSuperArmor = true;
     this.attackState = { type: 'special', active: true };
     
-    // ========== PHASE 1: Charge up ==========
-    this.animations.setPlayerAnimation('idle', 200, false, true);
+    // ========== PHASE 1: Charge up - use special pose ==========
+    this.animations.setPlayerAnimation('special', 200, false, true);
     
     // Charging effect
     const chargeGlow = scene.add.circle(scene.player.x + 30, scene.player.y - 20, 30, 0x00aaff, 0.5);
@@ -506,15 +506,17 @@ ironmanSpecial() {
         const startX = scene.player.x + (direction * 70);
         const startY = scene.player.y - 30;
         
-        // Create repulsor beam/projectile
+        // Create repulsor beam/projectile using the uploaded repulsor.png
         let repulsor;
         if (scene.textures.exists('ironman_repulsor')) {
             repulsor = scene.add.image(startX, startY, 'ironman_repulsor');
             repulsor.setDisplaySize(60, 30);
+            repulsor.setDepth(55);
         } else {
+            // Fallback to circle if texture is missing
             repulsor = scene.add.ellipse(startX, startY, 40, 20, 0x00aaff);
+            repulsor.setDepth(55);
         }
-        repulsor.setDepth(55);
         this.createdObjects.push(repulsor);
         
         // Add glow effect
@@ -570,9 +572,238 @@ ironmanSpecial() {
         });
     });
 }
+
+// ========== BATMAN'S BATARANG BARRAGE SPECIAL ==========
+batmanSpecial() {
+    const scene = this.scene;
+    if (!scene.roundActive || scene.isAttacking || scene.isSuperFrozen || scene.isJumping) return;
+    if (scene.specialCooldown > 0) return;
+    
+    console.log('Batman special started!');
+    
+    scene.specialCooldown = 240;
+    scene.hasSuperArmor = true;
+    this.attackState = { type: 'special', active: true };
+    
+    // ========== PHASE 1: Throw pose ==========
+    this.animations.setPlayerAnimation('special', 200, false, true);
+    
+    scene.time.delayedCall(200, () => {
+        if (!scene.roundActive) return;
+        
+        // ========== PHASE 2: Launch Batarang ==========
+        const facing = getFacingDirection(scene.player.x, scene.cpu.x, 'player');
+        const direction = facing === 'right' ? 1 : -1;
+        const startX = scene.player.x + (direction * 60);
+        const startY = scene.player.y - 30;
+        
+        // Create Batarang using the uploaded image
+        let batarang;
+        if (scene.textures.exists('batman_batarang')) {
+            batarang = scene.add.image(startX, startY, 'batman_batarang');
+            batarang.setDisplaySize(40, 40);
+            batarang.setDepth(55);
+        } else {
+            // Fallback to a triangle if texture is missing
+            batarang = scene.add.triangle(startX, startY, 0, -15, -10, 15, 10, 15, 0x2a2a2a);
+            batarang.setDepth(55);
+        }
+        this.createdObjects.push(batarang);
+        
+        // Add glow effect
+        const glow = scene.add.ellipse(startX, startY, 50, 50, 0xffd700, 0.2);
+        this.createdObjects.push(glow);
+        
+        // Calculate target position (slightly above CPU)
+        const targetX = scene.cpu.x;
+        const targetY = scene.cpu.y - 40;
+        
+        // Distance and duration for the flight
+        const distance = Math.abs(targetX - startX);
+        const duration = Math.min(Math.max(distance * 1.5, 150), 400);
+        
+        // Animate the Batarang flying to target with rotation
+        scene.tweens.add({
+            targets: batarang,
+            x: targetX,
+            y: targetY,
+            duration: duration,
+            ease: 'Power2',
+            angle: direction * 720, // 2 full rotations (720 degrees) while flying
+            onUpdate: () => {
+                // Make glow follow the Batarang
+                if (glow && glow.active) {
+                    glow.x = batarang.x;
+                    glow.y = batarang.y;
+                }
+            },
+            onComplete: () => {
+                const finalDist = Math.abs(batarang.x - scene.cpu.x);
+                if (finalDist < 80) {
+                    // Hit!
+                    const isBlocked = scene.cpuBlocking;
+                    const baseDamage = 20;
+                    const damage = isBlocked ? Math.floor(baseDamage * 0.25) : Math.floor(baseDamage * (this.playerData.power / 100));
+                    scene.cpuHealth = Math.max(0, scene.cpuHealth - damage);
+                    scene.applyHitEffect(scene.cpu, damage, true, 'projectile');
+                    this.animations.setCPUAnimation('heavy', 200);
+                    if (this.ui) this.ui.updateHealthBars();
+                    
+                    // Impact explosion effect
+                    const impact = scene.add.circle(scene.cpu.x, scene.cpu.y - 40, 25, 0xffd700, 0.8);
+                    scene.tweens.add({ 
+                        targets: impact, 
+                        alpha: 0, 
+                        scale: 1.5, 
+                        duration: 300, 
+                        onComplete: () => impact.destroy() 
+                    });
+                    
+                    // Impact text
+                    const impactText = scene.add.text(640, 360, 'BATARANG!', {
+                        fontFamily: 'Anybody', fontSize: '32px', color: '#ffd700', fontStyle: 'bold italic',
+                        stroke: '#000000', strokeThickness: 3
+                    }).setOrigin(0.5);
+                    scene.tweens.add({ 
+                        targets: impactText, 
+                        alpha: 0, 
+                        scale: 1.3, 
+                        duration: 500, 
+                        onComplete: () => impactText.destroy() 
+                    });
+                    
+                    if (!isBlocked) {
+                        scene.comboCount += 2;
+                        if (scene.comboText) scene.comboText.setText(`BATARANG! ${scene.comboCount} HITS!`);
+                        if (scene.comboText) scene.comboText.setAlpha(1);
+                    }
+                    
+                    if (scene.cpuHealth <= 0) scene.endGame('player');
+                } else {
+                    // Miss
+                    const missText = scene.add.text(640, 360, 'MISS!', {
+                        fontFamily: 'Anybody', fontSize: '28px', color: '#ff003c', fontStyle: 'bold italic',
+                        stroke: '#000000', strokeThickness: 3
+                    }).setOrigin(0.5);
+                    scene.tweens.add({ 
+                        targets: missText, 
+                        alpha: 0, 
+                        scale: 1.5, 
+                        duration: 500, 
+                        onComplete: () => missText.destroy() 
+                    });
+                }
+                
+                // Clean up
+                this.destroyObject(batarang);
+                this.destroyObject(glow);
+            }
+        });
+        
+        scene.time.delayedCall(400, () => {
+            scene.hasSuperArmor = false;
+            this.attackState = null;
+        });
+    });
+}
+
+// ========== WOLVERINE'S BERSERKER BARRAGE SPECIAL ==========
+berserkerBarrage() {
+    const scene = this.scene;
+    if (!scene.roundActive || scene.isAttacking || scene.isSuperFrozen || scene.isJumping) return;
+    if (scene.specialCooldown > 0) return;
+    
+    console.log('Wolverine special started!');
+    
+    scene.specialCooldown = 280;
+    scene.hasSuperArmor = true;
+    this.attackState = { type: 'special', active: true };
+    
+    // ========== Berserker Barrage - Rapid claw slashes ==========
+    this.animations.setPlayerAnimation('special', 300, false, true);
+    
+    // Screen shake and flash
+    scene.cameras.main.shake(150, 0.02);
+    const whiteFlash = scene.add.rectangle(640, 360, 1280, 720, 0xffffff, 0);
+    scene.tweens.add({ targets: whiteFlash, alpha: 0.3, duration: 50, yoyo: true, onComplete: () => whiteFlash.destroy() });
+    
+    // Check if in range
+    const distance = Math.abs(scene.player.x - scene.cpu.x);
+    const canHit = distance < 100;
+    
+    if (canHit) {
+        const isBlocked = scene.cpuBlocking;
+        const baseDamage = 25;
+        const damage = isBlocked ? Math.floor(baseDamage * 0.25) : Math.floor(baseDamage * (this.playerData.power / 100));
+        
+        scene.cpuHealth = Math.max(0, scene.cpuHealth - damage);
+        scene.applyHitEffect(scene.cpu, damage, true, 'claw');
+        this.animations.setCPUAnimation('heavy', 200);
+        if (this.ui) this.ui.updateHealthBars();
+        
+        // Claw slash effects
+        for (let i = 0; i < 3; i++) {
+            const slashX = scene.cpu.x - 30 + (i * 30);
+            const slashY = scene.cpu.y - 30 + (i * 10);
+            const slash = scene.add.circle(slashX, slashY, 15, 0xff8c00, 0.6);
+            scene.tweens.add({ 
+                targets: slash, 
+                alpha: 0, 
+                scale: 2, 
+                duration: 200, 
+                delay: i * 80,
+                onComplete: () => slash.destroy() 
+            });
+        }
+        
+        // Blood/impact effect
+        const impact = scene.add.circle(scene.cpu.x, scene.cpu.y - 40, 20, 0xff003c, 0.7);
+        scene.tweens.add({ 
+            targets: impact, 
+            alpha: 0, 
+            scale: 2, 
+            duration: 300, 
+            onComplete: () => impact.destroy() 
+        });
+        
+        const specialText = scene.add.text(640, 300, 'BERSERKER BARRAGE!', {
+            fontFamily: 'Anybody', fontSize: '36px', color: '#ff8c00', fontStyle: 'bold italic',
+            stroke: '#000000', strokeThickness: 4
+        }).setOrigin(0.5);
+        scene.tweens.add({ 
+            targets: specialText, 
+            alpha: 0, 
+            scale: 1.3, 
+            duration: 600, 
+            onComplete: () => specialText.destroy() 
+        });
+        
+        scene.comboCount += 3;
+        if (scene.comboText) scene.comboText.setText(`BERSERKER! ${scene.comboCount} HITS!`);
+        if (scene.comboText) scene.comboText.setAlpha(1);
+        
+        if (scene.cpuHealth <= 0) scene.endGame('player');
+    } else {
+        const missText = scene.add.text(640, 360, 'MISS!', {
+            fontFamily: 'Anybody', fontSize: '28px', color: '#ff003c', fontStyle: 'bold italic',
+            stroke: '#000000', strokeThickness: 3
+        }).setOrigin(0.5);
+        scene.tweens.add({ 
+            targets: missText, 
+            alpha: 0, 
+            scale: 1.5, 
+            duration: 500, 
+            onComplete: () => missText.destroy() 
+        });
+    }
+    
+    scene.time.delayedCall(500, () => {
+        scene.hasSuperArmor = false;
+        this.attackState = null;
+    });
+}
     
     // ========== MAIN SPECIAL DISPATCHER ==========
-   // ========== MAIN SPECIAL DISPATCHER ==========
 playerSpecialAttack() {
     if (this.playerData.name === 'ASHMIN') {
         this.goldenDragonFist();
@@ -582,6 +813,10 @@ playerSpecialAttack() {
         this.alpineSpecial();
     } else if (this.playerData.name === 'IRONMAN') {
         this.ironmanSpecial();
+    } else if (this.playerData.name === 'BATMAN') {
+        this.batmanSpecial();
+    } else if (this.playerData.name === 'WOLVERINE') {
+        this.berserkerBarrage();
     } else {
         this.standardSpecial();
     }
