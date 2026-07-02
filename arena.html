@@ -239,7 +239,7 @@
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">MAGMA CORE</div>
 </div>
 
-<!-- Arena 5: WASTELAND JUNKYARD - FIXED label to match data-arena -->
+<!-- Arena 5: WASTELAND JUNKYARD -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="WASTELAND JUNKYARD" data-desc="A graveyard of giant robots from the last war. Uneven terrain everywhere." data-hazards="2" data-bgcolor1="0x1a1a0a" data-bgcolor2="0x2a2a0a" data-accent="0xaaaaaa">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/junkyard.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">WASTELAND JUNKYARD</div>
@@ -249,6 +249,24 @@
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="VOID CHAMBER" data-desc="A mysterious dimension where reality is fractured." data-hazards="1" data-bgcolor1="0x001a1a" data-bgcolor2="0x002a2a" data-accent="0x00dbe9">
 <div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/void-chamber.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">VOID CHAMBER</div>
+</div>
+
+<!-- Arena 7: X-MANSION -->
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="X-MANSION" data-desc="Professor Xavier's school for gifted youngsters. A historic battleground for mutantkind." data-hazards="2" data-bgcolor1="0x1a0a0a" data-bgcolor2="0x2a1a1a" data-accent="0x0047ab">
+<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/x-mansion.jpg')"></div>
+<div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">X-MANSION</div>
+</div>
+
+<!-- Arena 8: JJK_HIGHSCHOOL -->
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="JJK_HIGHSCHOOL" data-desc="A cursed school where sorcerers train to fight evil spirits. Shadows lurk in every corner." data-hazards="4" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x1a0a2a" data-accent="0x8b0000">
+<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/jjk_highschool.jpg')"></div>
+<div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">JJK HIGHSCHOOL</div>
+</div>
+
+<!-- Arena 9: AVENGERS_TOWER -->
+<div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="AVENGERS_TOWER" data-desc="Stark Tower's rooftop. A high-tech battleground with a stunning view of the city." data-hazards="3" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x1a1a2a" data-accent="0xc71f1f">
+<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/avengers_tower.jpg')"></div>
+<div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">AVENGERS TOWER</div>
 </div>
 </div>
 
@@ -320,7 +338,7 @@
 </section>
 </main>
 
-<!-- Footer with updated copyright year -->
+<!-- Footer -->
 <footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20">
 <div class="font-headline-lg text-headline-lg text-primary italic">CHIYA WARRIORS</div>
 <div class="font-label-sm text-label-sm tracking-widest text-on-surface uppercase flex gap-stack-lg">
@@ -328,7 +346,7 @@
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">PRIVACY</a>
 <a class="text-on-surface-variant hover:text-tertiary transition-colors" href="#">SUPPORT</a>
 </div>
-<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2025 MINDS OF INTELLECT (MOI). ALL RIGHTS RESERVED.</div>
+<div class="font-label-sm text-label-sm tracking-widest text-on-surface-variant">© 2025 MINDS OF INTELLECT [MOI]. ALL RIGHTS RESERVED.</div>
 </footer>
 
 <script>
@@ -351,7 +369,10 @@
         'ORBITAL STATION': 'assets/background/orbital-station.jpg',
         'MAGMA CORE': 'assets/background/magma-core.jpg',
         'WASTELAND JUNKYARD': 'assets/background/junkyard.jpg',
-        'VOID CHAMBER': 'assets/background/void-chamber.jpg'
+        'VOID CHAMBER': 'assets/background/void-chamber.jpg',
+        'X-MANSION': 'assets/background/x-mansion.jpg',
+        'JJK_HIGHSCHOOL': 'assets/background/jjk_highschool.jpg',
+        'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg'
     };
     
     function selectArena(name, desc, hazards, bgcolor1, bgcolor2, accent) {
