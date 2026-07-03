@@ -131,6 +131,21 @@
         .pixel-text-shadow {
             text-shadow: 4px 4px 0px rgba(0, 243, 255, 0.5);
         }
+
+        .arena-card {
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+        }
+        .arena-card .h-32 {
+            transition: all 0.3s ease;
+            filter: none !important; /* Keep colors always visible */
+        }
+        .arena-card:hover {
+            border-color: #ff003c !important;
+            transform: scale(1.05) !important;
+            box-shadow: 0 0 30px rgba(255,0,60,0.4) !important;
+            z-index: 10;
+        }
         
         @media (max-width: 768px) {
             .px-margin-desktop {
@@ -217,7 +232,7 @@
 <div class="lg:col-span-7 grid grid-cols-2 md:grid-cols-3 gap-stack-md">
 <!-- Arena 1: NEO-TOKYO -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="NEO-TOKYO" data-desc="A sprawling urban landscape under perpetual neon rain." data-hazards="4" data-bgcolor1="0x1a0a0a" data-bgcolor2="0x2a0a0a" data-accent="0xff5252">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/neo-tokyo.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/neo-tokyo.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">NEO-TOKYO</div>
 </div>
 
@@ -229,61 +244,61 @@
 
 <!-- Arena 3: ORBITAL STATION -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="ORBITAL STATION" data-desc="Combat in zero gravity aboard a failing space station." data-hazards="5" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x0a0a2a" data-accent="0x00dbe9">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/orbital-station.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/orbital-station.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">ORBITAL STATION</div>
 </div>
 
 <!-- Arena 4: MAGMA CORE -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="MAGMA CORE" data-desc="Deep beneath the Earth's crust. Lava flows create hazardous terrain." data-hazards="5" data-bgcolor1="0x1a0a00" data-bgcolor2="0x2a0a00" data-accent="0xff3b3b">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/magma-core.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/magma-core.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">MAGMA CORE</div>
 </div>
 
 <!-- Arena 5: WASTELAND JUNKYARD -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="WASTELAND JUNKYARD" data-desc="A graveyard of giant robots from the last war. Uneven terrain everywhere." data-hazards="2" data-bgcolor1="0x1a1a0a" data-bgcolor2="0x2a2a0a" data-accent="0xaaaaaa">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/junkyard.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/junkyard.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">WASTELAND JUNKYARD</div>
 </div>
 
 <!-- Arena 6: VOID CHAMBER -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="VOID CHAMBER" data-desc="A mysterious dimension where reality is fractured." data-hazards="1" data-bgcolor1="0x001a1a" data-bgcolor2="0x002a2a" data-accent="0x00dbe9">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/void-chamber.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/void-chamber.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">VOID CHAMBER</div>
 </div>
 
 <!-- Arena 7: X-MANSION -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="X-MANSION" data-desc="Professor Xavier's school for gifted youngsters. A historic battleground for mutantkind." data-hazards="2" data-bgcolor1="0x1a0a0a" data-bgcolor2="0x2a1a1a" data-accent="0x0047ab">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/x-mansion.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/x-mansion.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">X-MANSION</div>
 </div>
 
 <!-- Arena 8: JJK_HIGHSCHOOL -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="JJK_HIGHSCHOOL" data-desc="A cursed school where sorcerers train to fight evil spirits. Shadows lurk in every corner." data-hazards="4" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x1a0a2a" data-accent="0x8b0000">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/jjk_highschool.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/jjk_highschool.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">JJK HIGHSCHOOL</div>
 </div>
 
 <!-- Arena 9: AVENGERS_TOWER -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="AVENGERS_TOWER" data-desc="Stark Tower's rooftop. A high-tech battleground with a stunning view of the city." data-hazards="3" data-bgcolor1="0x0a0a1a" data-bgcolor2="0x1a1a2a" data-accent="0xc71f1f">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/avengers_tower.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/avengers_tower.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">AVENGERS TOWER</div>
 </div>
 
 <!-- Arena 10: HIDDEN_LEAF_VILLAGE -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="HIDDEN_LEAF_VILLAGE" data-desc="The Hidden Leaf Village - home of the legendary ninja. Cherry blossoms and shuriken fill the air." data-hazards="3" data-bgcolor1="0x1a2a1a" data-bgcolor2="0x2a3a2a" data-accent="0x2e8b57">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/hidden_leaf_village.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/hidden_leaf_village.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">HIDDEN LEAF</div>
 </div>
 
 <!-- Arena 11: VALLEY_OF_DEATH -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="VALLEY_OF_DEATH" data-desc="The legendary battlefield where two great ninja fought to the death. A place of immense power." data-hazards="5" data-bgcolor1="0x1a1a0a" data-bgcolor2="0x2a2a0a" data-accent="0x8b6914">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/valley_of_death.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/valley_of_death.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">VALLEY OF DEATH</div>
 </div>
 
 <!-- Arena 12: WALL_MARIA -->
 <div class="arena-card group cursor-pointer border-4 border-outline-variant hover:border-retro-red transition-all transform hover:-translate-y-1 bg-surface-container-high overflow-hidden" data-arena="WALL_MARIA" data-desc="Humanity's last line of defense against the Titans. Fight atop the massive walls." data-hazards="4" data-bgcolor1="0x1a1a1a" data-bgcolor2="0x2a2a2a" data-accent="0x8b4513">
-<div class="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all" style="background-image: url('assets/background/wall_maria.jpg')"></div>
+<div class="h-32 bg-cover bg-center transition-all" style="background-image: url('assets/background/wall_maria.jpg')"></div>
 <div class="p-2 font-label-bold text-on-surface text-center uppercase tracking-tighter">WALL MARIA</div>
 </div>
 </div>

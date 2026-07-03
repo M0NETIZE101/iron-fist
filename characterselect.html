@@ -48,7 +48,6 @@
     #confirm-btn { position: relative; overflow: hidden; transition: all 0.3s ease; }
     #confirm-btn:hover { transform: scale(1.02); box-shadow: 0 0 30px rgba(0, 219, 233, 0.6); }
     
-    /* Dropdown filter styles */
     .filter-dropdown {
       background: rgba(20, 20, 20, 0.8);
       border: 1px solid rgba(255, 179, 178, 0.2);
@@ -161,7 +160,6 @@
       <a href="fighters.html" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Fighters</a>
     </div>
     <div class="flex items-center gap-stack-md">
-      <button class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Login</button>
       <a href="characterselect.html" class="skew-btn bg-primary text-on-primary px-7 py-3 font-label-bold text-label-bold transition-all hover:shadow-[0_0_15px_rgba(255,179,178,0.7)] active:scale-95 inline-block">PLAY NOW</a>
     </div>
   </nav>
@@ -293,7 +291,6 @@
   <script src="js/fighters.js"></script>
   
   <script>
-    // Fighter category mapping
     const fighterCategories = {
       'ADARSHA': 'chiya',
       'ASHMIN': 'chiya',
@@ -304,7 +301,6 @@
       'WOLVERINE': 'marvel'
     };
 
-    // Convert FIGHTERS object to array for roster display
     const fighters = Object.values(FIGHTERS);
     let currentFighter = fighters[0];
     let currentCategory = 'all';
@@ -367,24 +363,24 @@
       }
     }
 
-    // Category filter dropdown
     const categoryFilter = document.getElementById('categoryFilter');
-    categoryFilter.addEventListener('change', () => {
-      currentCategory = categoryFilter.value;
-      buildRosterGrid(currentCategory);
-      
-      // Select first fighter in filtered list
-      const firstCard = document.querySelector('.character-card');
-      if (firstCard) {
-        firstCard.classList.add('active');
-        const fighterName = firstCard.querySelector('.font-label-bold').textContent;
-        const fighter = fighters.find(f => f.name === fighterName);
-        if (fighter) {
-          currentFighter = fighter;
-          updateDetailPanel(currentFighter);
+    if (categoryFilter) {
+      categoryFilter.addEventListener('change', () => {
+        currentCategory = categoryFilter.value;
+        buildRosterGrid(currentCategory);
+        
+        const firstCard = document.querySelector('.character-card');
+        if (firstCard) {
+          firstCard.classList.add('active');
+          const fighterName = firstCard.querySelector('.font-label-bold').textContent;
+          const fighter = fighters.find(f => f.name === fighterName);
+          if (fighter) {
+            currentFighter = fighter;
+            updateDetailPanel(currentFighter);
+          }
         }
-      }
-    });
+      });
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       buildRosterGrid('all');

@@ -105,13 +105,11 @@
   <nav class="fixed top-0 w-full z-50 bg-surface/85 backdrop-blur-xl border-b border-primary/30 shadow-[0_0_25px_rgba(255,179,178,0.2)] flex justify-between items-center px-margin-mobile md:px-margin-desktop h-20">
     <div class="font-display-lg text-headline-lg md:text-3xl italic font-black text-primary tracking-tighter cursor-pointer" onclick="window.location.href='index.html'">CHIYA WARRIORS</div>
     <div class="hidden md:flex gap-gutter">
-      <a href="characterselect.html" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Roster</a>
       <a href="#" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Mechanics</a>
       <a href="#" class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Community</a>
       <a href="fighters.html" class="text-primary border-b-2 border-primary pb-1 font-label-bold">Fighters</a>
     </div>
     <div class="flex items-center gap-stack-md">
-      <button class="text-on-surface-variant hover:text-primary transition-colors font-label-bold">Login</button>
       <a href="characterselect.html" class="skew-btn bg-primary text-on-primary px-7 py-3 font-label-bold text-label-bold transition-all hover:shadow-[0_0_15px_rgba(255,179,178,0.7)] active:scale-95 inline-block">
         PLAY NOW
       </a>
@@ -172,21 +170,21 @@
     <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-gutter">
       <div class="glass-panel p-stack-lg rounded-2xl relative overflow-hidden group border-l-[6px] border-l-primary">
         <div class="absolute -top-6 -right-6 p-4 opacity-15 group-hover:opacity-35"><span class="material-symbols-outlined text-7xl">bolt</span></div>
-        <div class="font-label-bold text-label-bold text-primary mb-2 tracking-[0.2em]">ENGINE 4.0</div>
-        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">NEXT-GEN COMBAT</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant">Frame-perfect inputs and revolutionary physics-based hit reactions for the most visceral experience.</p>
+        <div class="font-label-bold text-label-bold text-primary mb-2 tracking-[0.2em]">PHASE ENGINE 3.0</div>
+        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">UNREAL COMBAT</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant">Frame-perfect responsiveness, dynamic hitbox detection, and body-part-specific damage multipliers. The Phase Engine 3.0 delivers the most visceral fighting experience across PC, mobile, and web.</p>
       </div>
       <div class="glass-panel p-stack-lg rounded-2xl relative overflow-hidden group border-l-[6px] border-l-tertiary">
         <div class="absolute -top-6 -right-6 p-4 opacity-15 group-hover:opacity-35"><span class="material-symbols-outlined text-7xl">public</span></div>
-        <div class="font-label-bold text-label-bold text-tertiary mb-2 tracking-[0.2em]">WORLD TOUR</div>
-        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">GLOBAL ARENAS</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant">Fight across 24 dynamic environments, from neon-drenched Neo-Tokyo to the crumbling spires of Olympus.</p>
+        <div class="font-label-bold text-label-bold text-tertiary mb-2 tracking-[0.2em]">OMNIVERSE TOUR</div>
+        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">FIGHT ACROSS REALITIES</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant">Battle across 12 iconic dimensions — from Neo-Tokyo to Xavier's Mansion, the Valley of the End to the Walls of Maria. Every arena is a portal to a different reality.</p>
       </div>
       <div class="glass-panel p-stack-lg rounded-2xl relative overflow-hidden group border-l-[6px] border-l-secondary-container">
         <div class="absolute -top-6 -right-6 p-4 opacity-15 group-hover:opacity-35"><span class="material-symbols-outlined text-7xl">shield</span></div>
-        <div class="font-label-bold text-label-bold text-secondary-container mb-2 tracking-[0.2em]">32 WARRIORS</div>
-        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">UNRIVALED ROSTER</h3>
-        <p class="font-body-md text-body-md text-on-surface-variant">A diverse lineup of cybernetic monks, ancient spirits, and high-tech mercs, each with over 150 unique moves.</p>
+        <div class="font-label-bold text-label-bold text-secondary-container mb-2 tracking-[0.2em]">OMNIVERSE ROSTER</div>
+        <h3 class="font-headline-lg text-headline-lg text-on-background mb-stack-md uppercase italic">LEGENDS FROM EVERYWHERE</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant">Choose from an ever-growing roster of iconic warriors — cybernetic monks, armored avengers, dark knights, and feral berserkers. The multiverse is your battleground.</p>
       </div>
     </div>
   </section>
@@ -201,7 +199,7 @@
         <a href="#" class="text-on-surface-variant hover:text-secondary transition-colors text-sm">Tournament Rules</a>
         <a href="#" class="text-on-surface-variant hover:text-secondary transition-colors text-sm">Support</a>
       </div>
-      <p class="text-on-surface-variant opacity-60 text-xs">© 2025 MINDS OF INTELLECT (MOI). ALL RIGHTS RESERVED.</p>
+      <p class="text-on-surface-variant opacity-60 text-xs">© 2026 MINDS OF INTELLECT [MOI]. ALL RIGHTS RESERVED.</p>
     </div>
   </footer>
 
@@ -212,7 +210,6 @@
   </div>
 
   <script>
-    // Parallax effect
     const heroImg = document.querySelector('.hero-parallax-img');
     if (heroImg) {
       window.addEventListener('scroll', () => {
@@ -221,7 +218,6 @@
       });
     }
     
-    // Button effects
     const skewBtns = document.querySelectorAll('.skew-btn');
     skewBtns.forEach(btn => {
       btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.96)');
@@ -229,7 +225,6 @@
       btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
     });
     
-    // ========== TRAILER VIDEO FUNCTIONALITY ==========
     const trailerContainer = document.getElementById('trailerContainer');
     const trailerVideo = document.getElementById('trailerVideo');
     const heroContent = document.getElementById('heroContent');
