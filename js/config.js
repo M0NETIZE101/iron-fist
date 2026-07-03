@@ -179,8 +179,12 @@ const arenaBackgrounds = {
     'MAGMA CORE': 'assets/background/magma-core.jpg',
     'WASTELAND JUNKYARD': 'assets/background/junkyard.jpg',
     'VOID CHAMBER': 'assets/background/void-chamber.jpg',
-    // NEW ARENAS
+    // MARVEL ARENAS
     'X-MANSION': 'assets/background/x-mansion.jpg',
+    'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg',
+    // ANIME ARENAS
     'JJK_HIGHSCHOOL': 'assets/background/jjk_highschool.jpg',
-    'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg'
+    'HIDDEN_LEAF_VILLAGE': 'assets/background/hidden_leaf_village.jpg',
+    'VALLEY_OF_DEATH': 'assets/background/valley_of_death.jpg',
+    'WALL_MARIA': 'assets/background/wall_maria.jpg'
 };
