@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport">
-<title>CHIYA GANG WARRIORS | ONLINE BATTLE</title>
+<title>CHIYA WARRIORS | ONLINE BATTLE</title>
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <script src="js/fighters.js"></script>
@@ -285,9 +285,24 @@
             margin-top: 20px;
             font-family: 'JetBrains Mono', monospace;
         }
+
+        /* Allow natural scrolling */
+        body {
+            overflow-y: auto !important;
+            overflow-x: hidden !important;
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: auto !important;
+        }
+
+        .flex.min-h-screen {
+            min-height: 100vh;
+            min-height: 100dvh;
+            height: auto !important;
+        }
     </style>
 </head>
-<body class="bg-surface text-on-surface font-body-md overflow-hidden selection:bg-kinetic-strike selection:text-white">
+<body class="bg-surface text-on-surface font-body-md selection:bg-kinetic-strike selection:text-white">
 
 <!-- Countdown Overlay -->
 <div id="countdown-overlay">
@@ -301,7 +316,7 @@
 <!-- TopNavBar -->
 <nav class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
 <div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic flicker cursor-pointer" onclick="window.location.href='index.html'">
-            CHIYA GANG
+            CHIYA WARRIORS
         </div>
 <div class="hidden md:flex gap-stack-lg items-center font-label-bold text-label-bold">
 <a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="characterselect.html">ROSTER</a>
@@ -355,7 +370,7 @@
 <div class="w-full h-full" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWH9tPKzXX8kuwZmtn3OZrslN1p3j_-6E6Rl5deoN5_QPGsYR3URbpSpJLdoGQyDMDrfJJ0iXCaY2ikHg4M5MB9LvYa82cg-ttGccQJfZVOentzvI_45aBoF0aOrYE4H4Rdh4ut1yYjMRFYt6bkacYk71TXMwJJ7xCCf3vjk2-fA5rd8YXPWWfsa_iRy8jBOGooi6omziQppg6d6BKLzM5-59Mb8yx-4sYkUOb2252-k1IdGFdNb31b0VfcbODLx3M_I5OpmFktc4')"></div>
 </div>
 
-<div class="relative z-10 max-w-4xl mx-auto mt-8 lg:mt-12">
+<div class="relative z-10 max-w-4xl mx-auto mt-8 lg:mt-12 pb-12">
 <header class="mb-8 lg:mb-12">
 <h1 class="font-display-xl text-display-xl italic uppercase text-kinetic-strike flex items-center gap-4">
                         ONLINE BATTLE <span class="block h-1 w-24 bg-kinetic-strike"></span>
@@ -482,14 +497,14 @@
 
 <!-- Global Footer -->
 <footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
-<div class="font-headline-lg text-headline-lg text-primary tracking-tighter italic">CHIYA GANG WARRIORS</div>
+<div class="font-headline-lg text-headline-lg text-primary tracking-tighter italic">CHIYA WARRIORS</div>
 <div class="flex gap-8 font-label-sm text-label-sm tracking-widest text-on-surface-variant">
 <a class="hover:text-tertiary transition-colors" href="#">LEGAL</a>
 <a class="hover:text-tertiary transition-colors" href="#">PRIVACY</a>
 <a class="hover:text-tertiary transition-colors" href="#">SUPPORT</a>
 <a class="hover:text-tertiary transition-colors" href="#">API</a>
 </div>
-<div class="font-label-sm text-label-sm text-on-surface-variant/40">© 2025 CHIYA GANG STUDIOS. ALL RIGHTS RESERVED. HIGH SCORE: 999,999</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/40">© 2025 CHIYA WARRIORS. ALL RIGHTS RESERVED.</div>
 </footer>
 
 <script>
@@ -670,35 +685,35 @@
 
         // ===== CHARACTER SELECT =====
         function renderFighterGrid() {
-    const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN', 'WOLVERINE'];
-    fighterGrid.innerHTML = '';
-    
-    fighterNames.forEach(name => {
-        const fighter = FIGHTERS[name];
-        if (!fighter) return;
-        
-        const card = document.createElement('div');
-        card.className = 'fighter-card-select p-4 rounded-lg text-center';
-        card.dataset.fighter = name;
-        card.style.borderColor = `rgba(${parseInt(fighter.color >> 16 & 255)}, ${parseInt(fighter.color >> 8 & 255)}, ${parseInt(fighter.color & 255)}, 0.3)`;
-        
-        card.innerHTML = `
-            <div class="accent-bar" style="background: #${fighter.color.toString(16).padStart(6, '0')}"></div>
-            <div class="font-label-bold text-label-bold text-primary mt-2">${fighter.name}</div>
-            <div class="font-label-sm text-label-sm text-on-surface-variant/60">${fighter.archetype}</div>
-        `;
-        
-        card.addEventListener('click', () => {
-            if (myFighterConfirmed) return;
-            document.querySelectorAll('.fighter-card-select').forEach(c => c.classList.remove('selected'));
-            card.classList.add('selected');
-            myFighter = name;
-            confirmFighterBtn.disabled = false;
-        });
-        
-        fighterGrid.appendChild(card);
-    });
-}
+            const fighterNames = ['ADARSHA', 'ASHMIN', 'ALPINE', 'PRESIDENT', 'IRONMAN', 'BATMAN', 'WOLVERINE'];
+            fighterGrid.innerHTML = '';
+            
+            fighterNames.forEach(name => {
+                const fighter = FIGHTERS[name];
+                if (!fighter) return;
+                
+                const card = document.createElement('div');
+                card.className = 'fighter-card-select p-4 rounded-lg text-center';
+                card.dataset.fighter = name;
+                card.style.borderColor = `rgba(${parseInt(fighter.color >> 16 & 255)}, ${parseInt(fighter.color >> 8 & 255)}, ${parseInt(fighter.color & 255)}, 0.3)`;
+                
+                card.innerHTML = `
+                    <div class="accent-bar" style="background: #${fighter.color.toString(16).padStart(6, '0')}"></div>
+                    <div class="font-label-bold text-label-bold text-primary mt-2">${fighter.name}</div>
+                    <div class="font-label-sm text-label-sm text-on-surface-variant/60">${fighter.archetype}</div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    if (myFighterConfirmed) return;
+                    document.querySelectorAll('.fighter-card-select').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                    myFighter = name;
+                    confirmFighterBtn.disabled = false;
+                });
+                
+                fighterGrid.appendChild(card);
+            });
+        }
 
         function checkBothReady() {
             if (myFighter && opponentFighter && myFighterConfirmed && opponentFighterConfirmed) {
