@@ -1,5 +1,6 @@
 /**
  * ANIMATIONS - Sprite Animation Handling
+ * Refactored: Single source of truth, no game logic mixing
  */
 
 // Helper function to resolve texture with facing-aware fallback
@@ -22,177 +23,130 @@ class Animations {
         this.scene = scene;
         this.playerData = playerData;
         this.cpuData = cpuData;
+        // Pre-build animation maps for faster lookup
+        this.playerAnimMap = this.buildAnimMap(playerData);
+        this.cpuAnimMap = this.buildAnimMap(cpuData);
     }
-    
-    setPlayerAnimation(animName, duration = 200, bypassFreeze = false, bypassAttackGuard = false) {
+
+    /**
+     * Build animation name mapping from fighter data
+     * This replaces hardcoded switch statements
+     */
+    buildAnimMap(data) {
+        // Default mapping: most characters use standard names
+        const defaultMap = {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump'
+        };
+
+        // Character-specific overrides - use the animMap from fighter data if available
+        const charOverrides = data.animMap || {};
+
+        // Merge default with character-specific overrides
+        return { ...defaultMap, ...charOverrides };
+    }
+
+    /**
+     * Generic animation setter - handles both player and CPU
+     * This removes the 95% code duplication
+     */
+    setAnimation(target, data, animMap, animName, duration = 200, bypassFreeze = false, bypassAttackGuard = false) {
         const scene = this.scene;
-        if (scene.isAttacking && !bypassAttackGuard && animName !== 'hurt') return;
+        
+        // Prevent animation if target doesn't exist
+        if (!target) return;
+
+        // Check if we should bypass freeze (for super moves, etc.)
         if (!bypassFreeze && scene.isSuperFrozen) return;
+
+        // Clear any existing timer for this target
+        this.clearTargetTimer(target);
+
+        // Get the mapped animation name from the data
+        const mappedAnim = animMap[animName] || animName;
+        const baseFolder = data.folder;
         
-        let textureKey = null;
-        const facing = getFacingDirection(scene.player.x, scene.cpu.x, 'player');
-        const baseFolder = this.playerData.folder;
-        
-        switch(animName) {
-            case 'hurt':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_hurt`, facing);
-                break;
-            case 'light':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_punch`, facing);
-                break;
-            case 'medium':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_punch`, facing);
-                break;
-            case 'heavy':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_kick`, facing);
-                break;
-            case 'special':
-                if (this.playerData.name === 'ALPINE') {
-                    textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_special_drink`, facing);
-                } else if (this.playerData.name === 'ADARSHA') {
-                    textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_jumpstart`, facing);
-                } else if (this.playerData.name === 'IRONMAN') {
-                    textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_repulsor`, facing);
-                } else {
-                    textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_special`, facing);
-                }
-                break;
-            case 'repulsor_charge':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_repulsor`, facing);
-                break;
-            // ADARSHA SPECIAL ANIMATIONS
-            case 'jumpstart':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_jumpstart`, facing);
-                break;
-            case 'jump':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_jump`, facing);
-                break;
-            case 'jumpkick':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_jumpkick`, facing);
-                break;
-            case 'firestart':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_firestart`, facing);
-                break;
-            case 'firing':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_firing`, facing);
-                break;
-            // ALPINE SPECIAL ANIMATIONS
-            case 'special_drink':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_special_drink`, facing);
-                break;
-            case 'special_powerup':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_special_powerup`, facing);
-                break;
-            case 'special_attack':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_special_attack`, facing);
-                break;
-            case 'victory':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_victory`, facing);
-                break;
-            case 'idle':
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_idle`, facing);
-                break;
-            case 'jump_regular':
-                // Reuse the 'jump' texture for regular jumps
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_jump`, facing);
-                break;
-            default:
-                textureKey = resolveTextureKey(scene, scene.player, `${baseFolder}_idle`, facing);
-        }
-        
+        // Calculate facing direction
+        const isPlayer = target === scene.player;
+        const facing = isPlayer 
+            ? getFacingDirection(scene.player.x, scene.cpu.x, 'player')
+            : getFacingDirection(scene.player.x, scene.cpu.x, 'cpu');
+
+        // Resolve the texture key with facing awareness
+        const textureKey = resolveTextureKey(scene, target, `${baseFolder}_${mappedAnim}`, facing);
+
         if (textureKey) {
-            if (animName !== 'hurt' && animName !== 'idle' && !bypassAttackGuard) {
-                scene.isAttacking = true;
+            // Apply the texture
+            target.setTexture(textureKey);
+            
+            // Set a timer to return to idle (only for non-idle, non-victory animations)
+            if (animName !== 'idle' && animName !== 'victory') {
+                target._animTimer = scene.time.delayedCall(duration, () => {
+                    if (scene.roundActive && target.active) {
+                        // Refresh facing when resetting to idle
+                        const currentFacing = isPlayer 
+                            ? getFacingDirection(scene.player.x, scene.cpu.x, 'player')
+                            : getFacingDirection(scene.player.x, scene.cpu.x, 'cpu');
+                        const idleKey = resolveTextureKey(scene, target, `${baseFolder}_idle`, currentFacing);
+                        if (idleKey) {
+                            target.setTexture(idleKey);
+                        }
+                    }
+                    target._animTimer = null;
+                });
             }
-            scene.currentAnim = animName;
-            scene.player.setTexture(textureKey);
-            
-            if (scene.animationTimer) scene.animationTimer.remove();
-            
-            scene.animationTimer = scene.time.delayedCall(duration, () => {
-                if (scene.roundActive && scene.currentAnim !== 'victory') {
-                    // Compute facing fresh at reset time in case the fighter crossed sides
-                    const currentFacing = getFacingDirection(scene.player.x, scene.cpu.x, 'player');
-                    const idleKey = resolveTextureKey(scene, scene.player, `${baseFolder}_idle`, currentFacing);
-                    if (idleKey) {
-                        scene.player.setTexture(idleKey);
-                    }
-                    scene.currentAnim = 'idle';
-                }
-                if (animName !== 'hurt' && animName !== 'idle' && !bypassAttackGuard) {
-                    scene.isAttacking = false;
-                }
-                scene.animationTimer = null;
-            });
         } else {
-            console.warn(`No texture found for ${animName} (tried ${baseFolder}_${animName}-${facing} and ${baseFolder}_${animName})`);
+            // If no texture found, try to set idle as fallback
+            const idleKey = resolveTextureKey(scene, target, `${baseFolder}_idle`, facing);
+            if (idleKey) {
+                target.setTexture(idleKey);
+            }
+            console.warn(`No texture found for ${animName} (mapped to ${mappedAnim}) for ${data.name}`);
         }
     }
-    
+
+    /**
+     * Clear any pending animation timer for a target
+     */
+    clearTargetTimer(target) {
+        if (target && target._animTimer) {
+            target._animTimer.remove();
+            target._animTimer = null;
+        }
+    }
+
+    /**
+     * Player animation wrapper
+     */
+    setPlayerAnimation(animName, duration = 200, bypassFreeze = false, bypassAttackGuard = false) {
+        this.setAnimation(
+            this.scene.player,
+            this.playerData,
+            this.playerAnimMap,
+            animName,
+            duration,
+            bypassFreeze,
+            bypassAttackGuard
+        );
+    }
+
+    /**
+     * CPU animation wrapper
+     */
     setCPUAnimation(animName, duration = 200, bypassFreeze = false) {
-        const scene = this.scene;
-        if (scene.cpuAttacking && animName !== 'hurt') return;
-        if (!bypassFreeze && scene.isSuperFrozen) return;
-        
-        let textureKey = null;
-        const facing = getFacingDirection(scene.player.x, scene.cpu.x, 'cpu');
-        const baseFolder = this.cpuData.folder;
-        
-        switch(animName) {
-            case 'hurt':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_hurt`, facing);
-                break;
-            case 'light':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_punch`, facing);
-                break;
-            case 'medium':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_punch`, facing);
-                break;
-            case 'heavy':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_kick`, facing);
-                break;
-            case 'special':
-                if (this.cpuData.name === 'ALPINE') {
-                    textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_special_drink`, facing);
-                } else if (this.cpuData.name === 'IRONMAN') {
-                    textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_repulsor`, facing);
-                } else {
-                    textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_special`, facing);
-                }
-                break;
-            case 'victory':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_victory`, facing);
-                break;
-            case 'idle':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_idle`, facing);
-                break;
-            case 'jump_regular':
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_jump`, facing);
-                break;
-            default:
-                textureKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_idle`, facing);
-        }
-        
-        if (textureKey) {
-            if (animName !== 'hurt' && animName !== 'idle') scene.cpuAttacking = true;
-            scene.cpu.setTexture(textureKey);
-            
-            if (scene.cpuAnimationTimer) scene.cpuAnimationTimer.remove();
-            
-            scene.cpuAnimationTimer = scene.time.delayedCall(duration, () => {
-                if (scene.roundActive) {
-                    // Compute facing fresh at reset time in case the fighter crossed sides
-                    const currentFacing = getFacingDirection(scene.player.x, scene.cpu.x, 'cpu');
-                    const idleKey = resolveTextureKey(scene, scene.cpu, `${baseFolder}_idle`, currentFacing);
-                    if (idleKey) {
-                        scene.cpu.setTexture(idleKey);
-                    }
-                }
-                if (animName !== 'hurt' && animName !== 'idle') scene.cpuAttacking = false;
-                scene.cpuAnimationTimer = null;
-            });
-        } else {
-            console.warn(`No CPU texture found for ${animName} (tried ${baseFolder}_${animName}-${facing} and ${baseFolder}_${animName})`);
-        }
+        this.setAnimation(
+            this.scene.cpu,
+            this.cpuData,
+            this.cpuAnimMap,
+            animName,
+            duration,
+            bypassFreeze,
+            false
+        );
     }
 }
