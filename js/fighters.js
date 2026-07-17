@@ -1,7 +1,6 @@
 /**
- * CHIYA GANG WARRIORS - Fighter Database
+ * CHIYA WARRIORS - Fighter Database
  * Single source of truth for all character data
- * Used by both characterselect.html and game.html
  */
 
 const FIGHTERS = {
@@ -19,6 +18,22 @@ const FIGHTERS = {
         folder: 'adarsha',
         specialName: 'CHIYA RUSH', 
         specialDamage: 18,
+        // Animation mapping - defines which sprite to use for each animation
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'jumpstart',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump',
+            'jumpstart': 'jumpstart',
+            'jump': 'jump',
+            'jumpkick': 'jumpkick',
+            'firestart': 'firestart',
+            'firing': 'firing'
+        },
         // AI Personality
         personality: {
             type: 'RUSH-DOWN',
@@ -56,7 +71,19 @@ const FIGHTERS = {
         folder: 'ashmin',
         specialName: 'PROTOCOL BLAST', 
         specialDamage: 15,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'dragon_1',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump',
+            'dragon_1': 'dragon_1',
+            'dragon_2': 'dragon_2',
+            'dragon_3': 'dragon_3'
+        },
         personality: {
             type: 'ZONER',
             playStyle: 'DEFENSIVE',
@@ -67,14 +94,12 @@ const FIGHTERS = {
             defenseStyle: 'PASSIVE_BLOCK',
             comboPreference: 'SPECIAL_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 67, active: 50, recovery: 150, damage: 5, range: 65, height: 'low', pushback: 18 },
             medium: { startup: 117, active: 67, recovery: 200, damage: 9, range: 70, height: 'mid', pushback: 25 },
             heavy: { startup: 167, active: 83, recovery: 300, damage: 13, range: 75, height: 'mid', pushback: 32 },
             special: { startup: 333, active: 133, recovery: 500, damage: 15, range: 250, height: 'projectile', pushback: 25 }
         },
-        // Display assets
         portrait: 'assets/characters/ashmin/portrait.jpg',
         thumb: 'assets/characters/ashmin/portrait.jpg'
     },
@@ -93,7 +118,19 @@ const FIGHTERS = {
         folder: 'alpine',
         specialName: 'ENERGY FIST', 
         specialDamage: 26,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'special_drink',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump',
+            'special_drink': 'special_drink',
+            'special_powerup': 'special_powerup',
+            'special_attack': 'special_attack'
+        },
         personality: {
             type: 'BALANCED',
             playStyle: 'COUNTER',
@@ -104,14 +141,12 @@ const FIGHTERS = {
             defenseStyle: 'COUNTER_BLOCK',
             comboPreference: 'MEDIUM_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 100, active: 50, recovery: 183, damage: 7, range: 75, height: 'mid', pushback: 22 },
             medium: { startup: 150, active: 67, recovery: 250, damage: 11, range: 80, height: 'overhead', pushback: 30 },
             heavy: { startup: 233, active: 100, recovery: 367, damage: 16, range: 85, height: 'low', pushback: 38 },
             special: { startup: 300, active: 117, recovery: 467, damage: 26, range: 140, height: 'mid', pushback: 50 }
         },
-        // Display assets
         portrait: 'assets/characters/alpine/portrait.png',
         thumb: 'assets/characters/alpine/portrait.png'
     },
@@ -130,7 +165,16 @@ const FIGHTERS = {
         folder: 'president',
         specialName: 'EXECUTIVE ORDER', 
         specialDamage: 22,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'special',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump'
+        },
         personality: {
             type: 'POWER',
             playStyle: 'BULLDOZER',
@@ -141,14 +185,12 @@ const FIGHTERS = {
             defenseStyle: 'COUNTER_BLOCK',
             comboPreference: 'HEAVY_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 100, active: 50, recovery: 167, damage: 8, range: 70, height: 'mid', pushback: 25 },
             medium: { startup: 133, active: 67, recovery: 200, damage: 12, range: 75, height: 'mid', pushback: 32 },
             heavy: { startup: 183, active: 83, recovery: 250, damage: 18, range: 80, height: 'overhead', pushback: 40 },
             special: { startup: 200, active: 100, recovery: 300, damage: 22, range: 85, height: 'mid', pushback: 50 }
         },
-        // Display assets
         portrait: 'assets/characters/president/portrait.png',
         thumb: 'assets/characters/president/portrait.png'
     },
@@ -167,7 +209,17 @@ const FIGHTERS = {
         folder: 'ironman',
         specialName: 'REPULSOR BLAST', 
         specialDamage: 24,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'repulsor',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump',
+            'repulsor': 'repulsor'
+        },
         personality: {
             type: 'TECH',
             playStyle: 'BALANCED',
@@ -178,14 +230,12 @@ const FIGHTERS = {
             defenseStyle: 'TECH_BLOCK',
             comboPreference: 'MEDIUM_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 90, active: 50, recovery: 160, damage: 7, range: 72, height: 'mid', pushback: 22 },
             medium: { startup: 130, active: 60, recovery: 210, damage: 11, range: 78, height: 'mid', pushback: 30 },
             heavy: { startup: 190, active: 80, recovery: 310, damage: 17, range: 85, height: 'overhead', pushback: 38 },
             special: { startup: 280, active: 100, recovery: 400, damage: 24, range: 200, height: 'projectile', pushback: 30 }
         },
-        // Display assets
         portrait: 'assets/characters/ironman/portrait.png',
         thumb: 'assets/characters/ironman/portrait.png'
     },
@@ -204,7 +254,16 @@ const FIGHTERS = {
         folder: 'batman',
         specialName: 'BATARANG BARRAGE', 
         specialDamage: 20,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'special',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump'
+        },
         personality: {
             type: 'TACTICAL',
             playStyle: 'COUNTER',
@@ -215,14 +274,12 @@ const FIGHTERS = {
             defenseStyle: 'COUNTER_BLOCK',
             comboPreference: 'MEDIUM_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 75, active: 45, recovery: 150, damage: 6, range: 65, height: 'mid', pushback: 18 },
             medium: { startup: 120, active: 60, recovery: 200, damage: 10, range: 72, height: 'mid', pushback: 28 },
             heavy: { startup: 180, active: 75, recovery: 280, damage: 16, range: 78, height: 'overhead', pushback: 36 },
             special: { startup: 200, active: 90, recovery: 350, damage: 20, range: 160, height: 'projectile', pushback: 25 }
         },
-        // Display assets
         portrait: 'assets/characters/batman/portrait.png',
         thumb: 'assets/characters/batman/portrait.png'
     },
@@ -236,12 +293,21 @@ const FIGHTERS = {
         speed: 88, 
         defense: 92,
         range: 55,
-        color: 0xff8c00,      // Adamantium orange/gold
-        accent: 0x0047ab,     // X-Men blue
+        color: 0xff8c00,
+        accent: 0x0047ab,
         folder: 'wolverine',
         specialName: 'BERSERKER BARRAGE', 
         specialDamage: 25,
-        // AI Personality
+        animMap: {
+            'hurt': 'hurt',
+            'light': 'punch',
+            'medium': 'punch',
+            'heavy': 'kick',
+            'special': 'special',
+            'victory': 'victory',
+            'idle': 'idle',
+            'jump_regular': 'jump'
+        },
         personality: {
             type: 'BERSERKER',
             playStyle: 'AGGRESSIVE',
@@ -252,14 +318,12 @@ const FIGHTERS = {
             defenseStyle: 'AGGRESSIVE_BLOCK',
             comboPreference: 'HEAVY_START'
         },
-        // Attack frame data
         attacks: {
             light: { startup: 70, active: 40, recovery: 140, damage: 7, range: 68, height: 'mid', pushback: 20 },
             medium: { startup: 110, active: 55, recovery: 190, damage: 11, range: 74, height: 'overhead', pushback: 30 },
             heavy: { startup: 170, active: 70, recovery: 260, damage: 17, range: 80, height: 'low', pushback: 38 },
             special: { startup: 220, active: 90, recovery: 380, damage: 25, range: 85, height: 'mid', pushback: 45 }
         },
-        // Display assets
         portrait: 'assets/characters/wolverine/portrait.png',
         thumb: 'assets/characters/wolverine/portrait.png'
     }
