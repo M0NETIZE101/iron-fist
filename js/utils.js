@@ -11,12 +11,6 @@ function getFacingDirection(playerX, cpuX, character) {
     }
 }
 
-// Get random CPU fighter (excluding player)
-function getRandomCPU(playerFighter, allFightersList) {
-    const availableCPUs = allFightersList.filter(f => f !== playerFighter);
-    return availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
-}
-
 // Show floating text on screen
 function showFloatingText(scene, x, y, text, color, duration = 500) {
     const floatingText = scene.add.text(x, y, text, {
@@ -84,53 +78,36 @@ function getHurtboxes(character, x, y, difficulty = 'medium') {
     };
 }
 
-// Get attack hitbox based on attack type and facing direction
-function getAttackHitbox(attacker, attackType, facing, x, y) {
+// Get attack hitbox based on attack type, facing direction, and attack height
+function getAttackHitbox(attacker, attackType, facing, x, y, attackHeight = 'mid') {
     const direction = facing === 'right' ? 1 : -1;
-    // Attack origin: fist is roughly at edge of character sprite (CHARACTER_WIDTH/2 = 90px from center)
     const fistOffset = 70;
     const attackX = x + (direction * fistOffset);
     
-    switch(attackType) {
-        case 'light':
-            return {
-                x: attackX,
-                y: y - 30,
-                width: 60,
-                height: 50,
-                color: 0xffaa00,
-                name: 'LIGHT ATTACK'
-            };
-        case 'medium':
-            return {
-                x: attackX,
-                y: y - 40,
-                width: 65,
-                height: 55,
-                color: 0xff6600,
-                name: 'MEDIUM ATTACK'
-            };
-        case 'heavy':
-            return {
-                x: attackX,
-                y: y - 50,
-                width: 75,
-                height: 65,
-                color: 0xff3300,
-                name: 'HEAVY ATTACK'
-            };
-        case 'special':
-            return {
-                x: attackX,
-                y: y - 45,
-                width: 80,
-                height: 70,
-                color: 0xffaa00,
-                name: 'SPECIAL ATTACK'
-            };
-        default:
-            return null;
+    // Base dimensions based on attack type
+    let width = 60, height = 50;
+    if (attackType === 'medium') { width = 65; height = 55; }
+    if (attackType === 'heavy') { width = 75; height = 65; }
+    if (attackType === 'special') { width = 80; height = 70; }
+
+    // ===== FIX: Adjust Y position based on attack height =====
+    let hitY = y - 10; // Default 'mid' (centered on body)
+    
+    if (attackHeight === 'low') {
+        hitY = y + 30; // Drop hitbox down to the legs
+        height = 40;   // Make it flatter, like a sweep
+    } else if (attackHeight === 'overhead' || attackHeight === 'high') {
+        hitY = y - 60; // Raise hitbox up to the head
     }
+
+    return {
+        x: attackX,
+        y: hitY - (height / 2), // Center the hitbox vertically on the new Y
+        width: width,
+        height: height,
+        color: 0xffaa00,
+        name: `${attackType.toUpperCase()} ATTACK`
+    };
 }
 
 // Rectangle collision detection
