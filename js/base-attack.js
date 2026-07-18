@@ -1,6 +1,6 @@
 /**
  * BASE ATTACK - Unified attack logic with rectangle hitboxes
- * FIXED: Startup frames, player hitstun, blocking matrix, attack lockout
+ * FIXED: Startup frames, player hitstun, blocking matrix, attack lockout, attack heights
  */
 
 class BaseAttack {
@@ -102,8 +102,15 @@ class BaseAttack {
                 getFacingDirection(this.scene.player.x, this.scene.cpu.x, 'cpu') :
                 getFacingDirection(this.scene.player.x, this.scene.cpu.x, 'player');
             
-            // Get the attack hitbox at the active frame
-            this.attackHitbox = getAttackHitbox(this.attacker, attackType, this.facing, attackerX, attackerY);
+            // ===== FIX: Pass attackData.height to getAttackHitbox =====
+            this.attackHitbox = getAttackHitbox(
+                this.attacker, 
+                attackType, 
+                this.facing, 
+                attackerX, 
+                attackerY, 
+                attackData.height  // <-- Pass the height property!
+            );
             
             // Get target hurtboxes with difficulty scaling for CPU
             const targetHurtboxes = this.isCPU ?
