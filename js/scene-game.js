@@ -1,5 +1,6 @@
 /**
  * SCENE - Main Fighting Game Scene
+ * FIXED: Frame-rate independent physics, hitstun timing, dynamic asset loading
  */
 
 class FightingGame extends Phaser.Scene {
@@ -14,6 +15,7 @@ class FightingGame extends Phaser.Scene {
         this.waitingText = null;
         this._lastInputState = null;
         this.isOnlineMatch = false;
+        this.isHitStun = 0;
     }
     
     resetGameState() {
@@ -40,6 +42,7 @@ class FightingGame extends Phaser.Scene {
         this.roundTimer = 99;
         this.superFlashEffect = null;
         this.hasSuperArmor = false;
+        this.isHitStun = 0;
         
         // Jump physics
         this.isJumping = false;
@@ -107,7 +110,6 @@ class FightingGame extends Phaser.Scene {
         
         // ===== ONLY SET CPU OPPONENT FOR OFFLINE MODE =====
         if (!this.isOnlineMatch) {
-            // Set CPU opponent for offline mode
             const allFighters = Object.keys(FIGHTERS);
             const availableCPUs = allFighters.filter(f => f !== playerFighter);
             const randomCPU = availableCPUs[Math.floor(Math.random() * availableCPUs.length)];
@@ -115,10 +117,7 @@ class FightingGame extends Phaser.Scene {
             this.cpuSelected = randomCPU;
             console.log('[Preload] CPU selected (offline):', this.cpuData.name);
         } else {
-            // In online mode, we'll get opponent info from network
             console.log('[Preload] Online mode - CPU will be replaced by network opponent');
-            // Still need a placeholder cpuData for the UI and sprite creation
-            // Use the opponent from URL param or default
             const opponentFighter = urlParams.get('opponent') || 'ASHMIN';
             this.cpuData = FIGHTERS[opponentFighter] || FIGHTERS['ASHMIN'];
             this.cpuSelected = opponentFighter;
@@ -126,127 +125,33 @@ class FightingGame extends Phaser.Scene {
         }
         
         // Load arena background
-        const bgImage = arenaBackgrounds[arenaParam] || arenaBackgrounds['NEO-TOKYO'];
-        this.load.image('arenaBg', bgImage);
+        this.load.image('arenaBg', arenaBackgrounds[arenaParam]);
         
-        // ===== LOAD ADARSHA SPRITES =====
-        this.load.image(`adarsha_idle-left`, `assets/characters/adarsha/idle-left.png`);
-        this.load.image(`adarsha_idle-right`, `assets/characters/adarsha/idle-right.png`);
-        this.load.image(`adarsha_punch-left`, `assets/characters/adarsha/punch-left.png`);
-        this.load.image(`adarsha_punch-right`, `assets/characters/adarsha/punch-right.png`);
-        this.load.image(`adarsha_kick-left`, `assets/characters/adarsha/kick-left.png`);
-        this.load.image(`adarsha_kick-right`, `assets/characters/adarsha/kick-right.png`);
-        // REMOVED: adarsha_special - not needed (uses jumpstart, jump, jumpkick, firestart, firing, fireball)
-        this.load.image(`adarsha_victory-left`, `assets/characters/adarsha/victory-left.png`);
-        this.load.image(`adarsha_victory-right`, `assets/characters/adarsha/victory-right.png`);
-        // ADARSHA special phase sprites
-        this.load.image(`adarsha_jumpstart-left`, `assets/characters/adarsha/jumpstart-left.png`);
-        this.load.image(`adarsha_jumpstart-right`, `assets/characters/adarsha/jumpstart-right.png`);
-        this.load.image(`adarsha_jump-left`, `assets/characters/adarsha/jump-left.png`);
-        this.load.image(`adarsha_jump-right`, `assets/characters/adarsha/jump-right.png`);
-        this.load.image(`adarsha_jumpkick-left`, `assets/characters/adarsha/jumpkick-left.png`);
-        this.load.image(`adarsha_jumpkick-right`, `assets/characters/adarsha/jumpkick-right.png`);
-        this.load.image(`adarsha_firestart-left`, `assets/characters/adarsha/firestart-left.png`);
-        this.load.image(`adarsha_firestart-right`, `assets/characters/adarsha/firestart-right.png`);
-        this.load.image(`adarsha_firing-left`, `assets/characters/adarsha/firing-left.png`);
-        this.load.image(`adarsha_firing-right`, `assets/characters/adarsha/firing-right.png`);
-        this.load.image(`adarsha_fireball`, `assets/characters/adarsha/fireball.png`);
+        // ===== DYNAMIC SPRITE LOADING =====
+        // This replaces 100+ lines of hardcoded sprite loading!
+        const fightersToLoad = [this.playerData, this.cpuData];
+        fightersToLoad.forEach(data => {
+            const folder = data.folder;
+            // Get all unique animation names from the map
+            const anims = new Set(Object.values(data.animMap));
+            
+            anims.forEach(animName => {
+                // Load left and right variants
+                this.load.image(`${folder}_${animName}-left`, `assets/characters/${folder}/${animName}-left.png`);
+                this.load.image(`${folder}_${animName}-right`, `assets/characters/${folder}/${animName}-right.png`);
+            });
+            
+            // Load special assets (projectiles, effects, etc.)
+            // Check for special assets in fighter data
+            if (data.specialAssets) {
+                data.specialAssets.forEach(asset => {
+                    this.load.image(`${folder}_${asset}`, `assets/characters/${folder}/${asset}.png`);
+                });
+            }
+        });
         
-        // ===== LOAD ASHMIN SPRITES =====
-        this.load.image(`ashmin_idle-left`, `assets/characters/ashmin/idle-left.png`);
-        this.load.image(`ashmin_idle-right`, `assets/characters/ashmin/idle-right.png`);
-        this.load.image(`ashmin_punch-left`, `assets/characters/ashmin/punch-left.png`);
-        this.load.image(`ashmin_punch-right`, `assets/characters/ashmin/punch-right.png`);
-        this.load.image(`ashmin_kick-left`, `assets/characters/ashmin/kick-left.png`);
-        this.load.image(`ashmin_kick-right`, `assets/characters/ashmin/kick-right.png`);
-        // REMOVED: ashmin_hurt - not needed
-        // REMOVED: ashmin_special - not needed
-        this.load.image(`ashmin_victory-left`, `assets/characters/ashmin/victory-left.png`);
-        this.load.image(`ashmin_victory-right`, `assets/characters/ashmin/victory-right.png`);
-        // ASHMIN dragon sprites (left/right variants for each frame)
-        this.load.image(`ashmin_dragon_1-left`, `assets/characters/ashmin/dragon_frame1-left.png`);
-        this.load.image(`ashmin_dragon_1-right`, `assets/characters/ashmin/dragon_frame1-right.png`);
-        this.load.image(`ashmin_dragon_2-left`, `assets/characters/ashmin/dragon_frame2-left.png`);
-        this.load.image(`ashmin_dragon_2-right`, `assets/characters/ashmin/dragon_frame2-right.png`);
-        this.load.image(`ashmin_dragon_3-left`, `assets/characters/ashmin/dragon_frame3-left.png`);
-        this.load.image(`ashmin_dragon_3-right`, `assets/characters/ashmin/dragon_frame3-right.png`);
-        this.load.image(`ashmin_coin_explosion`, `assets/characters/ashmin/coin_explosion.png`);
-        
-        // ===== LOAD ALPINE SPRITES =====
-        this.load.image(`alpine_idle-left`, `assets/characters/alpine/idle-left.png`);
-        this.load.image(`alpine_idle-right`, `assets/characters/alpine/idle-right.png`);
-        this.load.image(`alpine_punch-left`, `assets/characters/alpine/punch-left.png`);
-        this.load.image(`alpine_punch-right`, `assets/characters/alpine/punch-right.png`);
-        this.load.image(`alpine_kick-left`, `assets/characters/alpine/kick-left.png`);
-        this.load.image(`alpine_kick-right`, `assets/characters/alpine/kick-right.png`);
-        this.load.image(`alpine_hurt-left`, `assets/characters/alpine/hurt-left.png`);
-        this.load.image(`alpine_hurt-right`, `assets/characters/alpine/hurt-right.png`);
-        this.load.image(`alpine_victory-left`, `assets/characters/alpine/victory-left.png`);
-        this.load.image(`alpine_victory-right`, `assets/characters/alpine/victory-right.png`);
-        // ALPINE special phase sprites
-        this.load.image(`alpine_special_drink-left`, `assets/characters/alpine/special_drink-left.png`);
-        this.load.image(`alpine_special_drink-right`, `assets/characters/alpine/special_drink-right.png`);
-        this.load.image(`alpine_special_powerup-left`, `assets/characters/alpine/special_powerup-left.png`);
-        this.load.image(`alpine_special_powerup-right`, `assets/characters/alpine/special_powerup-right.png`);
-        this.load.image(`alpine_special_attack-left`, `assets/characters/alpine/special_attack-left.png`);
-        this.load.image(`alpine_special_attack-right`, `assets/characters/alpine/special_attack-right.png`);
-        
-        // ===== LOAD PRESIDENT SPRITES =====
-        this.load.image(`president_idle-left`, `assets/characters/president/idle-left.png`);
-        this.load.image(`president_idle-right`, `assets/characters/president/idle-right.png`);
-        this.load.image(`president_punch-left`, `assets/characters/president/punch-left.png`);
-        this.load.image(`president_punch-right`, `assets/characters/president/punch-right.png`);
-        this.load.image(`president_kick-left`, `assets/characters/president/kick-left.png`);
-        this.load.image(`president_kick-right`, `assets/characters/president/kick-right.png`);
-        this.load.image(`president_hurt-left`, `assets/characters/president/hurt-left.png`);
-        this.load.image(`president_hurt-right`, `assets/characters/president/hurt-right.png`);
-        this.load.image(`president_special-left`, `assets/characters/president/special-left.png`);
-        this.load.image(`president_special-right`, `assets/characters/president/special-right.png`);
-        this.load.image(`president_victory-left`, `assets/characters/president/victory-left.png`);
-        this.load.image(`president_victory-right`, `assets/characters/president/victory-right.png`);
-        
-        // ===== LOAD IRONMAN SPRITES =====
-        this.load.image(`ironman_idle-left`, `assets/characters/ironman/idle-left.png`);
-        this.load.image(`ironman_idle-right`, `assets/characters/ironman/idle-right.png`);
-        this.load.image(`ironman_punch-left`, `assets/characters/ironman/punch-left.png`);
-        this.load.image(`ironman_punch-right`, `assets/characters/ironman/punch-right.png`);
-        this.load.image(`ironman_kick-left`, `assets/characters/ironman/kick-left.png`);
-        this.load.image(`ironman_kick-right`, `assets/characters/ironman/kick-right.png`);
-        this.load.image(`ironman_hurt-left`, `assets/characters/ironman/hurt-left.png`);
-        this.load.image(`ironman_hurt-right`, `assets/characters/ironman/hurt-right.png`);
-        this.load.image(`ironman_special-left`, `assets/characters/ironman/special-left.png`);
-        this.load.image(`ironman_special-right`, `assets/characters/ironman/special-right.png`);
-        this.load.image(`ironman_repulsor`, `assets/characters/ironman/repulsor.png`);
-        this.load.image(`ironman_victory-left`, `assets/characters/ironman/victory-left.png`);
-        this.load.image(`ironman_victory-right`, `assets/characters/ironman/victory-right.png`);
-        
-        // ===== LOAD BATMAN SPRITES =====
-        this.load.image(`batman_idle-left`, `assets/characters/batman/idle-left.png`);
-        this.load.image(`batman_idle-right`, `assets/characters/batman/idle-right.png`);
-        this.load.image(`batman_punch-left`, `assets/characters/batman/punch-left.png`);
-        this.load.image(`batman_punch-right`, `assets/characters/batman/punch-right.png`);
-        this.load.image(`batman_kick-left`, `assets/characters/batman/kick-left.png`);
-        this.load.image(`batman_kick-right`, `assets/characters/batman/kick-right.png`);
-        this.load.image(`batman_hurt-left`, `assets/characters/batman/hurt-left.png`);
-        this.load.image(`batman_hurt-right`, `assets/characters/batman/hurt-right.png`);
-        this.load.image(`batman_special-left`, `assets/characters/batman/special-left.png`);
-        this.load.image(`batman_special-right`, `assets/characters/batman/special-right.png`);
-        this.load.image(`batman_batarang`, `assets/characters/batman/batarang.png`);
-        this.load.image(`batman_victory-left`, `assets/characters/batman/victory-left.png`);
-        this.load.image(`batman_victory-right`, `assets/characters/batman/victory-right.png`);
-        
-        // ===== LOAD WOLVERINE SPRITES =====
-        this.load.image(`wolverine_idle-left`, `assets/characters/wolverine/idle-left.png`);
-        this.load.image(`wolverine_idle-right`, `assets/characters/wolverine/idle-right.png`);
-        this.load.image(`wolverine_punch-left`, `assets/characters/wolverine/punch-left.png`);
-        this.load.image(`wolverine_punch-right`, `assets/characters/wolverine/punch-right.png`);
-        this.load.image(`wolverine_kick-left`, `assets/characters/wolverine/kick-left.png`);
-        this.load.image(`wolverine_kick-right`, `assets/characters/wolverine/kick-right.png`);
-        this.load.image(`wolverine_hurt-left`, `assets/characters/wolverine/hurt-left.png`);
-        this.load.image(`wolverine_hurt-right`, `assets/characters/wolverine/hurt-right.png`);
-        // REMOVED: wolverine_special - not needed (uses berserkerBarrage logic)
-        this.load.image(`wolverine_victory-left`, `assets/characters/wolverine/victory-left.png`);
-        this.load.image(`wolverine_victory-right`, `assets/characters/wolverine/victory-right.png`);
+        // Also load all fighters' idle sprites for the character select screen fallback
+        // (But we only preload the ones we need for the match)
         
         // Error handling
         this.load.on('loaderror', (file) => {
@@ -277,8 +182,6 @@ class FightingGame extends Phaser.Scene {
         
         console.log(`[Create] Mode: ${this.gameMode}, Role: ${this.playerRole}`);
         
-        // For online mode, cpuData is set in preload() from the opponent param
-        // For offline mode, cpuData is set in preload() randomly
         this.cpuPersonality = this.cpuData.personality;
         
         debugLog('Player:', this.playerData.name);
@@ -350,7 +253,6 @@ class FightingGame extends Phaser.Scene {
             this.cpuAttacks = new CPUAttacks(this, this.animations, this.cpuSettings, this.cpuPersonality);
             console.log('[Create] CPU Attacks initialized (offline mode)');
         } else {
-            // In online mode, we don't need CPU attacks - the opponent is a real player
             this.cpuAttacks = null;
             console.log('[Create] CPU Attacks disabled (online mode)');
         }
@@ -441,17 +343,13 @@ class FightingGame extends Phaser.Scene {
         // ===== ONLINE MODE SETUP =====
         if (this.isOnlineMatch) {
             console.log('[Create] Setting up online mode...');
-            
-            // Don't start round until network is ready
             this.roundActive = false;
             
-            // Show connecting overlay
             this.waitingText = this.add.text(640, 360, 'RECONNECTING TO OPPONENT...', {
                 fontFamily: 'Anybody', fontSize: '28px', color: '#ffb3b2',
                 fontStyle: 'bold italic', stroke: '#000000', strokeThickness: 3
             }).setOrigin(0.5).setDepth(300);
             
-            // Initialize network
             this.network = new GameNetwork(this);
             this.network.connect();
         }
@@ -498,7 +396,7 @@ class FightingGame extends Phaser.Scene {
             loop: true
         });
         
-        // Cooldowns
+        // Cooldowns - FIXED: Use consistent 100ms tick
         this.time.addEvent({
             delay: 100,
             callback: () => {
@@ -512,7 +410,10 @@ class FightingGame extends Phaser.Scene {
                 }
                 if (this.specialCooldown > 0) this.specialCooldown--;
                 if (this.cpuSpecialCooldown > 0) this.cpuSpecialCooldown--;
-                if (this.cpuHitStun > 0) this.cpuHitStun--;
+                
+                // ===== FIXED: Subtract 100ms per tick (matching the 100ms delay) =====
+                if (this.cpuHitStun > 0) this.cpuHitStun -= 100;
+                if (this.isHitStun > 0) this.isHitStun -= 100;
             },
             loop: true
         });
@@ -541,30 +442,29 @@ class FightingGame extends Phaser.Scene {
     updateMobileMovement() {
         if (!this.player || !this.roundActive || this.isSuperFrozen) return;
         
+        // Check if player is in hitstun
+        if (this.isHitStun > 0) return;
+        
         if (this.mobileLeftPressed) this.player.x -= 7;
         if (this.mobileRightPressed) this.player.x += 7;
         
-        // Mobile double jump handling - check if jump requested and conditions met
+        // Mobile double jump handling
         if (this.mobileJumpRequested && this.roundActive && !this.isSuperFrozen) {
-            if (!this.isJumping) {
-                // Ground jump
+            if (!this.isJumping && this.isHitStun <= 0) {
                 this.isJumping = true;
                 this.playerYVelocity = JUMP_VELOCITY;
                 this.playerJumpsUsed = 1;
                 if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
                 this.mobileJumpRequested = false;
                 if (this.playerFloatTween) this.playerFloatTween.pause();
-            } else if (this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
-                // Double jump - air jump
+            } else if (this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && this.isHitStun <= 0) {
                 this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
                 this.playerJumpsUsed = 2;
                 
-                // Horizontal boost in direction of movement
                 let boostDirection = 0;
                 if (this.mobileLeftPressed) boostDirection = -1;
                 else if (this.mobileRightPressed) boostDirection = 1;
                 else {
-                    // Fall back to facing direction
                     const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
                     boostDirection = facing === 'right' ? 1 : -1;
                 }
@@ -579,7 +479,7 @@ class FightingGame extends Phaser.Scene {
             this.mobileJumpRequested = false;
         }
         
-        if (this.mobileBlockPressed && !this.isAttacking && !this.isJumping) {
+        if (this.mobileBlockPressed && !this.isAttacking && !this.isJumping && this.isHitStun <= 0) {
             this.isBlocking = true;
             if (this.playerAura) {
                 this.playerAura.setAlpha(0.3);
@@ -603,7 +503,6 @@ class FightingGame extends Phaser.Scene {
             this.waitingText = null;
         }
         
-        // Don't start round until countdown finishes
         this.roundActive = false;
         
         let count = 3;
@@ -651,9 +550,6 @@ class FightingGame extends Phaser.Scene {
     
     // ===== ONLINE MODE METHODS =====
     getLocalInputState() {
-        // JustDown keys are true for exactly one frame, which is correct for 
-        // single-press actions (attacks, super). The diff check in sendInput()
-        // ensures the state change is sent and then cleared on the next frame.
         if (window.CONTROL_MODE === 'mobile') {
             return {
                 left: this.mobileLeftPressed || false,
@@ -684,16 +580,16 @@ class FightingGame extends Phaser.Scene {
         // Movement
         let move = 0;
         if (!this.mobileLeftPressed && !this.mobileRightPressed) {
-            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping) move = -1;
-            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping) move = 1;
+            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping && this.isHitStun <= 0) move = -1;
+            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping && this.isHitStun <= 0) move = 1;
             if (move !== 0) this.player.x += move * 7;
         }
         
-        if (this.mobileLeftPressed) this.player.x -= 7;
-        if (this.mobileRightPressed) this.player.x += 7;
+        if (this.mobileLeftPressed && this.isHitStun <= 0) this.player.x -= 7;
+        if (this.mobileRightPressed && this.isHitStun <= 0) this.player.x += 7;
         
         // Mobile jump
-        if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+        if (this.mobileJumpRequested && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen && this.isHitStun <= 0) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
             this.playerJumpsUsed = 1;
@@ -703,7 +599,7 @@ class FightingGame extends Phaser.Scene {
         }
         
         // Keyboard jump
-        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && !this.isJumping && !this.isAttacking && this.roundActive && !this.isSuperFrozen && this.isHitStun <= 0) {
             this.isJumping = true;
             this.playerYVelocity = JUMP_VELOCITY;
             this.playerJumpsUsed = 1;
@@ -712,7 +608,7 @@ class FightingGame extends Phaser.Scene {
         }
         
         // Keyboard double jump
-        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking && this.roundActive && !this.isSuperFrozen) {
+        if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking && this.roundActive && !this.isSuperFrozen && this.isHitStun <= 0) {
             this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
             this.playerJumpsUsed = 2;
             let boostDirection = 0;
@@ -726,26 +622,26 @@ class FightingGame extends Phaser.Scene {
             if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
         }
         
-        // Attacks
-        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        // Attacks - FIXED: Removed broken attackState check
+        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks) {
             this.playerAttacks.lightAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks) {
             this.playerAttacks.mediumAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks) {
             this.playerAttacks.heavyAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks) {
             this.playerAttacks.playerSpecialAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100) {
             this.playerAttacks.superMove();
         }
         
         // Blocking
         const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
-        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping && this.isHitStun <= 0;
         
         if (this.isBlocking) {
             if (this.playerAura) {
@@ -773,15 +669,20 @@ class FightingGame extends Phaser.Scene {
         }
         
         if (this.network.isHost) {
-            // ===== HOST: Run game simulation for both players =====            
-            // Player 1 (host) — read local keyboard/mobile input
+            // ===== HOST: Run game simulation for both players =====
             this.updateLocalPlayerInput();
             
             // Player 2 (joiner) — read remote input state
             const remote = this.network.remoteInputState;
-            if (remote.left) this.cpu.x = Math.max(this.cpu.x - 7, MIN_X + 50);
-            if (remote.right) this.cpu.x = Math.min(this.cpu.x + 7, MAX_X - 50);
-            if (remote.jump && !this.cpuIsJumping) {
+            
+            // ===== FIXED: Check if remote player is attacking or in hitstun =====
+            if (remote.left && !this.cpuAttacking && this.cpuHitStun <= 0) {
+                this.cpu.x = Math.max(this.cpu.x - 7, MIN_X + 50);
+            }
+            if (remote.right && !this.cpuAttacking && this.cpuHitStun <= 0) {
+                this.cpu.x = Math.min(this.cpu.x + 7, MAX_X - 50);
+            }
+            if (remote.jump && !this.cpuIsJumping && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuIsJumping = true;
                 this.cpuYVelocity = JUMP_VELOCITY;
                 this.cpuJumpsUsed = 1;
@@ -790,29 +691,29 @@ class FightingGame extends Phaser.Scene {
             }
             
             // Remote attacks (using CPU attack methods)
-            if (remote.light && !this.cpuAttacking && !this.cpuHitStun) {
+            if (remote.light && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuAttacks.lightAttack();
             }
-            if (remote.medium && !this.cpuAttacking && !this.cpuHitStun) {
+            if (remote.medium && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuAttacks.mediumAttack();
             }
-            if (remote.heavy && !this.cpuAttacking && !this.cpuHitStun) {
+            if (remote.heavy && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuAttacks.heavyAttack();
             }
-            if (remote.special && !this.cpuAttacking && !this.cpuHitStun && this.cpuSpecialCooldown === 0) {
+            if (remote.special && !this.cpuAttacking && this.cpuHitStun <= 0 && this.cpuSpecialCooldown === 0) {
                 this.cpuAttacks.specialAttack();
             }
-            if (remote.block && !this.cpuAttacking) {
+            if (remote.block && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuBlocking = true;
                 this.cpuBlockHeight = 'mid';
             } else {
                 this.cpuBlocking = false;
             }
-            if (remote.super && this.cpuSuperMeter >= 100 && !this.cpuAttacking) {
+            if (remote.super && this.cpuSuperMeter >= 100 && !this.cpuAttacking && this.cpuHitStun <= 0) {
                 this.cpuAttacks.superMove();
             }
             
-            // Run physics (includes CPU jump physics, boundaries, overlap prevention)
+            // Run physics
             this.updateGamePhysics();
             
             // Send game state to joiner every frame
@@ -841,37 +742,28 @@ class FightingGame extends Phaser.Scene {
             // ===== CLIENT: Send local input, receive state =====
             const inputState = this.getLocalInputState();
             this.network.sendInput(inputState);
-            
-            // Clear one-shot input flags after sending
             this.mobileJumpRequested = false;
         }
     }
     
     applyRemoteGameState(state) {
-        // On the client's screen, swap perspective:
-        // - Host's playerX/Y becomes the opponent (cpu)
-        // - Host's cpuX/Y becomes the client's own fighter (player)
+        // On the client's screen, swap perspective
         this.cpu.x = state.playerX;
         this.cpu.y = state.playerY;
         this.player.x = state.cpuX;
         this.player.y = state.cpuY;
         
-        // Health bars
-        this.playerHealth = state.cpuHealth; // client's own health
-        this.cpuHealth = state.playerHealth; // opponent's health
+        this.playerHealth = state.cpuHealth;
+        this.cpuHealth = state.playerHealth;
         
-        // Super meters
         this.superMeter = state.cpuSuperMeter;
         this.cpuSuperMeter = state.superMeter;
         
-        // Block states
         this.cpuBlocking = state.isBlocking;
         this.isBlocking = state.cpuBlocking;
         
-        // Combo
         this.comboCount = state.comboCount || 0;
         
-        // Jump states (for visual sync)
         if (state.isJumping !== undefined) {
             this.isJumping = state.isJumping;
             this.playerYVelocity = state.playerYVelocity || 0;
@@ -881,10 +773,8 @@ class FightingGame extends Phaser.Scene {
             this.cpuYVelocity = state.cpuYVelocity || 0;
         }
         
-        // Update UI
         if (this.ui) this.ui.updateHealthBars();
         
-        // Update combo text if active
         if (this.comboText && this.comboCount > 0) {
             this.comboText.setText(`${this.comboCount} HIT COMBO!`);
             this.comboText.setAlpha(1);
@@ -894,7 +784,6 @@ class FightingGame extends Phaser.Scene {
     applyRemoteEvent(event) {
         console.log('[Game] Remote event:', event);
         if (event.type === 'round_end') {
-            // Show result on client
             const winner = event.winner;
             const resultText = winner === 'host' ? 'OPPONENT VICTORY!' : 'YOU WIN!';
             const resultColor = winner === 'host' ? '#ff003c' : '#4ade80';
@@ -922,7 +811,6 @@ class FightingGame extends Phaser.Scene {
     
     // ===== END GAME =====
     endGame(winner) {
-        // If online mode, handle differently
         if (this.gameMode === 'online') {
             this.roundActive = false;
             this.time.timeScale = 1;
@@ -962,7 +850,7 @@ class FightingGame extends Phaser.Scene {
             return;
         }
         
-        // ===== OFFLINE MODE: Original endGame logic =====
+        // ===== OFFLINE MODE =====
         this.roundActive = false;
         this.time.timeScale = 1;
         this.hasSuperArmor = false;
@@ -1006,9 +894,28 @@ class FightingGame extends Phaser.Scene {
         if (this.playerAttacks) this.playerAttacks.clearCreatedObjects();
     }
     
-    // Shared physics/boundary update logic - used by both PC and mobile
-    updateGamePhysics() {
+    // ===== CLEAR ALL ANIMATIONS =====
+    clearAllAnimations() {
+        if (this.animations) {
+            if (this.player && this.player._animTimer) {
+                this.player._animTimer.remove();
+                this.player._animTimer = null;
+            }
+            if (this.cpu && this.cpu._animTimer) {
+                this.cpu._animTimer.remove();
+                this.cpu._animTimer = null;
+            }
+        }
+    }
+    
+    // ===== FRAME-RATE INDEPENDENT PHYSICS =====
+    updateGamePhysics(delta) {
         if (!this.player || !this.cpu) return;
+        
+        // Convert milliseconds to seconds for frame-rate independent physics
+        const dt = delta / 1000;
+        // Clamp delta to prevent physics explosions (max 50ms)
+        const dtClamped = Math.min(dt, 0.05);
         
         // Player boundary clamping
         this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
@@ -1023,20 +930,16 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Facing direction - setFlipX is now handled by resolveTextureKey in animations
-        // No need to set flip here anymore
-        const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
-        const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
-        // setFlipX is now handled by resolveTextureKey in animations.js
+        // Facing direction - handled by resolveTextureKey in animations
         
         // Aura positions
         if (this.playerAura) this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
         if (this.cpuAura) this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
         
-        // Player jump physics
+        // ===== PLAYER JUMP PHYSICS (FRAME-RATE INDEPENDENT) =====
         if (this.isJumping) {
-            this.playerYVelocity += GRAVITY * (1/60);
-            this.player.y += this.playerYVelocity * (1/60);
+            this.playerYVelocity += GRAVITY * dtClamped;
+            this.player.y += this.playerYVelocity * dtClamped;
             if (this.player.y >= GROUND_Y) {
                 this.player.y = GROUND_Y;
                 this.isJumping = false;
@@ -1050,12 +953,11 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // CPU jump physics - ONLY run if NOT in online host mode
-        // (In online mode, CPU jumps are handled by remote input in updateOnlineMode)
+        // ===== CPU JUMP PHYSICS (FRAME-RATE INDEPENDENT) =====
         if (this.gameMode !== 'online' || !this.network?.isHost) {
             if (this.cpuIsJumping) {
-                this.cpuYVelocity += GRAVITY * (1/60);
-                this.cpu.y += this.cpuYVelocity * (1/60);
+                this.cpuYVelocity += GRAVITY * dtClamped;
+                this.cpu.y += this.cpuYVelocity * dtClamped;
                 if (this.cpu.y >= GROUND_Y) {
                     this.cpu.y = GROUND_Y;
                     this.cpuIsJumping = false;
@@ -1072,11 +974,11 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // CPU launch physics (attack-launch system)
+        // ===== CPU LAUNCH PHYSICS (FRAME-RATE INDEPENDENT) =====
         if (this.cpuLaunched) {
             if (this.cpuFloatTween) this.cpuFloatTween.pause();
-            this.cpu.y += this.cpuLaunchVelocity * (1/60);
-            this.cpuLaunchVelocity += GRAVITY * (1/60);
+            this.cpu.y += this.cpuLaunchVelocity * dtClamped;
+            this.cpuLaunchVelocity += GRAVITY * dtClamped;
             if (this.cpu.y >= GROUND_Y) {
                 this.cpu.y = GROUND_Y;
                 this.cpuLaunched = false;
@@ -1103,49 +1005,41 @@ class FightingGame extends Phaser.Scene {
         if (this.gameMode === 'online') {
             if (!this.roundActive || this.isSuperFrozen) return;
             this.updateOnlineMode();
-            return; // Skip rest of offline update
+            return;
         }
         
-        // ===== OFFLINE MODE: Original update logic =====
+        // ===== OFFLINE MODE =====
         if (!this.roundActive || this.isSuperFrozen) return;
         
-        // Tick down double jump cooldowns (matching specialCooldown style)
-        if (this.playerDoubleJumpCooldown > 0) {
-            this.playerDoubleJumpCooldown = Math.max(0, this.playerDoubleJumpCooldown - 100);
-        }
-        if (this.cpuDoubleJumpCooldown > 0) {
-            this.cpuDoubleJumpCooldown = Math.max(0, this.cpuDoubleJumpCooldown - 100);
-        }
+        // Tick down cooldowns (already handled by timer)
+        
+        // Tick down player hitstun (timer handles this)
         
         this.updateMobileMovement();
         
         let move = 0;
         if (!this.mobileLeftPressed && !this.mobileRightPressed) {
-            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping) move = -1;
-            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping) move = 1;
+            if (this.keyLeft.isDown && !this.isAttacking && !this.isJumping && this.isHitStun <= 0) move = -1;
+            if (this.keyRight.isDown && !this.isAttacking && !this.isJumping && this.isHitStun <= 0) move = 1;
             if (move !== 0) this.player.x += move * 7;
         }
         
-        // Keyboard jump - with double jump support
+        // Keyboard jump
         if (!this.mobileJumpRequested && Phaser.Input.Keyboard.JustDown(this.keySpace) && this.roundActive && !this.isSuperFrozen) {
-            if (!this.isJumping && !this.isAttacking) {
-                // Ground jump
+            if (!this.isJumping && !this.isAttacking && this.isHitStun <= 0) {
                 this.isJumping = true;
                 this.playerYVelocity = JUMP_VELOCITY;
                 this.playerJumpsUsed = 1;
                 if (this.animations) this.animations.setPlayerAnimation('jump_regular', 300);
                 if (this.playerFloatTween) this.playerFloatTween.pause();
-            } else if (this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking) {
-                // Double jump - air jump
+            } else if (this.isJumping && this.playerJumpsUsed < 2 && this.playerDoubleJumpCooldown <= 0 && !this.isAttacking && this.isHitStun <= 0) {
                 this.playerYVelocity = DOUBLE_JUMP_VELOCITY;
                 this.playerJumpsUsed = 2;
                 
-                // Horizontal boost in direction of movement
                 let boostDirection = 0;
                 if (this.keyLeft.isDown) boostDirection = -1;
                 else if (this.keyRight.isDown) boostDirection = 1;
                 else {
-                    // Fall back to facing direction
                     const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
                     boostDirection = facing === 'right' ? 1 : -1;
                 }
@@ -1155,100 +1049,37 @@ class FightingGame extends Phaser.Scene {
             }
         }
         
-        // Player jump physics
-        if (this.isJumping) {
-            this.playerYVelocity += GRAVITY * (1/60);
-            this.player.y += this.playerYVelocity * (1/60);
-            
-            if (this.player.y >= GROUND_Y) {
-                this.player.y = GROUND_Y;
-                this.isJumping = false;
-                this.playerYVelocity = 0;
-                
-                // Reset jumps and set cooldown if double jump was used
-                if (this.playerJumpsUsed === 2) {
-                    this.playerDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
-                }
-                this.playerJumpsUsed = 0;
-                
-                if (this.animations) this.animations.setPlayerAnimation('idle', 100);
-                if (this.playerFloatTween) this.playerFloatTween.resume();
-            }
-        }
+        // Run physics with delta for frame-rate independence
+        this.updateGamePhysics(cappedDelta);
         
-        // CPU jump physics
-        if (this.cpuIsJumping) {
-            this.cpuYVelocity += GRAVITY * (1/60);
-            this.cpu.y += this.cpuYVelocity * (1/60);
-            
-            if (this.cpu.y >= GROUND_Y) {
-                this.cpu.y = GROUND_Y;
-                this.cpuIsJumping = false;
-                this.cpuYVelocity = 0;
-                if (this.cpuJumpsUsed === 2) {
-                    this.cpuDoubleJumpCooldown = DOUBLE_JUMP_COOLDOWN_MS;
-                }
-                this.cpuJumpsUsed = 0;
-                if (this.animations) this.animations.setCPUAnimation('idle', 100);
-                if (this.cpuFloatTween) this.cpuFloatTween.resume();
-            } else {
-                if (this.cpuFloatTween) this.cpuFloatTween.pause();
-            }
-        }
+        // CPU jump physics (handled in updateGamePhysics with delta)
         
-        // CPU launch physics - FIXED: Pause CPU float tween during launch
-        if (this.cpuLaunched) {
-            if (this.cpuFloatTween) this.cpuFloatTween.pause();
-            
-            this.cpu.y += this.cpuLaunchVelocity * (1/60);
-            this.cpuLaunchVelocity += GRAVITY * (1/60);
-            
-            if (this.cpu.y >= GROUND_Y) {
-                this.cpu.y = GROUND_Y;
-                this.cpuLaunched = false;
-                this.cpuLaunchVelocity = 0;
-                if (this.cpuFloatTween) this.cpuFloatTween.resume();
-            }
-        }
+        // CPU launch physics (handled in updateGamePhysics with delta)
         
-        // Boundaries
-        this.player.x = Math.min(Math.max(this.player.x, MIN_X), MAX_X - CHARACTER_WIDTH);
-        this.cpu.x = Math.min(Math.max(this.cpu.x, MIN_X + CHARACTER_WIDTH), MAX_X);
+        // Boundaries (handled in updateGamePhysics)
         
-        // Prevent overlap
-        if (Math.abs(this.player.x - this.cpu.x) < 90) {
-            if (this.player.x < this.cpu.x) {
-                this.player.x = this.cpu.x - 90;
-            } else {
-                this.cpu.x = this.player.x + 90;
-            }
-        }
+        // Facing direction - handled by resolveTextureKey in animations
         
-        // Facing direction - setFlipX is now handled by resolveTextureKey in animations
-        const playerFacing = getFacingDirection(this.player.x, this.cpu.x, 'player');
-        const cpuFacing = getFacingDirection(this.player.x, this.cpu.x, 'cpu');
-        // No setFlipX calls here - handled in animations.js
-        
-        // Attack inputs
-        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        // ===== FIXED: Removed broken attackState check =====
+        if (Phaser.Input.Keyboard.JustDown(this.keyA) && this.playerAttacks) {
             this.playerAttacks.lightAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyS) && this.playerAttacks) {
             this.playerAttacks.mediumAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyD) && this.playerAttacks) {
             this.playerAttacks.heavyAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyF) && this.playerAttacks) {
             this.playerAttacks.playerSpecialAttack();
         }
-        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100 && !this.playerAttacks.attackState?.active) {
+        if (Phaser.Input.Keyboard.JustDown(this.keyH) && this.playerAttacks && this.superMeter >= 100) {
             this.playerAttacks.superMove();
         }
         
-        // Blocking logic - combine keyboard and mobile
+        // Blocking logic
         const isBlockInputPressed = this.keyG.isDown || this.mobileBlockPressed;
-        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping;
+        this.isBlocking = isBlockInputPressed && !this.isAttacking && !this.isJumping && this.isHitStun <= 0;
         
         if (this.isBlocking) {
             this.playerAura.setAlpha(0.3);
@@ -1259,9 +1090,7 @@ class FightingGame extends Phaser.Scene {
             this.playerAura.setFillStyle(this.playerData.color);
         }
         
-        // Aura positions
-        this.playerAura.setPosition(this.player.x, this.player.y + UI.AURA_Y_OFFSET);
-        this.cpuAura.setPosition(this.cpu.x, this.cpu.y + UI.AURA_Y_OFFSET);
+        // Aura positions (handled in updateGamePhysics)
         
         // Debug mode
         if (Phaser.Input.Keyboard.JustDown(this.keyO)) {
@@ -1288,7 +1117,7 @@ class FightingGame extends Phaser.Scene {
             
             if (this.playerAttacks && this.playerAttacks.attackState) {
                 const facing = getFacingDirection(this.player.x, this.cpu.x, 'player');
-                const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y);
+                const attackHitbox = getAttackHitbox(this.player, this.playerAttacks.attackState.type, facing, this.player.x, this.player.y, this.playerAttacks.attackState.height);
                 if (attackHitbox) {
                     drawHitbox(this.debugGraphics, attackHitbox, 0xffaa00, true);
                     this.debugGraphics.fillStyle(0xffffff, 1);
