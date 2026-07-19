@@ -50,9 +50,8 @@ const AURA_HEIGHT = 180;
 const BASE_WIDTH = 1280;
 const BASE_HEIGHT = 720;
 
-// UI Positions (adjusted for better spacing)
+// UI Positions
 const UI = {
-    // Health Bars
     PLAYER_HEALTH_X: 200,
     PLAYER_HEALTH_Y: 45,
     PLAYER_HEALTH_BAR_WIDTH: 400,
@@ -65,7 +64,6 @@ const UI = {
     CPU_HEALTH_BAR_HEIGHT: 24,
     CPU_HEALTH_FILL_HEIGHT: 18,
     
-    // Name Plates
     PLAYER_NAME_X: 200,
     PLAYER_NAME_Y: 25,
     PLAYER_NAME_WIDTH: 140,
@@ -76,13 +74,11 @@ const UI = {
     CPU_NAME_WIDTH: 140,
     CPU_NAME_HEIGHT: 20,
     
-    // Health Text
     PLAYER_HEALTH_TEXT_X: 200,
     PLAYER_HEALTH_TEXT_Y: 65,
     CPU_HEALTH_TEXT_X: 1280,
     CPU_HEALTH_TEXT_Y: 65,
     
-    // Super Meters
     PLAYER_SUPER_X: 200,
     PLAYER_SUPER_Y: 85,
     PLAYER_SUPER_WIDTH: 360,
@@ -95,33 +91,27 @@ const UI = {
     CPU_SUPER_HEIGHT: 12,
     CPU_SUPER_FILL_HEIGHT: 8,
     
-    // Super Labels
     PLAYER_SUPER_LABEL_X: 200,
     PLAYER_SUPER_LABEL_Y: 78,
     CPU_SUPER_LABEL_X: 1280,
     CPU_SUPER_LABEL_Y: 78,
     
-    // Super Text
     PLAYER_SUPER_TEXT_X: 200,
     PLAYER_SUPER_TEXT_Y: 97,
     CPU_SUPER_TEXT_X: 1280,
     CPU_SUPER_TEXT_Y: 97,
     
-    // Timer – moved right and narrower
     TIMER_X: 680,
     TIMER_Y: 35,
     TIMER_WIDTH: 90,
     TIMER_HEIGHT: 36,
     
-    // VS Text
     VS_X: 640,
     VS_Y: 320,
     
-    // Combo Text
     COMBO_X: 640,
     COMBO_Y: 160,
     
-    // Aura offset
     AURA_Y_OFFSET: 10
 };
 
@@ -146,8 +136,8 @@ const difficultySettings = {
         comboChance: 0.3, 
         superUsageChance: 0.3, 
         retreatThreshold: 0.25, 
-        movementDelay: 0.6, 
-        reactionTime: 200, // Slower reaction (200ms)
+        movementDelay: 0.6,
+        reactionTime: 200, // 200ms reaction time
         name: 'easy' 
     },
     medium: { 
@@ -157,8 +147,8 @@ const difficultySettings = {
         comboChance: 0.5, 
         superUsageChance: 0.5, 
         retreatThreshold: 0.3, 
-        movementDelay: 0.8, 
-        reactionTime: 120, // Average reaction (120ms)
+        movementDelay: 0.8,
+        reactionTime: 120, // 120ms reaction time
         name: 'medium' 
     },
     hard: { 
@@ -168,8 +158,8 @@ const difficultySettings = {
         comboChance: 0.7, 
         superUsageChance: 0.8, 
         retreatThreshold: 0.35, 
-        movementDelay: 1.0, 
-        reactionTime: 50, // Fast reaction (50ms)
+        movementDelay: 1.0,
+        reactionTime: 50, // 50ms reaction time (very fast)
         name: 'hard' 
     }
 };
