@@ -32,9 +32,9 @@ const GRAVITY = 1200;
 const GROUND_Y = 460;
 
 // DOUBLE JUMP CONSTANTS
-const DOUBLE_JUMP_VELOCITY = -420; // slightly less than first jump
-const DOUBLE_JUMP_HORIZONTAL_BOOST = 14; // px per frame during the air-jump
-const DOUBLE_JUMP_COOLDOWN_MS = 2000; // cooldown before double-jump is available again after landing
+const DOUBLE_JUMP_VELOCITY = -420;
+const DOUBLE_JUMP_HORIZONTAL_BOOST = 14;
+const DOUBLE_JUMP_COOLDOWN_MS = 2000;
 
 // Movement bounds
 const MIN_X = 200;
@@ -137,7 +137,7 @@ const START_POSITIONS = {
 const FRAME_TIME_MS = 16.666;
 const frameToMs = (frames) => frames * FRAME_TIME_MS;
 
-// Difficulty settings
+// Difficulty settings with reaction times
 const difficultySettings = {
     easy: { 
         blockChance: 0.3, 
@@ -147,6 +147,7 @@ const difficultySettings = {
         superUsageChance: 0.3, 
         retreatThreshold: 0.25, 
         movementDelay: 0.6, 
+        reactionTime: 200, // Slower reaction (200ms)
         name: 'easy' 
     },
     medium: { 
@@ -157,6 +158,7 @@ const difficultySettings = {
         superUsageChance: 0.5, 
         retreatThreshold: 0.3, 
         movementDelay: 0.8, 
+        reactionTime: 120, // Average reaction (120ms)
         name: 'medium' 
     },
     hard: { 
@@ -167,6 +169,7 @@ const difficultySettings = {
         superUsageChance: 0.8, 
         retreatThreshold: 0.35, 
         movementDelay: 1.0, 
+        reactionTime: 50, // Fast reaction (50ms)
         name: 'hard' 
     }
 };
@@ -179,11 +182,9 @@ const arenaBackgrounds = {
     'MAGMA CORE': 'assets/background/magma-core.jpg',
     'WASTELAND JUNKYARD': 'assets/background/junkyard.jpg',
     'VOID CHAMBER': 'assets/background/void-chamber.jpg',
-    // MARVEL ARENAS
     'X-MANSION': 'assets/background/x-mansion.jpg',
-    'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg',
-    // ANIME ARENAS
     'JJK_HIGHSCHOOL': 'assets/background/jjk_highschool.jpg',
+    'AVENGERS_TOWER': 'assets/background/avengers_tower.jpg',
     'HIDDEN_LEAF_VILLAGE': 'assets/background/hidden_leaf_village.jpg',
     'VALLEY_OF_DEATH': 'assets/background/valley_of_death.jpg',
     'WALL_MARIA': 'assets/background/wall_maria.jpg'
