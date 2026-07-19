@@ -1,5 +1,6 @@
 /**
  * CPU - AI Decision Making & Attacks
+ * FIXED: Attack thresholds, blocking bias, reaction delay
  */
 
 class CPUAttacks {
@@ -11,6 +12,7 @@ class CPUAttacks {
         this.cpuData = scene.cpuData;
         this.moveTimer = 0;
         this.baseAttack = new BaseAttack(scene, scene.cpu, scene.player, animations, null, true);
+        this._blockDecisionTimer = null;
     }
     
     // FIXED: Use BaseAttack.execute() for consistent hit detection
@@ -72,10 +74,23 @@ class CPUAttacks {
         this.scene.tweens.add({ targets: this.scene.impactFlash, alpha: 0.8, duration: 150, yoyo: true });
         
         if (canHit) {
+            // ===== FIX: Super uses BaseAttack for consistent hit detection =====
             const isBlocked = this.scene.isBlocking;
             const finalDamage = isBlocked ? Math.floor(damage * 0.25) : damage;
             this.scene.playerHealth = Math.max(0, this.scene.playerHealth - finalDamage);
-            this.scene.applyHitEffect(this.scene.player, finalDamage, true);
+            
+            // Use applyHitEffect for consistent visuals
+            this.scene.applyHitEffect(this.scene.player, finalDamage, true, 'super');
+            
+            // Apply hitstun to player
+            if (!isBlocked) {
+                this.scene.isHitStun = 400; // Super hitstun
+                this.scene.isAttacking = false;
+                if (this.animations && this.animations.clearTargetTimer) {
+                    this.animations.clearTargetTimer(this.scene.player);
+                }
+            }
+            
             if (this.scene.ui) this.scene.ui.updateHealthBars();
             
             if (this.scene.playerHealth <= 0) this.scene.endGame('cpu');
@@ -197,23 +212,61 @@ class CPUAttacks {
             return;
         }
         
-        // Block decision
-        let blockChance = this.cpuSettings.blockChance;
-        if (this.cpuPersonality.defenseStyle === 'AGGRESSIVE_BLOCK') blockChance += 0.1;
-        if (this.cpuPersonality.defenseStyle === 'PASSIVE_BLOCK') blockChance -= 0.1;
-        scene.cpuBlockDecision = Math.random() < blockChance && distance < 120;
-        if (!scene.cpuAttacking) {
-            scene.cpuBlocking = scene.cpuBlockDecision;
-            scene.cpuBlockHeight = Math.random() < 0.5 ? 'mid' : 'low';
+        // ===== BUG FIX 2: BIASED BLOCKING =====
+        // ===== BUG FIX 3: REACTION DELAY =====
+        // Clear any pending block decision
+        if (this._blockDecisionTimer) {
+            this._blockDecisionTimer.remove();
+            this._blockDecisionTimer = null;
         }
         
+        // Add reaction delay based on difficulty
+        const reactionDelay = this.cpuSettings.reactionTime || 120; // Default 120ms
+        
+        this._blockDecisionTimer = scene.time.delayedCall(reactionDelay, () => {
+            this._blockDecisionTimer = null;
+            
+            if (!scene.roundActive || scene.cpuAttacking || scene.cpuHitStun > 0) return;
+            if (scene.isSuperFrozen) return;
+            
+            let blockChance = this.cpuSettings.blockChance;
+            if (this.cpuPersonality.defenseStyle === 'AGGRESSIVE_BLOCK') blockChance += 0.1;
+            if (this.cpuPersonality.defenseStyle === 'PASSIVE_BLOCK') blockChance -= 0.1;
+            
+            // Only block if player is actually attacking or close enough
+            const shouldBlock = Math.random() < blockChance && distance < 120;
+            
+            // ===== BUG FIX 2: 70/30 BIAS FOR MID BLOCK =====
+            // 70% chance to block mid (since most attacks are mid), 30% low
+            const blockHeight = Math.random() < 0.7 ? 'mid' : 'low';
+            
+            if (shouldBlock) {
+                scene.cpuBlocking = true;
+                scene.cpuBlockHeight = blockHeight;
+            } else {
+                scene.cpuBlocking = false;
+            }
+        });
+        
+        // ===== BUG FIX 1: PERSONALITY-BASED ATTACK THRESHOLD =====
         // Attack decision
         const attackRange = this.cpuPersonality.optimalRange + 30;
         const shouldAttack = !isLowHealth || distance < 80;
         
-        if (distance < attackRange && Math.random() < 0.5 && !scene.cpuAttacking && shouldAttack) {
+        // Personality-based attack threshold
+        let attackThreshold = 0.6; // Default 60% chance
+        const personality = this.cpuPersonality;
+        
+        if (personality.playStyle === 'AGGRESSIVE' || personality.playStyle === 'BULLDOZER') {
+            attackThreshold = 0.85; // 85% chance - very aggressive
+        } else if (personality.playStyle === 'DEFENSIVE' || personality.playStyle === 'COUNTER') {
+            attackThreshold = 0.4; // 40% chance - waits for openings
+        } else if (personality.playStyle === 'BALANCED') {
+            attackThreshold = 0.6; // 60% chance - balanced
+        }
+        
+        if (distance < attackRange && Math.random() < attackThreshold && !scene.cpuAttacking && shouldAttack) {
             const attackChoice = Math.random();
-            const personality = this.cpuPersonality;
             
             let specialChance;
             if (personality.type === 'ZONER') specialChance = 0.4;
