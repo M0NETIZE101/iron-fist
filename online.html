@@ -295,10 +295,12 @@
             height: auto !important;
         }
 
-        .flex.min-h-screen {
-            min-height: 100vh;
-            min-height: 100dvh;
-            height: auto !important;
+        .flex {
+            min-height: auto !important;
+        }
+
+        main.flex-1 {
+            min-height: 0 !important;
         }
     </style>
 </head>
@@ -313,16 +315,16 @@
 <div class="crt-overlay"></div>
 <div class="fixed inset-0 radial-glow pointer-events-none"></div>
 
-<!-- TopNavBar -->
-<nav class="sticky top-0 z-50 flex justify-between items-center px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
+<!-- Top Navigation Bar - Standardized -->
+<nav class="sticky top-0 z-50 flex justify-between items-center px-margin-mobile md:px-margin-desktop py-stack-md w-full bg-surface-container-low/80 backdrop-blur-xl border-b-2 border-primary/30 shadow-[0_0_15px_rgba(255,82,92,0.4)]">
 <div class="font-display-lg text-display-lg uppercase tracking-tighter text-primary italic flicker cursor-pointer" onclick="window.location.href='index.html'">
             CHIYA WARRIORS
         </div>
-<div class="hidden md:flex gap-stack-lg items-center font-label-bold text-label-bold">
+<div class="hidden md:flex gap-gutter items-center font-label-bold text-label-bold">
 <a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="characterselect.html">ROSTER</a>
 <a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="arena.html">ARENAS</a>
 <a class="text-on-surface-variant hover:text-tertiary hover:skew-x-[-12deg] hover:bg-primary/10 transition-all" href="#">MECHANICS</a>
-<a class="text-primary border-b-4 border-primary pb-1 hover:skew-x-[-12deg] transition-all" href="#">MULTIPLAYER</a>
+<a class="text-primary border-b-4 border-primary pb-1 hover:skew-x-[-12deg] transition-all" href="fighters.html">FIGHTERS</a>
 </div>
 <div class="flex items-center gap-stack-md">
 <button class="material-symbols-outlined text-primary hover:scale-110 transition-transform">settings</button>
@@ -331,7 +333,8 @@
 </div>
 </nav>
 
-<div class="flex min-h-screen">
+<!-- Main Content - Removed min-h-screen -->
+<div class="flex">
 <!-- SideNavBar -->
 <aside class="fixed left-0 top-0 h-full z-40 flex flex-col pt-24 h-screen w-64 bg-surface-container-highest/60 backdrop-blur-2xl border-r border-outline-variant shadow-2xl transition-transform duration-200 ease-in-out hidden lg:flex">
 <div class="px-6 mb-8">
@@ -364,8 +367,8 @@
 </div>
 </aside>
 
-<!-- Main Content Area -->
-<main class="flex-1 lg:ml-64 p-margin-mobile md:p-margin-desktop relative min-h-screen">
+<!-- Main Content Area - Removed min-h-screen -->
+<main class="flex-1 lg:ml-64 p-margin-mobile md:p-margin-desktop relative">
 <div class="absolute inset-0 z-0 opacity-20 pointer-events-none grayscale">
 <div class="w-full h-full" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDWH9tPKzXX8kuwZmtn3OZrslN1p3j_-6E6Rl5deoN5_QPGsYR3URbpSpJLdoGQyDMDrfJJ0iXCaY2ikHg4M5MB9LvYa82cg-ttGccQJfZVOentzvI_45aBoF0aOrYE4H4Rdh4ut1yYjMRFYt6bkacYk71TXMwJJ7xCCf3vjk2-fA5rd8YXPWWfsa_iRy8jBOGooi6omziQppg6d6BKLzM5-59Mb8yx-4sYkUOb2252-k1IdGFdNb31b0VfcbODLx3M_I5OpmFktc4')"></div>
 </div>
@@ -495,8 +498,8 @@
 </main>
 </div>
 
-<!-- Global Footer -->
-<footer class="w-full py-stack-lg px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
+<!-- Footer - Standardized -->
+<footer class="w-full py-stack-lg px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row justify-between items-center gap-stack-md bg-surface-container-lowest border-t-2 border-primary/20 bg-[linear-gradient(transparent_0%,rgba(255,82,92,0.05)_100%)] relative z-50">
 <div class="font-headline-lg text-headline-lg text-primary tracking-tighter italic">CHIYA WARRIORS</div>
 <div class="flex gap-8 font-label-sm text-label-sm tracking-widest text-on-surface-variant">
 <a class="hover:text-tertiary transition-colors" href="#">LEGAL</a>
@@ -504,7 +507,7 @@
 <a class="hover:text-tertiary transition-colors" href="#">SUPPORT</a>
 <a class="hover:text-tertiary transition-colors" href="#">API</a>
 </div>
-<div class="font-label-sm text-label-sm text-on-surface-variant/40">© 2025 CHIYA WARRIORS. ALL RIGHTS RESERVED.</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant/40">© 2026 MINDS OF INTELLECT [MOI]. ALL RIGHTS RESERVED.</div>
 </footer>
 
 <script>
